@@ -11,7 +11,18 @@ import type { ShellFooterTab } from './ShellFooter'
 import type { ShellPageHeaderButtonConfig } from './ShellPageHeader'
 import type { LeftSidebarSection, LeftSidebarVariant } from './LeftSidebar'
 import type { RightSidebarSection, RightSidebarVariant } from './RightSidebar'
+import type { FloatingNavPreset } from './FloatingNav'
 import './ShellLayout.css'
+
+function resolveFloatingNavPreset(
+  explicit: FloatingNavPreset | undefined,
+): FloatingNavPreset {
+  if (explicit != null) return explicit
+  return typeof window !== 'undefined' &&
+    window.__COSTPOINT_COMMAND_CENTER_NAV__ === true
+    ? 'command-center'
+    : 'default'
+}
 
 export interface ShellLayoutProps {
   productName?: string
@@ -24,6 +35,8 @@ export interface ShellLayoutProps {
   // CP-specific props
   showFloatingNav?: boolean
   floatingNavVariant?: 'full' | 'compact'
+  /** When unset, uses `window.__COSTPOINT_COMMAND_CENTER_NAV__` from `index-cc.html`. */
+  floatingNavPreset?: FloatingNavPreset
   showExecute?: boolean
   saveDisabled?: boolean
   leftSidebarVariant?: LeftSidebarVariant
@@ -65,6 +78,7 @@ export function ShellLayout({
   companies,
   showFloatingNav,
   floatingNavVariant,
+  floatingNavPreset,
   showExecute,
   saveDisabled,
   leftSidebarVariant,
@@ -92,6 +106,7 @@ export function ShellLayout({
   const isCPVariant = showFloatingNav === true
   const effectiveHasFooter = showFooter
   const effectiveShowFloatingNav = showFloatingNav ?? false
+  const effectiveFloatingNavPreset = resolveFloatingNavPreset(floatingNavPreset)
 
   return (
     <div
@@ -120,6 +135,7 @@ export function ShellLayout({
           <div className="shell-layout__floating-nav-wrap">
             <FloatingNav
               variant={floatingNavVariant ?? 'full'}
+              preset={effectiveFloatingNavPreset}
               showExecute={showExecute}
               saveDisabled={saveDisabled}
             />

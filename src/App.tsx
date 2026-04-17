@@ -7,7 +7,7 @@ import { ComponentGalleryPage } from './pages/ComponentGalleryPage'
 import { ComponentDemoPage } from './pages/ComponentDemoPage'
 
 /** Default product theme for the designer preview (change via document.documentElement.classList if needed). */
-const DEFAULT_THEME = 'theme-ppm'
+const DEFAULT_THEME = 'theme-cp'
 
 /**
  * Per-theme ShellLayout prop defaults.
@@ -47,7 +47,7 @@ const THEME_SHELL_PROPS: Record<string, Partial<ShellLayoutProps>> = {
 }
 
 function HomeShell() {
-  const themeProps = THEME_SHELL_PROPS[DEFAULT_THEME] ?? THEME_SHELL_PROPS['theme-ppm']
+  const themeProps = THEME_SHELL_PROPS[DEFAULT_THEME] ?? THEME_SHELL_PROPS['theme-cp']
   return (
     <ShellLayout {...themeProps} pageHeaderTitle="">
       <Card primary elevated>

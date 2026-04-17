@@ -4,6 +4,14 @@ import react from '@vitejs/plugin-react'
 
 export default defineConfig({
   plugins: [react()],
+  build: {
+    rollupOptions: {
+      input: {
+        main: path.resolve(__dirname, 'index.html'),
+        'index-cc': path.resolve(__dirname, 'index-cc.html'),
+      },
+    },
+  },
   server: {
     port: 5175,
   },

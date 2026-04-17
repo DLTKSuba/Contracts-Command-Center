@@ -1,5 +1,10 @@
 /// <reference types="vite/client" />
 
+interface Window {
+  /** Set by `index-cc.html` before the app bundle loads; enables Command Center floating nav. */
+  __COSTPOINT_COMMAND_CENTER_NAV__?: boolean
+}
+
 declare module '*.css' {
   const src: string
   export default src
