@@ -1,8 +1,10 @@
 import { useEffect } from 'react'
-import { Routes, Route, Link } from 'react-router-dom'
+import { Routes, Route } from 'react-router-dom'
 import { ShellLayout } from './components/harmony/ShellLayout'
 import type { ShellLayoutProps } from './components/harmony/ShellLayout'
 import { Card } from './components/harmony/Card'
+import { TabStrip } from './components/harmony/TabStrip'
+import { Table } from './components/harmony/Table'
 import { ComponentGalleryPage } from './pages/ComponentGalleryPage'
 import { ComponentDemoPage } from './pages/ComponentDemoPage'
 
@@ -46,24 +48,71 @@ const THEME_SHELL_PROPS: Record<string, Partial<ShellLayoutProps>> = {
   },
 }
 
+const HOME_MAIN_TABS = [
+  { id: 'requisitions', label: 'Requisitions', active: true },
+  { id: 'purchase-orders', label: 'Purchase Orders' },
+]
+
+const HOME_TABLE_HEADER = (
+  <thead>
+    <tr>
+      <th className="text-left" scope="col">
+        Requisition ID
+      </th>
+      <th className="text-left" scope="col">
+        Description
+      </th>
+      <th className="text-left" scope="col">
+        Status
+      </th>
+      <th className="text-right" scope="col">
+        Amount
+      </th>
+    </tr>
+  </thead>
+)
+
+const HOME_TABLE_BODY = (
+  <tbody>
+    <tr>
+      <td>REQ-1001</td>
+      <td>Office supplies</td>
+      <td>Pending approval</td>
+      <td className="text-right">$1,250.00</td>
+    </tr>
+    <tr>
+      <td>REQ-1002</td>
+      <td>IT hardware refresh</td>
+      <td>Approved</td>
+      <td className="text-right">$8,420.50</td>
+    </tr>
+    <tr>
+      <td>REQ-1003</td>
+      <td>Training services</td>
+      <td>Draft</td>
+      <td className="text-right">$2,100.00</td>
+    </tr>
+  </tbody>
+)
+
 function HomeShell() {
   const themeProps = THEME_SHELL_PROPS[DEFAULT_THEME] ?? THEME_SHELL_PROPS['theme-cp']
   return (
     <ShellLayout {...themeProps} pageHeaderTitle="">
       <Card primary elevated>
         <div className="card__body">
-          <h2 className="text-xl font-semibold mb-2">Page Content Area</h2>
-          <p className="text-secondary mb-4">
-            This is where your application content lives. The shell provides the
-            structure, and you provide the content.
-          </p>
-          <Link
-            to="/components"
-            className="text-primary"
-            style={{ textDecoration: 'underline' }}
-          >
-            Browse components
-          </Link>
+          <TabStrip
+            tabs={HOME_MAIN_TABS}
+            overflowMode="none"
+            className="mb-4"
+          />
+          <div style={{ overflowX: 'auto' }}>
+            <Table
+              headerVariant="gray"
+              header={HOME_TABLE_HEADER}
+              body={HOME_TABLE_BODY}
+            />
+          </div>
         </div>
       </Card>
     </ShellLayout>
