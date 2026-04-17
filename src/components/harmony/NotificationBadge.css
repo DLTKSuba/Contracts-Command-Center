@@ -1,0 +1,111 @@
+/* NOTIFICATION BADGE (Harmony Design System) */
+.notification-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-sans);
+  font-weight: var(--font-medium);
+  font-size: 10px;
+  line-height: 0;
+  color: var(--text-inverse, #ffffff);
+  border-radius: var(--radius-full);
+  white-space: nowrap;
+}
+
+.notification-badge--dot {
+  aspect-ratio: 1 / 1;
+  border-radius: 50%;
+}
+
+.notification-badge--number,
+.notification-badge--overflow {
+  min-height: 15px;
+}
+
+.notification-badge--sm.notification-badge--dot {
+  width: var(--badge-dot-size-sm);
+  height: var(--badge-dot-size-sm);
+}
+
+.notification-badge--sm.notification-badge--dot.notification-badge--border {
+  width: var(--badge-dot-size-md);
+  height: var(--badge-dot-size-md);
+  border: var(--border-width-standard) solid var(--text-inverse, #ffffff);
+  box-sizing: border-box;
+}
+
+.notification-badge--sm.notification-badge--number,
+.notification-badge--sm.notification-badge--overflow {
+  min-width: var(--badge-dot-size-lg);
+  padding: 0 4px;
+}
+
+.notification-badge--sm.notification-badge--number.notification-badge--border,
+.notification-badge--sm.notification-badge--overflow.notification-badge--border {
+  min-height: var(--badge-height-sm);
+  min-width: var(--badge-min-width-sm);
+  padding: var(--space-1) var(--space-1-5);
+  border: var(--border-width-standard) solid var(--text-inverse, #ffffff);
+  box-sizing: border-box;
+}
+
+.notification-badge--md.notification-badge--dot {
+  width: var(--badge-dot-size-sm);
+  height: var(--badge-dot-size-sm);
+}
+
+.notification-badge--md.notification-badge--dot.notification-badge--border {
+  width: var(--badge-dot-size-md);
+  height: var(--badge-dot-size-md);
+  border: var(--border-width-standard) solid var(--text-inverse, #ffffff);
+  box-sizing: border-box;
+}
+
+.notification-badge--md.notification-badge--number,
+.notification-badge--md.notification-badge--overflow {
+  min-width: var(--badge-dot-size-lg);
+  padding: 0 4px;
+}
+
+.notification-badge--md.notification-badge--number.notification-badge--border,
+.notification-badge--md.notification-badge--overflow.notification-badge--border {
+  min-height: var(--badge-height-md);
+  min-width: var(--badge-min-width-md);
+  padding: var(--space-1) var(--space-1-5);
+  border: var(--border-width-standard) solid var(--text-inverse, #ffffff);
+  box-sizing: border-box;
+}
+
+.notification-badge--lg.notification-badge--dot {
+  width: var(--badge-dot-size-sm);
+  height: var(--badge-dot-size-sm);
+}
+
+.notification-badge--lg.notification-badge--dot.notification-badge--border {
+  width: var(--badge-dot-size-md);
+  height: var(--badge-dot-size-md);
+  border: var(--border-width-standard) solid var(--text-inverse, #ffffff);
+  box-sizing: border-box;
+}
+
+.notification-badge--lg.notification-badge--number,
+.notification-badge--lg.notification-badge--overflow {
+  padding: 0 5px;
+}
+
+.notification-badge--lg.notification-badge--number.notification-badge--border,
+.notification-badge--lg.notification-badge--overflow.notification-badge--border {
+  min-height: var(--badge-height-lg);
+  min-width: var(--badge-min-width-lg);
+  padding: var(--space-1) var(--space-2);
+  border: var(--border-width-standard) solid var(--text-inverse, #ffffff);
+  box-sizing: border-box;
+}
+
+.notification-badge--error {
+  background-color: var(--notification-badge-error);
+}
+
+.notification-badge--primary {
+  background-color: var(--theme-primary);
+}

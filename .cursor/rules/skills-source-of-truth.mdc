@@ -1,0 +1,10 @@
+---
+description: Where to build and update Agent Skills in this repo
+globs: ["**/.cursor/skills/**", "**/SKILL.md"]
+---
+
+# Skills: single source of truth
+
+- **All Agent Skills for this project live in `.cursor/skills/`.** There are no other skill folders in the repo.
+- When adding, editing, or updating a skill (SKILL.md or any file under a skill folder), make changes **only** in `.cursor/skills/<skill-name>/`.
+- Do not create or edit skills in any other path (e.g. no `skills/` folders under other project directories).

@@ -1,0 +1,198 @@
+/* FLOATING NAV (CP - Harmony Design System) */
+.floating-nav {
+  background-color: var(--nav-bg);
+  border: 1px solid var(--border-color);
+  border-top: none;
+  border-radius: 0 0 var(--radius-16) var(--radius-16);
+  box-shadow: var(--shadow-md);
+  padding: var(--space-2) var(--space-2) var(--space-3) var(--space-2);
+  display: inline-flex;
+  flex-direction: column;
+  gap: var(--space-2-5);
+  align-items: flex-start;
+}
+
+/* CP theme: floating nav at top of screen — restore top border */
+html.theme-cp .floating-nav {
+  border-top: 1px solid var(--border-color);
+}
+
+.floating-nav__toolbar {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  width: 100%;
+}
+
+.floating-nav__buttons {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.floating-nav__btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-1);
+  padding: var(--space-2);
+  max-height: var(--space-8);
+  font-family: var(--font-sans);
+  font-size: var(--text-xs);
+  font-weight: var(--font-normal);
+  line-height: var(--space-4);
+  border-radius: var(--radius-08);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  border: 1px solid transparent;
+  background-color: transparent;
+}
+
+.floating-nav__btn-text {
+  text-align: center;
+}
+
+.floating-nav__btn-icon {
+  font-size: 16px;
+}
+
+.floating-nav__btn-chevron {
+  font-size: 16px;
+  margin-left: -2px;
+}
+
+.floating-nav__btn--secondary {
+  color: var(--floating-nav-btn-secondary);
+  border-color: var(--floating-nav-btn-secondary);
+  background-color: transparent;
+}
+
+.floating-nav__btn--secondary:hover {
+  background-color: var(--floating-nav-btn-secondary-hover-bg);
+}
+
+.floating-nav__btn--secondary:active {
+  background-color: var(--floating-nav-btn-secondary-active-bg);
+}
+
+.floating-nav__btn--primary {
+  color: var(--floating-nav-btn-primary-fg);
+  background-color: var(--floating-nav-btn-primary);
+  border-color: var(--floating-nav-btn-primary);
+}
+
+.floating-nav__btn--primary:hover {
+  background-color: var(--floating-nav-btn-primary-hover);
+  border-color: var(--floating-nav-btn-primary-hover);
+}
+
+.floating-nav__btn--primary:active {
+  background-color: var(--floating-nav-btn-primary-active);
+  border-color: var(--floating-nav-btn-primary-active);
+}
+
+.floating-nav__btn--primary .floating-nav__btn-chevron {
+  color: var(--floating-nav-btn-primary-fg);
+}
+
+.floating-nav__btn--disabled {
+  color: var(--theme-btn-primary-disabled-fg);
+  background-color: var(--theme-btn-primary-disabled-bg);
+  border-color: var(--theme-btn-primary-disabled-bg);
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+.floating-nav__btn--disabled .floating-nav__btn-chevron {
+  color: var(--theme-btn-primary-disabled-fg);
+}
+
+.floating-nav__btn--icon-dropdown {
+  padding: var(--space-2);
+}
+
+.floating-nav__btn--icon-dropdown .floating-nav__btn-icon {
+  color: inherit;
+}
+
+.floating-nav__divider {
+  width: 2px;
+  height: 33px;
+  background-color: var(--border-color);
+  position: relative;
+  flex-shrink: 0;
+}
+
+.floating-nav__divider::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background-color: var(--border-light);
+}
+
+.floating-nav__pin {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  color: var(--text-secondary);
+  transition: color var(--transition-fast);
+}
+
+.floating-nav__pin:hover {
+  color: var(--text-primary);
+}
+
+.floating-nav__pin-icon {
+  font-size: 18px;
+  transform: rotate(-45deg);
+}
+
+html.theme-cp.dark .floating-nav {
+  background-color: var(--floating-nav-bg-dark);
+  border-color: var(--floating-nav-border-dark);
+}
+
+html.theme-cp.dark .floating-nav__btn--secondary {
+  color: var(--floating-nav-btn-secondary-dark);
+  border-color: var(--floating-nav-btn-secondary-dark);
+}
+
+html.theme-cp.dark .floating-nav__btn--secondary:hover {
+  background-color: var(--floating-nav-btn-secondary-hover-bg-dark);
+}
+
+html.theme-cp.dark .floating-nav__btn--primary {
+  background-color: var(--floating-nav-btn-primary);
+  border-color: var(--floating-nav-btn-primary);
+}
+
+html.theme-cp.dark .floating-nav__btn--disabled {
+  color: var(--floating-nav-btn-disabled-fg-dark);
+  background-color: var(--floating-nav-btn-disabled-bg-dark);
+  border-color: var(--floating-nav-btn-disabled-bg-dark);
+}
+
+html.theme-cp.dark .floating-nav__divider {
+  background-color: var(--floating-nav-divider-dark);
+}
+
+html.theme-cp.dark .floating-nav__divider::before {
+  background-color: var(--floating-nav-divider-accent-dark);
+}
+
+html.theme-cp.dark .floating-nav__pin {
+  color: var(--floating-nav-pin-dark);
+}
+
+html.theme-cp.dark .floating-nav__pin:hover {
+  color: var(--floating-nav-pin-hover-dark);
+}

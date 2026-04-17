@@ -1,0 +1,210 @@
+/* ShellLayout scoped styles (ported from Harmony source) */
+.shell-layout {
+  position: relative;
+  width: 100%;
+  height: 100vh;
+  overflow: hidden;
+}
+
+.shell-layout__container {
+  position: relative;
+  height: 100vh;
+  display: grid;
+  grid-template-columns: 1fr;
+  overflow: hidden;
+}
+
+.shell-layout__container[data-has-footer="true"] {
+  grid-template-rows: var(--shell-header-height) 1fr calc(var(--shell-footer-height-default) + 4px);
+}
+
+.shell-layout__container[data-has-footer="false"] {
+  grid-template-rows: var(--shell-header-height) 1fr;
+}
+
+.shell-layout__header {
+  grid-row: 1;
+  grid-column: 1;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: var(--z-50);
+}
+
+.shell-layout__floating-nav-wrap {
+  position: fixed;
+  top: var(--shell-header-height);
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: var(--z-40);
+  pointer-events: none;
+}
+
+.shell-layout__floating-nav-wrap > * {
+  pointer-events: auto;
+}
+
+/* CP theme: floating nav anchored to very top of screen */
+.shell-layout[data-cp-variant="true"] .shell-layout__floating-nav-wrap {
+  top: 0;
+  z-index: var(--z-50); /* Matches header; renders above it due to DOM order */
+}
+
+.shell-layout__left-sidebar {
+  position: fixed;
+  left: 0;
+  z-index: var(--z-45);
+  isolation: isolate;
+}
+
+.shell-layout__right-sidebar {
+  position: fixed;
+  right: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: var(--z-45);
+  isolation: isolate;
+}
+
+/* Footer-aware sidebar positioning (from Harmony components.css – keeps sidebars above footer) */
+
+/* CP variant: gap from header */
+.shell-layout[data-cp-variant="true"] .shell-layout__left-sidebar {
+  top: calc(var(--shell-header-height) + 6px + var(--space-2));
+  transform: none;
+}
+
+/* CP left sidebar: max-height footer-aware */
+.shell-layout[data-cp-variant="true"] .shell-layout__container[data-has-footer="true"] .shell-layout__left-sidebar {
+  max-height: calc(100vh - var(--shell-header-height) - 6px - var(--space-2) - var(--shell-footer-height-default) - calc(var(--space-2-5) / 2));
+}
+.shell-layout[data-cp-variant="true"] .shell-layout__container[data-has-footer="false"] .shell-layout__left-sidebar {
+  max-height: calc(100vh - var(--shell-header-height) - 6px - var(--space-2) - calc(var(--space-2-5) / 2));
+}
+.shell-layout[data-cp-variant="true"] .shell-layout__container[data-has-footer="true"][data-footer-variant="compact"] .shell-layout__left-sidebar {
+  max-height: calc(100vh - var(--shell-header-height) - 6px - var(--space-2) - var(--shell-footer-height-compact) - calc(var(--space-2-5) / 2));
+}
+
+/* Non-CP (VP/PPM/Maconomy): 20px gap from header */
+.shell-layout[data-cp-variant="false"] .shell-layout__left-sidebar {
+  top: calc(var(--shell-header-height) + var(--space-5));
+  transform: none;
+}
+
+/* Non-CP left sidebar: max-height footer-aware */
+.shell-layout[data-cp-variant="false"] .shell-layout__container[data-has-footer="true"] .shell-layout__left-sidebar {
+  max-height: calc(100vh - var(--shell-header-height) - var(--space-5) - var(--shell-footer-height-default) - calc(var(--space-2-5) / 2));
+}
+.shell-layout[data-cp-variant="false"] .shell-layout__container[data-has-footer="false"] .shell-layout__left-sidebar {
+  max-height: calc(100vh - var(--shell-header-height) - var(--space-5) - calc(var(--space-2-5) / 2));
+}
+.shell-layout[data-cp-variant="false"] .shell-layout__container[data-has-footer="true"][data-footer-variant="compact"] .shell-layout__left-sidebar {
+  max-height: calc(100vh - var(--shell-header-height) - var(--space-5) - var(--shell-footer-height-compact) - calc(var(--space-2-5) / 2));
+}
+
+/* Right sidebar: max-height footer-aware (vertical centering unchanged) */
+.shell-layout__container[data-has-footer="true"] .shell-layout__right-sidebar {
+  max-height: min(calc(100vh - 2 * var(--shell-header-height) - var(--space-2-5)), calc(100vh - 2 * var(--shell-footer-height-default) - var(--space-2-5)));
+}
+.shell-layout__container[data-has-footer="false"] .shell-layout__right-sidebar {
+  max-height: calc(100vh - 2 * var(--shell-header-height) - var(--space-2-5));
+}
+.shell-layout__container[data-has-footer="true"][data-footer-variant="compact"] .shell-layout__right-sidebar {
+  max-height: min(calc(100vh - 2 * var(--shell-header-height) - var(--space-2-5)), calc(100vh - 2 * var(--shell-footer-height-compact) - var(--space-2-5)));
+}
+
+.shell-layout__main {
+  grid-row: 2;
+  grid-column: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  align-self: start;
+}
+
+.shell-layout__container[data-has-floating-nav="true"] .shell-layout__main {
+  padding: var(--shell-layout-padding-top) calc(var(--shell-layout-padding-side-default) + var(--space-5)) var(--space-6) calc(var(--shell-layout-padding-side-default) + var(--space-5));
+}
+
+/* CP theme: floating nav is in header space, so no extra top padding needed */
+.shell-layout[data-cp-variant="true"] .shell-layout__container[data-has-floating-nav="true"] .shell-layout__main {
+  padding-top: var(--space-5);
+}
+
+.shell-layout__container[data-has-floating-nav="false"] .shell-layout__main {
+  padding-top: var(--space-5);
+  padding-right: var(--space-6);
+  padding-bottom: var(--space-6);
+  padding-left: calc(var(--shell-layout-padding-side-default) + var(--space-5));
+}
+
+.shell-layout__container[data-has-right-sidebar="true"] .shell-layout__main {
+  padding-right: calc(var(--shell-layout-padding-side-default) + var(--space-5));
+}
+
+.shell-layout__footer {
+  grid-row: 3;
+  grid-column: 1;
+  z-index: var(--z-40);
+  height: 100%;
+  background-color: var(--shell-footer-bg);
+}
+
+.shell-layout__container[data-has-footer="false"] .shell-layout__footer {
+  display: none !important;
+}
+
+.shell-layout__container[data-has-floating-nav="false"] .shell-layout__floating-nav-wrap {
+  display: none;
+}
+
+/* Full-page demo: shell fills the flex area instead of 100vh so footer stays docked */
+.full-page-demo-shell-wrap .shell-layout {
+  height: 100%;
+}
+
+.full-page-demo-shell-wrap .shell-layout__container {
+  height: 100%;
+}
+
+@media (max-width: var(--breakpoint-md)) {
+  .shell-layout__left-sidebar,
+  .shell-layout__right-sidebar {
+    display: none;
+  }
+
+  .shell-layout__container[data-has-floating-nav="true"] .shell-layout__main {
+    padding: var(--shell-layout-padding-top) var(--shell-layout-padding-side-mobile) var(--space-6) var(--shell-layout-padding-side-mobile);
+  }
+
+  /* CP theme: floating nav in header space, reduce top padding */
+  .shell-layout[data-cp-variant="true"] .shell-layout__container[data-has-floating-nav="true"] .shell-layout__main {
+    padding-top: var(--space-5);
+  }
+
+  .shell-layout__container[data-has-floating-nav="false"] .shell-layout__main {
+    padding: var(--space-5) var(--shell-layout-padding-side-mobile) var(--space-6) var(--shell-layout-padding-side-mobile);
+  }
+}
+
+@media (max-width: var(--breakpoint-lg)) {
+  .shell-layout__container[data-has-floating-nav="true"] .shell-layout__main {
+    padding: var(--shell-layout-padding-top) calc(var(--shell-layout-padding-side-tablet) + var(--space-5)) var(--space-6) calc(var(--shell-layout-padding-side-tablet) + var(--space-5));
+  }
+
+  /* CP theme: floating nav in header space, reduce top padding */
+  .shell-layout[data-cp-variant="true"] .shell-layout__container[data-has-floating-nav="true"] .shell-layout__main {
+    padding-top: var(--space-5);
+  }
+
+  .shell-layout__container[data-has-floating-nav="false"] .shell-layout__main {
+    padding: var(--space-5) var(--space-6) var(--space-6) calc(var(--shell-layout-padding-side-tablet) + var(--space-5));
+  }
+
+  .shell-layout__container[data-has-right-sidebar="true"] .shell-layout__main {
+    padding-right: calc(var(--shell-layout-padding-side-tablet) + var(--space-5));
+  }
+}

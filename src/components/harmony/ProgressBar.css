@@ -1,0 +1,41 @@
+/* PROGRESS BAR (Harmony Design System) */
+.progress {
+  width: 100%;
+  height: var(--space-2);
+  background-color: var(--border-color);
+  border-radius: var(--radius-full);
+  overflow: hidden;
+}
+
+.progress__bar {
+  height: 100%;
+  background-color: var(--theme-primary);
+  border-radius: var(--radius-full);
+  transition: width var(--transition-slow);
+}
+
+.progress--sm {
+  height: var(--space-1);
+}
+
+.progress--lg {
+  height: var(--space-3);
+}
+
+.progress--success .progress__bar {
+  background-color: var(--color-success);
+}
+
+.progress--warning .progress__bar {
+  background-color: var(--color-warning);
+}
+
+.progress--error .progress__bar {
+  background-color: var(--color-error);
+}
+
+@media (max-width: var(--breakpoint-md)) {
+  .progress {
+    width: 100%;
+  }
+}

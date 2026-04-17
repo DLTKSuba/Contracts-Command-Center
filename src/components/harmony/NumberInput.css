@@ -1,0 +1,107 @@
+/* NUMBER INPUT (Harmony Design System) */
+.number-input {
+  display: inline-flex;
+  align-items: stretch;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  transition: all var(--transition-fast);
+}
+
+.number-input__btn {
+  width: var(--space-10);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: var(--elevated-bg);
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.number-input__btn:hover {
+  background-color: var(--hover-bg);
+  color: var(--text-primary);
+}
+
+.number-input__btn:disabled {
+  color: var(--text-muted);
+  cursor: not-allowed;
+}
+
+.number-input__input {
+  width: 60px;
+  height: var(--space-10);
+  text-align: center;
+  font-family: var(--font-sans);
+  font-size: var(--text-base);
+  color: var(--text-primary);
+  background-color: var(--input-bg);
+  border: none;
+  border-left: 1px solid var(--border-color);
+  border-right: 1px solid var(--border-color);
+}
+
+.number-input__input:focus {
+  outline: none;
+}
+
+.number-input:has(.number-input__input:focus) {
+  border-color: var(--theme-primary);
+  box-shadow: var(--focus-ring-primary);
+}
+
+.number-input-form-wrapper {
+  display: flex;
+  flex-direction: column;
+}
+
+/* Prevent the control from stretching to full width when wrapper is in a full-width container (e.g. demo layout) */
+.number-input-form-wrapper .number-input {
+  align-self: flex-start;
+}
+
+.number-input-form-wrapper--inline {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: var(--space-1);
+}
+
+.number-input-form-wrapper--stacked {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1-5);
+}
+
+.number-input-form-wrapper__label {
+  margin-bottom: 0;
+  white-space: nowrap;
+}
+
+html.theme-cp .number-input {
+  border-radius: var(--radius-04);
+}
+
+@media (max-width: var(--breakpoint-md)) {
+  .number-input {
+    width: 100%;
+  }
+
+  .number-input__btn {
+    min-width: 44px;
+    min-height: 44px;
+  }
+
+  .number-input__input {
+    width: 60px;
+    min-height: 44px;
+    font-size: 16px;
+  }
+
+  .number-input-form-wrapper--inline {
+    flex-direction: column;
+    align-items: stretch;
+    gap: var(--space-2);
+  }
+}

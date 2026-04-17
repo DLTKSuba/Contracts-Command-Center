@@ -1,0 +1,495 @@
+/* Base Stepper Container - NO BORDER */
+/* More specific selector to ensure Stepper (progress indicator) doesn't get NumberInput's border */
+[data-stepper].stepper,
+.stepper[data-stepper] {
+  display: flex;
+  width: 100%;
+  font-family: var(--font-sans);
+  border: none !important;
+}
+
+/* Horizontal Stepper (Default) */
+.stepper--horizontal {
+  flex-direction: row;
+  align-items: flex-start;
+}
+
+/* Vertical Stepper */
+.stepper--vertical {
+  flex-direction: column;
+  align-items: stretch;
+}
+
+/* Step Container - Base - NO BORDER */
+.step {
+  display: flex;
+  position: relative;
+  flex-shrink: 0;
+  border: none !important;
+  outline: none;
+  z-index: 0;
+}
+
+/* Horizontal Step Layout - Alternative Label (labels below indicators) */
+.stepper--horizontal .step {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  flex: 1 1 0;
+  min-width: 0;
+  position: relative;
+}
+
+.stepper--horizontal .step:first-child {
+  padding-left: 0;
+}
+
+.stepper--horizontal .step:last-child {
+  padding-right: 0;
+}
+
+/* Vertical Step Layout - Inline Label */
+.stepper--vertical .step {
+  display: grid;
+  grid-template-columns: 40px 1fr;
+  grid-template-rows: auto;
+  align-items: center;
+  width: 100%;
+  padding-bottom: var(--space-4);
+  position: relative;
+  gap: 0 var(--space-3);
+  border: none !important;
+}
+
+.stepper--vertical .step:last-child {
+  padding-bottom: 0;
+}
+
+/* Vertical: Indicator in first column */
+.stepper--vertical .step__indicator {
+  grid-column: 1;
+  grid-row: 1;
+}
+
+/* Vertical: Label in second column */
+.stepper--vertical .step__label {
+  grid-column: 2;
+  grid-row: 1;
+}
+
+/* Step Indicator (Circle with number/icon) - z-index: 3 (on top) */
+.step__indicator {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  min-width: 40px;
+  flex-shrink: 0;
+  border-radius: var(--radius-100);
+  background-color: var(--elevated-bg);
+  border: var(--border-width-standard) solid var(--border-color);
+  color: var(--text-secondary);
+  font-family: var(--font-display);
+  font-size: var(--text-base);
+  font-weight: var(--font-semibold);
+  line-height: 1;
+  transition: all var(--transition-base);
+  z-index: 3;
+}
+
+.step__number {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  text-align: center;
+}
+
+.step__icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  color: var(--text-secondary);
+  flex-shrink: 0;
+}
+
+.step__check,
+.step__error-icon,
+.step__warning-icon,
+.step__success-icon {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 20px;
+  height: 20px;
+  color: var(--card-bg);
+  display: none;
+  z-index: 1;
+}
+
+/* Step Label - z-index: 2 (above connector, below indicator) */
+.step__label {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  flex: 1;
+  position: relative;
+  z-index: 2;
+  background-color: transparent;
+  padding: 0;
+  margin: 0;
+}
+
+/* Step Label Text - Title styling with Lexend */
+.step__label-text {
+  font-family: var(--font-display);
+  font-size: var(--text-sm);
+  font-weight: var(--font-medium);
+  color: var(--text-primary);
+  line-height: var(--leading-normal);
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  white-space: normal;
+}
+
+/* Step Description - Body copy with Figtree */
+.step__description {
+  font-family: var(--font-sans);
+  font-size: var(--text-sm);
+  font-weight: var(--font-normal);
+  color: var(--text-secondary);
+  line-height: var(--leading-normal);
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  white-space: normal;
+  margin-top: var(--space-1);
+}
+
+/* Horizontal: Label below indicator (alternative label style) */
+.stepper--horizontal .step__label {
+  margin-left: 0;
+  margin-top: var(--space-2);
+  flex: 0 0 auto;
+  width: 100%;
+  text-align: center;
+  position: relative;
+  z-index: 2;
+  padding-top: 0;
+}
+
+/* Horizontal: Description alignment */
+.stepper--horizontal .step__description {
+  text-align: center;
+}
+
+/* Vertical: Label inline to the right of indicator - vertically centered with indicator */
+.stepper--vertical .step__label {
+  margin-left: 0;
+  flex: 1;
+}
+
+/* Vertical: Description alignment */
+.stepper--vertical .step__description {
+  text-align: left;
+}
+
+/* Step Connector Line - z-index: 0 (behind everything) */
+.step__connector {
+  position: absolute;
+  background-color: var(--border-color);
+  transition: background-color var(--transition-base);
+  z-index: 0;
+  pointer-events: none;
+}
+
+/* Horizontal Connector - positioned at circle center */
+/* Connector spans from right edge of current indicator to left edge of next indicator */
+/* Current circle right edge: 50% (center) + 20px (radius) */
+/* Next circle left edge: 100% (next step start) + 50% (next step center) - 20px (radius) = 150% - 20px */
+/* Using right: 150% - 20px from left = -50% + 20px from right */
+.stepper--horizontal .step__connector {
+  position: absolute;
+  top: 20px;
+  left: calc(50% + 20px);
+  right: calc(-50% + 20px);
+  height: var(--border-width-standard);
+  z-index: 0;
+  pointer-events: none;
+}
+
+/* Ensure first step connector accounts for no left padding */
+.stepper--horizontal .step:first-child .step__connector {
+  left: calc(50% + 20px);
+}
+
+.stepper--horizontal .step:last-child .step__connector {
+  display: none;
+}
+
+/* Vertical Connector - positioned at circle center */
+.stepper--vertical .step__connector {
+  position: absolute;
+  top: 40px;
+  left: 20px;
+  height: calc(100% - 40px + var(--space-4));
+  width: var(--border-width-standard);
+  transform: translateX(-50%);
+  z-index: 0;
+  grid-column: 1;
+}
+
+.stepper--vertical .step:last-child .step__connector {
+  display: none;
+}
+
+/* Active/Completed Connector */
+.step__connector.is-active,
+.step.is-completed .step__connector {
+  background-color: var(--theme-primary);
+}
+
+/* Success Connector */
+.step.is-success .step__connector {
+  background-color: var(--color-success);
+}
+
+/* Step States - Default/Upcoming */
+.step .step__indicator {
+  background-color: var(--elevated-bg);
+  border-color: var(--border-color);
+  color: var(--text-secondary);
+}
+
+/* Step States - Active */
+.step.is-active .step__indicator {
+  background-color: var(--theme-primary);
+  border-color: var(--theme-primary);
+  color: var(--card-bg);
+}
+
+.step.is-active .step__icon {
+  color: var(--card-bg);
+}
+
+.step.is-completed .step__icon {
+  color: var(--card-bg);
+}
+
+.step.is-error .step__icon {
+  color: var(--card-bg);
+}
+
+.step.is-warning .step__icon {
+  color: var(--card-bg);
+}
+
+.step.is-active .step__label {
+  color: var(--theme-primary);
+  font-weight: var(--font-semibold);
+}
+
+/* Step States - Completed */
+.step.is-completed .step__indicator {
+  background-color: var(--theme-primary);
+  border-color: var(--theme-primary);
+  color: var(--card-bg);
+}
+
+.step.is-completed .step__number {
+  display: none;
+}
+
+.step.is-completed .step__check {
+  display: block;
+}
+
+.step.is-completed .step__label {
+  color: var(--text-secondary);
+}
+
+/* Step States - Error */
+.step.is-error .step__indicator {
+  background-color: var(--color-error);
+  border-color: var(--color-error);
+  color: var(--card-bg);
+}
+
+.step.is-error .step__number {
+  display: none;
+}
+
+.step.is-error .step__error-icon {
+  display: block;
+}
+
+.step.is-error .step__label {
+  color: var(--text-primary);
+}
+
+/* Step States - Warning */
+.step.is-warning .step__indicator {
+  background-color: var(--color-warning);
+  border-color: var(--color-warning);
+  color: var(--card-bg);
+}
+
+.step.is-warning .step__number {
+  display: none;
+}
+
+.step.is-warning .step__warning-icon {
+  display: block;
+}
+
+.step.is-warning .step__label {
+  color: var(--text-primary);
+}
+
+/* Step States - Success */
+.step.is-success .step__indicator {
+  background-color: var(--color-success);
+  border-color: var(--color-success);
+  color: var(--card-bg);
+}
+
+.step.is-success .step__number {
+  display: none;
+}
+
+.step.is-success .step__success-icon {
+  display: block;
+}
+
+.step.is-success .step__label {
+  color: var(--text-primary);
+}
+
+.step.is-success .step__icon {
+  color: var(--card-bg);
+}
+
+/* Step States - Disabled */
+.step.is-disabled .step__indicator {
+  background-color: var(--elevated-bg);
+  border-color: var(--border-color);
+  color: var(--text-muted);
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.step.is-disabled .step__icon {
+  color: var(--text-muted);
+}
+
+.step.is-disabled .step__label {
+  color: var(--text-muted);
+}
+
+.step.is-disabled .step__label-text {
+  color: var(--text-muted);
+  opacity: 0.6;
+}
+
+.step.is-disabled .step__description {
+  color: var(--text-muted);
+  opacity: 0.6;
+}
+
+.step.is-disabled {
+  pointer-events: none;
+}
+
+/* Non-linear Stepper Interactions - All steps are clickable */
+.stepper--non-linear .step:not(.is-disabled) {
+  cursor: pointer;
+}
+
+.stepper--non-linear .step:not(.is-disabled):hover .step__indicator {
+  background-color: var(--hover-bg);
+  border-color: var(--theme-primary);
+}
+
+.stepper--non-linear .step:not(.is-disabled):hover .step__label {
+  color: var(--theme-primary);
+}
+
+/* Active step: hover = darker blue, keep text white */
+.stepper--non-linear .step.is-active:hover .step__indicator {
+  background-color: var(--theme-primary-hover);
+  border-color: var(--theme-primary-hover);
+  color: var(--card-bg);
+}
+
+/* Completed step: hover = darker green, keep text/check white */
+.stepper--non-linear .step.is-completed:hover .step__indicator {
+  background-color: var(--color-success-hover);
+  border-color: var(--color-success-hover);
+  color: var(--card-bg);
+}
+
+.stepper--non-linear .step:not(.is-disabled):focus-visible {
+  outline: var(--focus-ring-primary);
+  outline-offset: var(--space-1);
+  border-radius: var(--radius-md);
+}
+
+/* Stepper Responsive Styles */
+@media (max-width: var(--breakpoint-md)) {
+  .stepper--horizontal {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: thin;
+    padding-bottom: var(--space-2);
+  }
+
+  .stepper--horizontal::-webkit-scrollbar {
+    height: 4px;
+  }
+
+  .stepper--horizontal::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  .stepper--horizontal::-webkit-scrollbar-thumb {
+    background-color: var(--border-color);
+    border-radius: 2px;
+  }
+
+  .stepper--horizontal .step {
+    min-width: 120px;
+    flex-shrink: 0;
+    padding-right: var(--space-3);
+    gap: var(--space-2);
+  }
+
+  .step__indicator {
+    width: 36px;
+    height: 36px;
+    min-width: 36px;
+    font-size: var(--text-sm);
+  }
+
+  .stepper--horizontal .step__connector {
+    left: 36px;
+    right: -36px;
+    top: 18px;
+  }
+
+  .stepper--horizontal .step__label {
+    margin-left: 0;
+    font-size: var(--text-xs);
+  }
+
+  .stepper--vertical .step__connector {
+    left: 18px;
+    top: 36px;
+  }
+}
+
+/* ===========================================

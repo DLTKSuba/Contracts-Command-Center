@@ -1,0 +1,314 @@
+/**
+ * Harmony Design System - CSS Reset
+ * 
+ * A modern CSS reset that provides a clean foundation
+ * without aggressive normalization.
+ */
+
+/* Google Fonts Import */
+@import url('https://fonts.googleapis.com/css2?family=Figtree:ital,wght@0,300..900;1,300..900&family=Lexend:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap');
+
+/* ===========================================
+   BOX SIZING
+   =========================================== */
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+/* ===========================================
+   MARGINS & PADDING RESET
+   =========================================== */
+
+* {
+  margin: 0;
+  padding: 0;
+}
+
+/* ===========================================
+   ROOT & BODY
+   =========================================== */
+
+html {
+  scroll-behavior: smooth;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+
+body {
+  font-family: var(--font-sans);
+  font-size: var(--text-base);
+  line-height: var(--leading-normal);
+  color: var(--text-primary);
+  background-color: var(--page-bg);
+  min-height: 100vh;
+}
+
+/* ===========================================
+   TYPOGRAPHY
+   =========================================== */
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-display);
+  font-weight: var(--font-bold);
+  line-height: var(--leading-tight);
+  color: var(--text-primary);
+}
+
+p {
+  color: var(--text-secondary);
+  line-height: var(--leading-relaxed);
+}
+
+/* ===========================================
+   LINKS
+   =========================================== */
+
+a {
+  color: var(--link-color);
+  text-decoration: none;
+  transition: color var(--transition-fast);
+}
+
+a:hover {
+  text-decoration: underline;
+}
+
+/* ===========================================
+   LISTS
+   =========================================== */
+
+ul, ol {
+  list-style: none;
+}
+
+/* ===========================================
+   FIELDSET & LEGEND
+   =========================================== */
+
+fieldset {
+  border: none;
+  padding: 0;
+  margin: 0;
+  min-width: 0;
+}
+
+legend {
+  padding: 0;
+  font-size: var(--text-sm);
+  font-weight: var(--font-semibold);
+  color: var(--text-primary);
+  margin-bottom: var(--space-2);
+}
+
+/* ===========================================
+   IMAGES & MEDIA
+   =========================================== */
+
+img, picture, video, canvas, svg {
+  display: block;
+  max-width: 100%;
+  height: auto;
+}
+
+/* ===========================================
+   FORM ELEMENTS
+   =========================================== */
+
+input, button, textarea, select {
+  font: inherit;
+  color: inherit;
+}
+
+button {
+  cursor: pointer;
+  background: none;
+  border: none;
+}
+
+input:focus,
+textarea:focus,
+select:focus,
+button:focus {
+  outline: none;
+}
+
+/* Remove spinner buttons from number inputs */
+input[type="number"]::-webkit-inner-spin-button,
+input[type="number"]::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+input[type="number"] {
+  -moz-appearance: textfield;
+}
+
+/* Date/time input reset */
+input[type="date"],
+input[type="time"],
+input[type="datetime-local"],
+input[type="month"],
+input[type="week"] {
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+/* Color scheme for native pickers */
+html:not(.dark) input[type="date"],
+html:not(.dark) input[type="time"],
+html:not(.dark) input[type="datetime-local"],
+html:not(.dark) input[type="month"],
+html:not(.dark) input[type="week"] {
+  color-scheme: light;
+}
+
+html.dark input[type="date"],
+html.dark input[type="time"],
+html.dark input[type="datetime-local"],
+html.dark input[type="month"],
+html.dark input[type="week"] {
+  color-scheme: dark;
+}
+
+/* Color input reset */
+input[type="color"] {
+  -webkit-appearance: none;
+  appearance: none;
+  padding: 0;
+  border: none;
+  cursor: pointer;
+}
+
+input[type="color"]::-webkit-color-swatch-wrapper {
+  padding: 0;
+}
+
+input[type="color"]::-webkit-color-swatch {
+  border: none;
+  border-radius: var(--radius-lg);
+}
+
+/* Disabled state */
+input:disabled,
+textarea:disabled,
+select:disabled,
+button:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+/* ===========================================
+   TABLE
+   =========================================== */
+
+table {
+  border-collapse: collapse;
+  border-spacing: 0;
+  width: 100%;
+}
+
+/* ===========================================
+   CODE
+   =========================================== */
+
+code, pre, kbd, samp {
+  font-family: var(--font-mono);
+  font-size: var(--text-sm);
+}
+
+pre {
+  overflow-x: auto;
+  background-color: var(--surface-bg);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-lg);
+  padding: var(--space-4);
+}
+
+code {
+  background-color: var(--elevated-bg);
+  padding: var(--space-0-5) var(--space-1-5);
+  border-radius: var(--radius-sm);
+  color: var(--text-primary);
+}
+
+pre code {
+  background: none;
+  padding: 0;
+  border-radius: 0;
+}
+
+/* ===========================================
+   SELECTION
+   =========================================== */
+
+::selection {
+  background-color: var(--theme-primary-light);
+  color: var(--text-primary);
+}
+
+/* ===========================================
+   SCROLLBAR
+   =========================================== */
+
+/* Custom scrollbar for webkit browsers */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--scrollbar-track);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--scrollbar-thumb);
+  border-radius: var(--radius-03);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--scrollbar-thumb-hover);
+}
+
+/* Firefox scrollbar */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--scrollbar-thumb) var(--scrollbar-track);
+}
+
+/* ===========================================
+   FOCUS VISIBLE
+   =========================================== */
+
+:focus-visible {
+  outline: var(--border-width-standard) solid var(--theme-primary);
+  outline-offset: var(--space-0-5);
+}
+
+/* ===========================================
+   HIDDEN UTILITY
+   =========================================== */
+
+[hidden] {
+  display: none !important;
+}
+
+/* ===========================================
+   SCREEN READER ONLY
+   =========================================== */
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
+}
+

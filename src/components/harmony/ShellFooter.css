@@ -1,0 +1,119 @@
+/* ShellFooter scoped styles (ported from Harmony source) */
+.shell-footer {
+  background-color: var(--shell-footer-bg);
+  border-top: var(--border-width-thin) solid var(--border-color);
+  height: var(--shell-footer-height-default);
+  width: 100%;
+  padding: 0 var(--space-4);
+  display: flex;
+  align-items: center;
+}
+
+.shell-footer .tabstrip__container {
+  border-bottom: none;
+}
+
+.shell-footer .tabstrip .tabstrip__tabs .tab,
+.shell-footer .tabstrip .tabstrip__add.tab,
+.shell-footer .tabstrip .tabstrip__more.tab {
+  color: var(--shell-footer-tab-label-color);
+  border-bottom: var(--border-width-standard) solid transparent;
+}
+
+.shell-footer .tabstrip .tabstrip__tabs .tab.is-active,
+.shell-footer .tabstrip .tabstrip__add.tab.is-active,
+.shell-footer .tabstrip .tabstrip__more.tab.is-active {
+  color: var(--shell-footer-tab-label-color);
+  border-bottom: var(--border-width-thick) solid var(--theme-primary);
+}
+
+.shell-footer .tabstrip .tabstrip__tabs .tab.is-active .tab__label,
+.shell-footer .tabstrip .tabstrip__add.tab.is-active .tab__label,
+.shell-footer .tabstrip .tabstrip__more.tab.is-active .tab__label {
+  color: var(--shell-footer-tab-label-color);
+}
+
+.shell-footer .tabstrip .tabstrip__tabs .tab.is-active .tab__icon,
+.shell-footer .tabstrip .tabstrip__add.tab.is-active .tab__icon,
+.shell-footer .tabstrip .tabstrip__more.tab.is-active .tab__icon {
+  color: var(--shell-footer-tab-icon-color-active);
+}
+
+.shell-footer .tabstrip .tabstrip__tabs .tab:hover:not(.is-active),
+.shell-footer .tabstrip .tabstrip__add.tab:hover:not(.is-active),
+.shell-footer .tabstrip .tabstrip__more.tab:hover:not(.is-active) {
+  color: var(--shell-footer-tab-label-color);
+  background-color: var(--shell-footer-tab-hover-bg);
+  border-radius: var(--radius-sm);
+  margin-top: var(--space-1);
+  margin-bottom: var(--space-1);
+  padding-top: calc(var(--space-3) - var(--space-1));
+  padding-bottom: calc(var(--space-3) - var(--space-1));
+}
+
+.shell-footer .tabstrip .tabstrip__tabs .tab.is-active:hover,
+.shell-footer .tabstrip .tabstrip__add.tab.is-active:hover,
+.shell-footer .tabstrip .tabstrip__more.tab.is-active:hover {
+  color: var(--shell-footer-tab-label-color);
+  background-color: var(--shell-footer-tab-hover-bg);
+  border-radius: var(--radius-sm);
+  border-bottom: var(--border-width-thick) solid var(--theme-primary);
+  margin-top: var(--space-1);
+  margin-bottom: var(--space-1);
+  padding-top: calc(var(--space-3) - var(--space-1));
+  padding-bottom: calc(var(--space-3) - var(--space-1));
+}
+
+.shell-footer .tabstrip .tabstrip__tabs .tab.is-active:hover .tab__label,
+.shell-footer .tabstrip .tabstrip__add.tab.is-active:hover .tab__label,
+.shell-footer .tabstrip .tabstrip__more.tab.is-active:hover .tab__label {
+  color: var(--shell-footer-tab-label-color);
+}
+
+.shell-footer .tabstrip .tabstrip__tabs .tab.is-active:hover .tab__icon,
+.shell-footer .tabstrip .tabstrip__add.tab.is-active:hover .tab__icon,
+.shell-footer .tabstrip .tabstrip__more.tab.is-active:hover .tab__icon {
+  color: var(--shell-footer-tab-icon-color-active);
+}
+
+/* Dark mode - use tokens so tab/label/icon stay white */
+html.dark .shell-footer .tabstrip .tabstrip__tabs .tab:not(.is-active),
+html.dark .shell-footer .tabstrip .tabstrip__add.tab:not(.is-active),
+html.dark .shell-footer .tabstrip .tabstrip__more.tab:not(.is-active) {
+  color: var(--shell-footer-tab-label-color);
+}
+html.dark .shell-footer .tabstrip .tabstrip__tabs .tab:hover:not(.is-active),
+html.dark .shell-footer .tabstrip .tabstrip__add.tab:hover:not(.is-active),
+html.dark .shell-footer .tabstrip .tabstrip__more.tab:hover:not(.is-active) {
+  color: var(--shell-footer-tab-label-color);
+}
+html.dark .shell-footer .tabstrip .tabstrip__tabs .tab.is-active,
+html.dark .shell-footer .tabstrip .tabstrip__add.tab.is-active,
+html.dark .shell-footer .tabstrip .tabstrip__more.tab.is-active {
+  color: var(--shell-footer-tab-label-color);
+}
+html.dark .shell-footer .tabstrip .tabstrip__tabs .tab.is-active .tab__label,
+html.dark .shell-footer .tabstrip .tabstrip__add.tab.is-active .tab__label,
+html.dark .shell-footer .tabstrip .tabstrip__more.tab.is-active .tab__label {
+  color: var(--shell-footer-tab-label-color);
+}
+html.dark .shell-footer .tabstrip .tabstrip__tabs .tab.is-active .tab__icon,
+html.dark .shell-footer .tabstrip .tabstrip__add.tab.is-active .tab__icon,
+html.dark .shell-footer .tabstrip .tabstrip__more.tab.is-active .tab__icon {
+  color: var(--shell-footer-tab-icon-color-active);
+}
+html.dark .shell-footer .tabstrip .tabstrip__tabs .tab.is-active:hover .tab__label,
+html.dark .shell-footer .tabstrip .tabstrip__add.tab.is-active:hover .tab__label,
+html.dark .shell-footer .tabstrip .tabstrip__more.tab.is-active:hover .tab__label {
+  color: var(--shell-footer-tab-label-color);
+}
+html.dark .shell-footer .tabstrip .tabstrip__tabs .tab.is-active:hover .tab__icon,
+html.dark .shell-footer .tabstrip .tabstrip__add.tab.is-active:hover .tab__icon,
+html.dark .shell-footer .tabstrip .tabstrip__more.tab.is-active:hover .tab__icon {
+  color: var(--shell-footer-tab-icon-color-active);
+}
+
+.shell-footer--compact,
+.shell-footer[data-variant="compact"] {
+  height: var(--shell-footer-height-compact);
+}

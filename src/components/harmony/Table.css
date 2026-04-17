@@ -1,0 +1,513 @@
+/* 1. Base Table Styles */
+.table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  font-family: var(--font-sans);
+  font-size: var(--text-sm);
+  overflow: hidden;
+  border-radius: var(--radius-12);
+}
+
+/* 2. Table Header Base */
+.table thead th {
+  padding: var(--space-3) var(--space-4);
+  text-align: left;
+  font-weight: var(--font-medium);
+  color: var(--text-secondary);
+  border-bottom: 1px solid var(--border-color);
+  background-color: var(--surface-bg); /* Default, will be overridden by variants */
+  border-left: 1px solid var(--border-color);
+  border-right: 1px solid var(--border-color);
+}
+
+/* Round only top corners of header - first row, first and last cells */
+.table thead tr:first-child th:first-child {
+  border-top-left-radius: var(--radius-12);
+  border-top: 1px solid var(--border-color);
+}
+
+.table thead tr:first-child th:last-child {
+  border-top-right-radius: var(--radius-12);
+  border-top: 1px solid var(--border-color);
+}
+
+/* Add top border to all first row header cells */
+.table thead tr:first-child th {
+  border-top: 1px solid var(--border-color);
+}
+
+/* Remove left border from middle header cells */
+.table thead th:not(:first-child) {
+  border-left: none;
+}
+
+/* Remove right border from middle header cells */
+.table thead th:not(:last-child) {
+  border-right: none;
+}
+
+/* 3. Header Variants (higher specificity - 2 classes) */
+.table--header-gray thead th {
+  background-color: var(--table-header-gray-bg);
+}
+
+.table--header-white thead th {
+  background-color: var(--surface-bg);
+}
+
+.table--header-none thead th {
+  background-color: transparent;
+}
+
+/* 4. Table Body Rows Base */
+.table tbody tr {
+  background-color: var(--surface-bg);
+  transition: background-color var(--transition-fast);
+}
+
+/* 5. Table Body Cells */
+.table tbody td {
+  padding: var(--space-3) var(--space-4);
+  color: var(--text-primary);
+  border-bottom: 1px solid var(--border-light);
+  vertical-align: middle;
+  background-color: inherit; /* Inherit from row */
+  border-left: 1px solid var(--border-color);
+  border-right: 1px solid var(--border-color);
+}
+
+/* Round bottom corners of last body row */
+.table tbody tr:last-child td:first-child {
+  border-bottom-left-radius: var(--radius-12);
+  border-bottom: 1px solid var(--border-color);
+}
+
+.table tbody tr:last-child td:last-child {
+  border-bottom-right-radius: var(--radius-12);
+  border-bottom: 1px solid var(--border-color);
+}
+
+/* Add bottom border to all last row cells */
+.table tbody tr:last-child td {
+  border-bottom: 1px solid var(--border-color);
+}
+
+/* Remove left border from middle body cells */
+.table tbody td:not(:first-child) {
+  border-left: none;
+}
+
+/* Remove right border from middle body cells */
+.table tbody td:not(:last-child) {
+  border-right: none;
+}
+
+/* 6. Striped Table Rows (must come before selection so selection can override) */
+.table--striped tbody tr:nth-child(even) {
+  background-color: var(--card-bg);
+}
+
+.table--striped tbody tr:nth-child(odd) {
+  background-color: var(--surface-bg);
+}
+
+/* 7. Row Selection State (higher specificity - 2 classes, overrides striped) */
+.table tbody tr.table-row--selected,
+.table tbody tr:has(.checkbox__input:checked) {
+  background-color: var(--table-row-selected-bg);
+}
+
+/* Striped + Selected combination (highest specificity for this case) */
+.table--striped tbody tr.table-row--selected,
+.table--striped tbody tr:has(.checkbox__input:checked) {
+  background-color: var(--table-row-selected-bg);
+}
+
+/* 8. Row Hover States (includes :hover pseudo-class, overrides selection) */
+/* Unselected row hover - blue tint of primary */
+.table tbody tr:hover:not(.table-row--selected):not(:has(.checkbox__input:checked)) {
+  background-color: var(--table-row-hover-bg);
+}
+
+/* Selected row hover - darker blue tint for accessibility */
+.table tbody tr.table-row--selected:hover,
+.table tbody tr:has(.checkbox__input:checked):hover {
+  background-color: var(--table-row-selected-hover-bg);
+}
+
+/* Striped + Unselected hover */
+.table--striped tbody tr:hover:not(.table-row--selected):not(:has(.checkbox__input:checked)) {
+  background-color: var(--table-row-hover-bg);
+}
+
+/* Striped + Selected hover */
+.table--striped tbody tr.table-row--selected:hover,
+.table--striped tbody tr:has(.checkbox__input:checked):hover {
+  background-color: var(--table-row-selected-hover-bg);
+}
+
+/* 9. Total Row (must override all other states) */
+.table tbody tr.table-row--total {
+  background-color: var(--table-total-bg);
+  font-weight: var(--font-semibold);
+}
+
+/* Total row hover (if needed, uses same background or slightly different) */
+.table tbody tr.table-row--total:hover {
+  background-color: var(--table-total-bg);
+}
+
+/* Total row + Selected (if checkbox in total row) */
+.table tbody tr.table-row--total.table-row--selected,
+.table tbody tr.table-row--total:has(.checkbox__input:checked) {
+  background-color: var(--table-total-bg); /* Total row takes precedence */
+}
+
+/* 10. Actions Column */
+.table tbody td.table-cell--actions {
+  text-align: right;
+  vertical-align: middle;
+  padding-right: var(--space-4);
+}
+
+/* Ensure icon button inside is properly aligned */
+.table tbody td.table-cell--actions .icon-btn {
+  display: inline-flex;
+  vertical-align: middle;
+}
+
+/* 10b. Reorderable Grip Column */
+.table__grip-column {
+  width: 40px;
+  min-width: 40px;
+  padding: var(--space-3) var(--space-2);
+  text-align: center;
+  vertical-align: middle;
+}
+.table__grip-cell {
+  width: 40px;
+  min-width: 40px;
+  padding: var(--space-3) var(--space-2);
+  vertical-align: middle;
+  text-align: center;
+}
+.table__grip-cell--placeholder {
+  cursor: default;
+  background-color: inherit;
+}
+.table__grip-handle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-1);
+  border: none;
+  background: transparent;
+  color: var(--text-secondary);
+  cursor: grab;
+  border-radius: var(--radius-04);
+  transition: color var(--transition-fast), background-color var(--transition-fast);
+}
+.table__grip-handle::before {
+  content: '';
+  display: block;
+  width: 16px;
+  height: 16px;
+  background-color: currentColor;
+  -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Ccircle cx='9' cy='5' r='1.5' fill='black'/%3E%3Ccircle cx='9' cy='12' r='1.5' fill='black'/%3E%3Ccircle cx='9' cy='19' r='1.5' fill='black'/%3E%3Ccircle cx='15' cy='5' r='1.5' fill='black'/%3E%3Ccircle cx='15' cy='12' r='1.5' fill='black'/%3E%3Ccircle cx='15' cy='19' r='1.5' fill='black'/%3E%3C/svg%3E");
+  mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Ccircle cx='9' cy='5' r='1.5' fill='black'/%3E%3Ccircle cx='9' cy='12' r='1.5' fill='black'/%3E%3Ccircle cx='9' cy='19' r='1.5' fill='black'/%3E%3Ccircle cx='15' cy='5' r='1.5' fill='black'/%3E%3Ccircle cx='15' cy='12' r='1.5' fill='black'/%3E%3Ccircle cx='15' cy='19' r='1.5' fill='black'/%3E%3C/svg%3E");
+  mask-size: contain;
+  mask-repeat: no-repeat;
+  mask-position: center;
+  -webkit-mask-size: contain;
+  -webkit-mask-repeat: no-repeat;
+  -webkit-mask-position: center;
+}
+.table__grip-handle:hover {
+  color: var(--text-primary);
+  background-color: var(--elevated-bg);
+}
+.table__grip-handle:focus {
+  outline: 2px solid var(--theme-primary);
+  outline-offset: var(--space-0-5);
+}
+.table__grip-handle:active {
+  cursor: grabbing;
+}
+.table tbody tr.table-row--dragging {
+  opacity: 0.6;
+}
+.table tbody tr.table-row--drag-over {
+  background-color: var(--table-row-hover-bg);
+}
+
+/* 10c. Grouped Rows Expand Column */
+.table__expand-column {
+  width: 36px;
+  min-width: 36px;
+  padding: var(--space-3) var(--space-2);
+  text-align: center;
+  vertical-align: middle;
+}
+.table__expand-cell {
+  width: 36px;
+  min-width: 36px;
+  padding: var(--space-3) var(--space-2);
+  vertical-align: middle;
+  text-align: center;
+}
+.table__expand-cell--placeholder {
+  cursor: default;
+  background-color: inherit;
+}
+.table__expand-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-1);
+  border: none;
+  background: transparent;
+  color: var(--text-secondary);
+  cursor: pointer;
+  border-radius: var(--radius-04);
+  transition: color var(--transition-fast), background-color var(--transition-fast);
+}
+.table__expand-btn:hover {
+  color: var(--text-primary);
+  background-color: var(--elevated-bg);
+}
+.table__expand-btn:focus {
+  outline: 2px solid var(--theme-primary);
+  outline-offset: var(--space-0-5);
+}
+.table__expand-icon {
+  display: block;
+  width: 16px;
+  height: 16px;
+  background-color: currentColor;
+  -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m9 18 6-6-6-6'/%3E%3C/svg%3E");
+  mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m9 18 6-6-6-6'/%3E%3C/svg%3E");
+  mask-size: contain;
+  mask-repeat: no-repeat;
+  mask-position: center;
+  -webkit-mask-size: contain;
+  -webkit-mask-repeat: no-repeat;
+  -webkit-mask-position: center;
+  transition: transform var(--transition-fast);
+}
+.table__expand-btn--expanded .table__expand-icon {
+  transform: rotate(90deg);
+}
+/* Reserve width for max indentation (depth 4) so column doesn't grow on expand */
+.table--grouped tbody td:nth-child(2) {
+  min-width: calc(var(--space-4) * 5 + 12ch);
+}
+
+/* 11. Text Alignment Utilities */
+.table thead th.text-left,
+.table tbody td.text-left {
+  text-align: left;
+}
+
+.table thead th.text-right,
+.table tbody td.text-right {
+  text-align: right;
+}
+
+/* Prevent last column from wrapping so values stay on one line */
+.table thead th:last-child,
+.table tbody td:last-child {
+  white-space: nowrap;
+}
+
+/* Sortable column header: button + icon alignment */
+.table__sort-header {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  padding: 0;
+  border: none;
+  background: none;
+  font: inherit;
+  color: inherit;
+  font-weight: var(--font-medium);
+  cursor: pointer;
+  text-align: inherit;
+}
+.table__sort-header:hover {
+  color: var(--text-primary);
+}
+.table thead th.text-right .table__sort-header {
+  flex-direction: row-reverse;
+}
+
+/* 12. Avatar in Table Cells (keep existing functionality) */
+.table tbody td .avatar,
+.table tbody td [class*="rounded-full"] {
+  background-color: var(--theme-primary);
+}
+
+.table tbody td .avatar span,
+.table tbody td [class*="rounded-full"] span {
+  color: var(--text-inverse);
+}
+
+/* 13. Table Wrapper */
+.table-wrapper {
+  border-radius: var(--radius-12);
+  overflow: hidden;
+}
+
+/* 14. Table Title Bar */
+.table__title-bar {
+  padding: var(--space-4) var(--space-4) var(--space-3);
+  border-top: 1px solid var(--border-color);
+  border-left: 1px solid var(--border-color);
+  border-right: 1px solid var(--border-color);
+  border-bottom: 1px solid var(--border-color);
+  background-color: var(--surface-bg);
+  font-family: var(--font-display);
+  font-size: var(--text-13);
+}
+.table-wrapper:has(.table__title-bar):not(:has(.table__filter-bar)) .table__title-bar {
+  border-top-left-radius: var(--radius-12);
+  border-top-right-radius: var(--radius-12);
+}
+
+.table__title-bar-content {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.table__title-bar-icons {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.table__title-bar-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--space-6);
+  height: var(--space-6);
+  padding: 0;
+  border: none;
+  background: transparent;
+  color: var(--text-secondary);
+  cursor: pointer;
+  border-radius: var(--radius-04);
+  transition: background-color var(--transition-fast), color var(--transition-fast);
+}
+
+.table__title-bar-icon:hover {
+  background-color: var(--elevated-bg);
+  color: var(--text-primary);
+}
+
+.table__title-bar-icon:focus {
+  outline: 2px solid var(--theme-primary);
+  outline-offset: var(--space-0-5);
+}
+
+/* 14b. Table Filter Bar */
+.table__filter-bar {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+  padding: var(--space-3) var(--space-4);
+  border-top: 1px solid var(--border-color);
+  border-left: 1px solid var(--border-color);
+  border-right: 1px solid var(--border-color);
+  border-bottom: 1px solid var(--border-color);
+  background-color: var(--table-header-gray-bg);
+  border-top-left-radius: var(--radius-12);
+  border-top-right-radius: var(--radius-12);
+}
+
+/* 15. Table Action Bar */
+.table__action-bar {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  padding: var(--space-3) var(--space-4) var(--space-3) var(--space-1);
+  border-left: 1px solid var(--border-color);
+  border-right: 1px solid var(--border-color);
+  border-bottom: 1px solid var(--border-color);
+  background-color: var(--table-header-gray-bg);
+  gap: var(--space-4);
+}
+
+/* When action bar is first (no title bar, no filter bar), it needs top rounded corners */
+.table-wrapper:has(.table__action-bar):not(:has(.table__title-bar)):not(:has(.table__filter-bar)) .table__action-bar {
+  border-top: 1px solid var(--border-color);
+  border-top-left-radius: var(--radius-12);
+  border-top-right-radius: var(--radius-12);
+}
+
+.table__action-items {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  flex-wrap: wrap;
+}
+
+.table__action-divider {
+  color: var(--text-secondary);
+  font-size: var(--text-sm);
+  padding: 0 var(--space-1);
+  flex-shrink: 0;
+}
+
+/* 16. Adjust table border radius when filter bar, title bar, or action bar is present */
+/* When filter bar is present */
+.table-wrapper:has(.table__filter-bar) .table {
+  border-top-left-radius: 0;
+  border-top-right-radius: 0;
+}
+.table-wrapper:has(.table__filter-bar) .table thead tr:first-child th:first-child {
+  border-top-left-radius: 0;
+  border-top: none;
+}
+.table-wrapper:has(.table__filter-bar) .table thead tr:first-child th:last-child {
+  border-top-right-radius: 0;
+  border-top: none;
+}
+.table-wrapper:has(.table__filter-bar) .table thead tr:first-child th {
+  border-top: none;
+}
+/* When title bar is present */
+.table-wrapper:has(.table__title-bar) .table {
+  border-top-left-radius: 0;
+  border-top-right-radius: 0;
+}
+.table-wrapper:has(.table__title-bar) .table thead tr:first-child th:first-child {
+  border-top-left-radius: 0;
+  border-top: none;
+}
+.table-wrapper:has(.table__title-bar) .table thead tr:first-child th:last-child {
+  border-top-right-radius: 0;
+  border-top: none;
+}
+.table-wrapper:has(.table__title-bar) .table thead tr:first-child th {
+  border-top: none;
+}
+/* When only action bar is present (no title bar, no filter bar) */
+.table-wrapper:has(.table__action-bar):not(:has(.table__title-bar)):not(:has(.table__filter-bar)) .table {
+  border-top-left-radius: 0;
+  border-top-right-radius: 0;
+}
+.table-wrapper:has(.table__action-bar):not(:has(.table__title-bar)):not(:has(.table__filter-bar)) .table thead tr:first-child th:first-child {
+  border-top-left-radius: 0;
+  border-top: none;
+}
+.table-wrapper:has(.table__action-bar):not(:has(.table__title-bar)):not(:has(.table__filter-bar)) .table thead tr:first-child th:last-child {
+  border-top-right-radius: 0;
+  border-top: none;
+}
+.table-wrapper:has(.table__action-bar):not(:has(.table__title-bar)):not(:has(.table__filter-bar)) .table thead tr:first-child th {
+  border-top: none;
+}

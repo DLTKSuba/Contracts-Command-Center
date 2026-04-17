@@ -1,0 +1,12 @@
+<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+<g id="heroicons-outline/oracle">
+<g id="Layer_1" clip-path="url(#clip0_262_1575)">
+<path id="Vector" fill-rule="evenodd" clip-rule="evenodd" d="M7.95733 18.8392C4.11671 18.8392 1 15.7107 1 11.8448C1 7.9788 4.11671 4.83917 7.95733 4.83917H16.0439C19.8857 4.83917 23 7.9788 23 11.8448C23 15.7107 19.8854 18.8392 16.0439 18.8392H7.95733ZM15.8639 16.3697C18.3521 16.3697 20.3675 14.3474 20.3675 11.8448C20.3675 9.34212 18.3524 7.30861 15.8639 7.30861H8.13613C5.64912 7.30861 3.63251 9.34212 3.63251 11.8448C3.63251 14.3474 5.64882 16.3697 8.13613 16.3697H15.8639Z" fill="#373F4E"/>
+</g>
+</g>
+<defs>
+<clipPath id="clip0_262_1575">
+<rect width="22" height="14" fill="white" transform="translate(1 4.83917)"/>
+</clipPath>
+</defs>
+</svg>

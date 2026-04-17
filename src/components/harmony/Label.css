@@ -1,0 +1,25 @@
+/* LABEL (Harmony Design System) */
+.label {
+  display: block;
+  font-family: var(--font-display);
+  font-size: var(--text-sm);
+  font-weight: var(--font-normal);
+  color: var(--text-primary);
+  margin-bottom: var(--space-1-5);
+}
+
+.label--required::after {
+  content: " *";
+  color: var(--color-error);
+}
+
+.label__helper {
+  font-weight: var(--font-normal);
+  color: var(--text-muted);
+}
+
+@media (max-width: var(--breakpoint-md)) {
+  .label {
+    font-size: var(--text-sm);
+  }
+}

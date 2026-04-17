@@ -1,0 +1,89 @@
+/* INPUT (Harmony Design System) */
+.input {
+  width: 100%;
+  height: var(--space-10);
+  padding: 0 var(--space-4);
+  font-family: var(--font-sans);
+  font-size: var(--text-base);
+  color: var(--text-primary);
+  background-color: var(--input-bg);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-lg);
+  transition: all var(--transition-fast);
+}
+
+.input::placeholder {
+  color: var(--text-muted);
+}
+
+.input:focus {
+  outline: none;
+  border-color: var(--theme-primary);
+  box-shadow: var(--focus-ring-primary);
+}
+
+.input:disabled {
+  background-color: var(--input-disabled-bg);
+  color: var(--text-muted);
+  cursor: not-allowed;
+}
+
+.input--error {
+  border-color: var(--color-error);
+  border-width: var(--border-width-standard);
+}
+
+.input--error:focus {
+  box-shadow: var(--focus-ring-error);
+}
+
+.input--with-icon {
+  padding-left: var(--space-10);
+}
+
+.input-wrapper {
+  position: relative;
+}
+
+.input-wrapper__icon {
+  position: absolute;
+  left: var(--space-4);
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--text-muted);
+  pointer-events: none;
+  z-index: var(--z-10);
+}
+
+.input-wrapper__error {
+  margin-top: var(--space-1);
+  font-size: var(--text-sm);
+  color: var(--color-error);
+}
+
+.input-form-wrapper {
+  display: flex;
+  flex-direction: column;
+}
+
+.input-form-wrapper--inline {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: var(--space-1);
+}
+
+.input-form-wrapper--stacked {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1-5);
+}
+
+.input-form-wrapper__label {
+  margin-bottom: 0;
+  white-space: nowrap;
+}
+
+html.theme-cp .input {
+  border-radius: var(--radius-04);
+}

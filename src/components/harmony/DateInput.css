@@ -1,0 +1,106 @@
+/* DATE INPUT (Harmony Design System) */
+.date-input {
+  width: 100%;
+  height: var(--space-10);
+  padding: 0 var(--space-4);
+  padding-right: var(--space-10);
+  font-family: var(--font-sans);
+  font-size: var(--text-base);
+  color: var(--text-primary);
+  background-color: var(--input-bg);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-lg);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.date-input::-webkit-calendar-picker-indicator {
+  display: none;
+  -webkit-appearance: none;
+}
+
+.date-input::-webkit-inner-spin-button,
+.date-input::-webkit-outer-spin-button {
+  display: none;
+  -webkit-appearance: none;
+}
+
+.date-input::-moz-calendar-picker-indicator {
+  display: none;
+}
+
+.date-input:focus {
+  outline: none;
+  border-color: var(--theme-primary);
+  box-shadow: var(--focus-ring-primary);
+}
+
+.date-input:disabled {
+  background-color: var(--input-disabled-bg);
+  color: var(--text-muted);
+  cursor: not-allowed;
+}
+
+.date-input::placeholder {
+  color: var(--text-muted);
+}
+
+.date-input-wrapper {
+  position: relative;
+}
+
+.date-input-wrapper__icon {
+  position: absolute;
+  right: var(--space-4);
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--text-secondary);
+  pointer-events: auto;
+  cursor: pointer;
+  background: transparent;
+  border: none;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.date-input-wrapper__icon:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+@media (max-width: var(--breakpoint-md)) {
+  .date-input {
+    width: 100%;
+    font-size: 16px;
+    min-height: 44px;
+  }
+}
+
+.date-input-form-wrapper {
+  display: flex;
+  flex-direction: column;
+}
+
+.date-input-form-wrapper--inline {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: var(--space-1);
+}
+
+.date-input-form-wrapper--stacked {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1-5);
+}
+
+.date-input-form-wrapper__label {
+  margin-bottom: 0;
+  white-space: nowrap;
+}
+
+html.theme-cp .date-input {
+  border-radius: var(--radius-04);
+}

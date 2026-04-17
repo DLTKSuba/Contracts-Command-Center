@@ -1,0 +1,1185 @@
+/**
+ * Harmony Design System - Design Tokens
+ * 
+ * This file contains all CSS custom properties (variables) organized by:
+ * - Base tokens (fonts, shadows)
+ * - Theme-specific tokens (CP, VP, PPM, Maconomy)
+ * - Each theme has light and dark mode variants
+ * - Semantic colors (success, warning, error, info) are theme-aware with separate light/dark values
+ */
+
+/* ===========================================
+   BASE TOKENS - Shared across all themes
+   =========================================== */
+
+:root {
+  /* Fonts */
+  --font-sans: 'Figtree', sans-serif;
+  --font-display: 'Lexend', sans-serif;
+  --font-mono: 'JetBrains Mono', monospace;
+
+  /* Font Sizes */
+  --text-xs: 0.75rem;
+  --text-sm: 0.875rem;
+  --text-base: 1rem;
+  --text-lg: 1.125rem;
+  --text-xl: 1.25rem;
+  --text-2xl: 1.5rem;
+  --text-3xl: 1.875rem;
+  --text-4xl: 2.25rem;
+  --text-5xl: 3rem;
+  --text-6xl: 3.75rem;
+
+  /* Type Scale - Display */
+  --display-xl: 3.75rem;    /* 60px */
+  --display-l: 3rem;        /* 48px */
+  --display-m: 2.25rem;     /* 36px */
+
+  /* Type Scale - Headings */
+  --heading-xl: 1.875rem;   /* 30px */
+  --heading-l: 1.5rem;      /* 24px */
+  --heading-m: 1.25rem;     /* 20px */
+  --heading-s: 1.125rem;    /* 18px */
+
+  /* Type Scale - Body */
+  --body-default: 1rem;     /* 16px */
+  --body-emphasized: 1rem;  /* 16px - uses semibold weight */
+
+  /* Type Scale - Supporting */
+  --caption: 0.75rem;       /* 12px */
+  --label: 0.875rem;        /* 14px */
+  --overline: 0.625rem;     /* 10px */
+  --text-13: 0.8125rem;     /* 13px - for compact variants */
+
+  /* Font Weights */
+  --font-light: 300;
+  --font-normal: 400;
+  --font-medium: 500;
+  --font-semibold: 600;
+  --font-bold: 700;
+  --font-extrabold: 800;
+
+  /* Line Heights */
+  --leading-none: 1;
+  --leading-tight: 1.25;
+  --leading-snug: 1.375;
+  --leading-normal: 1.5;
+  --leading-relaxed: 1.625;
+
+  /* Spacing Scale (4px base) */
+  --space-0: 0;
+  --space-0-5: 2px;
+  --space-1: 4px;
+  --space-1-5: 6px;
+  --space-2: 8px;
+  --space-2-5: 10px;
+  --space-3: 12px;
+  --space-3-5: 14px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-7: 28px;
+  --space-8: 32px;
+  --space-9: 36px;
+  --space-10: 40px;
+  --space-11: 44px;
+  --space-12: 48px;
+  --space-14: 56px;
+  --space-16: 64px;
+  --space-20: 80px;
+  --space-24: 96px;
+  
+  /* Component-specific spacing tokens */
+  --shell-header-height: 56px;
+  --shell-footer-height-default: 48px;
+  --shell-footer-height-compact: 40px;
+  --shell-layout-padding-top: 88px;
+  --shell-layout-padding-side-default: 52px;
+  --shell-layout-padding-side-standard: 52px;
+  --shell-layout-padding-side-tablet: 32px;
+  --shell-layout-padding-side-mobile: 16px;
+  --sidebar-width: 52px;
+  --left-sidebar-width-compact: 44px;
+  --right-sidebar-width-compact: 44px;
+  --left-sidebar-icon-size-compact: 20px;
+  --right-sidebar-icon-size-compact: 20px;
+  --right-sidebar-dela-size-compact: 28px;
+  --dropdown-min-width: 200px;
+  --dropdown-max-height: 400px;
+  --panel-width-narrow: 596px;
+  --panel-width-full: 1300px;
+  --table-min-width: 600px;
+  --border-width-thin: 1px;
+  --border-width-standard: 2px;
+  --border-width-medium: 3px;
+  --border-width-thick: 4px;
+
+  /* Border Radius */
+  --radius-sm: 0.25rem;
+  --radius-md: 0.375rem;
+  --radius-lg: 0.5rem;
+  --radius-xl: 0.75rem;
+  --radius-2xl: 1rem;
+  --radius-full: 9999px;
+
+  /* Border Radius - Numbered Convention */
+  --radius-03: 3px;
+  --radius-04: 4px;
+  --radius-06: 6px;
+  --radius-08: 8px;
+  --radius-12: 12px;
+  --radius-16: 16px;
+  --radius-24: 24px;
+  --radius-100: 9999px;
+
+  /* Notification Badge Colors */
+  --notification-badge-error: #d83148;
+
+  /* Alert Chip Colors */
+  --alert-chip-blue-bg: #c7f2ff;
+  --alert-chip-blue-fg: #205a9e;
+  --alert-chip-error-bg: #ffecef;
+  --alert-chip-error-fg: #c1253a;
+  --alert-chip-warning-bg: #fff1be;
+  --alert-chip-warning-fg: #ad5400;
+  --alert-chip-success-bg: #dbf9a8;
+  --alert-chip-success-fg: #316d15;
+  --alert-chip-info-bg: #d0dfff;
+  --alert-chip-info-fg: #454bd4;
+  --alert-chip-orange-bg: #ffe2c0;
+  --alert-chip-orange-fg: #6c1f07;
+  --alert-chip-pink-bg: #ffddf3;
+  --alert-chip-pink-fg: #b82890;
+  --alert-chip-disabled-bg: #e0e4eb;
+  --alert-chip-disabled-fg: #94a3b8;
+  --alert-chip-disabled-border: #bfc6d4;
+
+  /* Gradient Tokens */
+  --gradient-dela: linear-gradient(119deg, #8A33C2 17.59%, #423FE2 77.78%);
+  --gradient-dela-start: #8A33C2;
+  --gradient-dela-end: #423FE2;
+  --gradient-dela-hover-bg: rgba(255, 255, 255, 0.1);
+  /* Right sidebar Dela icon active state (gradient background on item) */
+  --linear-new: linear-gradient(136deg, #00BBC6 9.15%, #7133FF 57.36%, #CD21FF 80.6%);
+  /* Dela panel chat bubbles (light purple for Dela, light blue-grey for user) */
+  --dela-bubble-bg: rgba(138, 51, 194, 0.12);
+  --dela-user-bubble-bg: rgba(100, 116, 139, 0.15);
+  /* Dela panel - theme-aware (uses --theme-primary per theme and dark mode) */
+  --dela-panel-avatar-bg: var(--theme-primary);
+  --dela-panel-content-bg: var(--card-bg);
+  --dela-panel-input-bg: var(--input-bg);
+  --dela-panel-card-bg: var(--input-bg);
+  /* Shell panel full width (100vw); --panel-width-full is 1300px for other use) */
+  --shell-panel-width-full: 100vw;
+  /* Dela gradient header content - always light for contrast (not overridden in dark mode) */
+  --dela-header-content-fg: #ffffff;
+
+  /* Shell Footer Colors */
+  --shell-footer-tab-hover-bg: rgba(255, 255, 255, 0.1);
+  --shell-footer-tab-label-color: #ffffff;
+  --shell-footer-tab-icon-color-active: var(--theme-primary);
+  --shell-sidebar-icon-color-on-primary: #ffffff;
+
+  /* Company Picker Colors */
+  --company-picker-indicator-acme: #FF507B;
+  --company-picker-indicator-ocean: #285F8C;
+  --company-picker-indicator-violet: #DC50FF;
+  --company-picker-indicator-azure: #5077FF;
+  --company-picker-indicator-sunset: #FFAF50;
+  --company-picker-indicator-default: var(--theme-primary);
+
+  /* Shadows */
+  --shadow-sm: 0 1px 2px 0 rgb(15 23 42 / 0.05);
+  --shadow-md: 0 4px 6px -1px rgb(15 23 42 / 0.1), 0 2px 4px -2px rgb(15 23 42 / 0.1);
+  --shadow-lg: 0 10px 15px -3px rgb(15 23 42 / 0.1), 0 4px 6px -4px rgb(15 23 42 / 0.1);
+  --shadow-xl: 0 20px 25px -5px rgb(15 23 42 / 0.1), 0 8px 10px -6px rgb(15 23 42 / 0.1);
+  --shadow-2xl: 0 30px 35px -8px rgb(15 23 42 / 0.15), 0 12px 15px -7px rgb(15 23 42 / 0.12);
+  --shadow-dropdown: 0 4px 12px rgba(0, 0, 0, 0.15);
+
+  /* Transition Defaults */
+  --transition-fast: 150ms ease;
+  --transition-base: 200ms ease;
+  --transition-slow: 300ms ease;
+
+  /* Z-Index Scale */
+  --z-base: 0;
+  --z-10: 10;
+  --z-20: 20;
+  --z-30: 30;
+  --z-40: 40;
+  --z-44: 44;
+  --z-45: 45;
+  --z-46: 46;
+  --z-47: 47;
+  --z-50: 50;
+  --z-dropdown: 100;
+  --z-sticky: 200;
+  --z-modal: 300;
+  --z-popover: 400;
+  --z-tooltip: 500;
+
+  /* Focus Ring */
+  --focus-ring-opacity: 0.32;
+  --focus-ring-primary: 0 0 0 3px var(--theme-primary-light), 0 0 0 4px var(--card-bg);
+  --focus-ring-page-header: 0 0 0 3px rgba(4, 56, 82, 0.32), 0 0 0 4px var(--card-bg);
+  --focus-ring-error: 0 0 0 1px var(--border-color), 0 0 0 3px var(--color-error-focus);
+  --focus-ring-error-checked: 0 0 0 2px var(--color-error), 0 0 0 3px var(--color-error-focus);
+  --focus-ring-warning: 0 0 0 1px var(--border-color), 0 0 0 3px var(--color-warning-focus);
+  --focus-ring-warning-checked: 0 0 0 1px var(--color-warning), 0 0 0 3px var(--color-warning-focus);
+  --focus-ring-date-picker: 0 0 0 2px var(--theme-primary-light);
+
+  /* Inset Shadows (Pressed States) */
+  --shadow-inset-sm: inset 0 1px 4px 0 rgba(0, 0, 0, 0.1);
+  --shadow-inset-md: inset 0 1px 4px 0 rgba(0, 0, 0, 0.2);
+
+  /* Dialog Component Tokens */
+  --overlay-backdrop-opacity: rgba(0, 0, 0, 0.5);
+  --dialog-min-width: 600px;
+  --dialog-max-width-default: 700px;
+  --dialog-width-percentage: 90%;
+  --dialog-max-height: 90vh;
+  --dialog-margin: var(--space-4);
+  --dialog-margin-horizontal: var(--space-8);
+  --dialog-margin-vertical: var(--space-8);
+  --dialog-max-width-medium: 90vw;
+  --dialog-footer-btn-min-width: calc(var(--space-20) + var(--space-10));
+
+  /* Dropdown Component Tokens */
+  --dropdown-min-width: 180px;
+  --dropdown-height: 40px;
+  --dropdown-height-cp: 20px;
+  --dropdown-menu-max-height: 300px;
+  
+  /* Input Component Tokens */
+  --input-height-cp: 20px;
+  
+  /* Button Size Tokens */
+  --button-height-xs: 24px;
+  --button-height-sm: 32px;
+  --button-height-md: 40px;
+  --button-height-lg: 48px;
+
+  /* Avatar Size Tokens */
+  --avatar-size-sm: 32px;
+  --avatar-size-md: 40px;
+  --avatar-size-lg: 48px;
+
+  /* Badge Size Tokens */
+  --badge-height-sm: 19px;
+  --badge-height-md: 19px;
+  --badge-height-lg: 19px;
+  --badge-min-width-sm: 19px;
+  --badge-min-width-md: 19px;
+  --badge-min-width-lg: 32px;
+  --badge-dot-size-sm: 6px;
+  --badge-dot-size-md: 10px;
+  --badge-dot-size-lg: 15px;
+  
+  /* Icon Size Tokens */
+  --icon-xs: 12px;
+  --icon-sm: 16px;
+  --icon-md: 20px;
+  --icon-lg: 24px;
+  --icon-xl: 32px;
+  
+  /* Icon Stroke Width */
+  --icon-stroke-width: 1.5;
+  
+  /* Icon Fallback Styling */
+  --icon-fallback-bg: #ffecef;
+  --icon-fallback-text: #c1253a;
+  --icon-fallback-font-size: 8px;
+  --icon-fallback-radius: 2px;
+  
+  /* Spinner/Button Loading Icon */
+  --spinner-size-xs: 12px;
+  --spinner-size-sm: 14px;
+  --spinner-size-md: 16px;
+  --spinner-size-lg: 18px;
+  --spinner-stroke-width-xs: 2;
+  --spinner-stroke-width-sm: 2.5;
+  --spinner-stroke-width-md: 3;
+  --spinner-stroke-width-lg: 3.5;
+  
+  /* Legacy support - default to md size */
+  --spinner-size: var(--spinner-size-md);
+  --spinner-stroke-width: var(--spinner-stroke-width-md);
+  
+  /* Semantic Error Colors for Fallbacks */
+  --color-error-bg-light: #ffecef;
+  --color-error-text: #c1253a;
+  
+  /* Shell Footer Background (theme-specific, defaults to dark) */
+  --shell-footer-bg: #212631;
+  
+  /* Breakpoints */
+  --breakpoint-sm: 640px;
+  --breakpoint-md: 768px;
+  --breakpoint-lg: 1024px;
+  --breakpoint-xl: 1280px;
+}
+
+/* ===========================================
+   DARK MODE SHADOWS (All Themes)
+   Material UI approach: black shadows with increased opacity
+   =========================================== */
+
+html.dark {
+  /* Atlassian-style dark mode shadows with increased opacity for better visibility */
+  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.3);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.3), 0 2px 4px -2px rgba(0, 0, 0, 0.2);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.4), 0 4px 6px -4px rgba(0, 0, 0, 0.3);
+  --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.4), 0 8px 10px -6px rgba(0, 0, 0, 0.3);
+  --shadow-2xl: 0 30px 35px -8px rgba(0, 0, 0, 0.5), 0 12px 15px -7px rgba(0, 0, 0, 0.4);
+  --shadow-dropdown: 0 4px 12px rgba(0, 0, 0, 0.4);
+}
+
+/* ===========================================
+   CP THEME - LIGHT MODE (Semi-Light)
+   =========================================== */
+
+html.theme-cp {
+  /* Primary Colors */
+  --theme-primary: #4C92D9;
+  --theme-primary-hover: #3D7BC4;
+  --theme-primary-light: rgba(76, 146, 217, 0.1);
+  --theme-primary-border: rgba(76, 146, 217, 0.2);
+  --theme-primary-hover-light: rgba(76, 146, 217, 0.08);
+
+  /* Floating Nav Colors (CP-specific) */
+  --floating-nav-btn-primary: #ff507b;
+  --floating-nav-btn-primary-hover: #e64570;
+  --floating-nav-btn-primary-active: #cc3d63;
+  --floating-nav-btn-primary-fg: #ffffff;
+  --floating-nav-btn-secondary: #254e7a;
+  --floating-nav-btn-secondary-hover-bg: rgba(37, 78, 122, 0.08);
+  --floating-nav-btn-secondary-active-bg: rgba(37, 78, 122, 0.12);
+  --floating-nav-divider: var(--border-color);
+  --floating-nav-divider-accent: var(--border-light);
+  --floating-nav-pin: var(--text-secondary);
+  --floating-nav-pin-hover: var(--text-primary);
+
+  /* CP Sidebar Colors (light mode) */
+  --cp-sidebar-item-fg: #373f4e;
+  --cp-sidebar-item-hover-bg: rgba(55, 63, 78, 0.08);
+  --cp-sidebar-section-border: #ffffff;
+
+  /* Backgrounds */
+  --page-bg: #E2E4E9;
+  --card-bg: #F7F8FA;
+  --nav-bg: #FCFDFF;
+  --input-bg: #FFFFFF;
+  --input-disabled-bg: #EAEAEA;
+  --surface-bg: #FFFFFF;
+  --elevated-bg: #F7F8FA;
+  --hover-bg: #E5E7EB;
+  --table-total-bg: rgba(0, 115, 230, 0.15);
+  
+  /* Table Header Colors */
+  --table-header-gray-bg: #EDF0F6; /* Gray header background */
+  
+  /* Kanban Column Border Colors */
+  --kanban-in-progress-border: #F5A616; /* In progress column top border */
+  --kanban-done-border: #37B8B5; /* Done column top border */
+  
+  /* Table Row Colors - Blue tints for accessibility and visibility */
+  --table-row-hover-bg: #d6ebff; /* Light blue for unselected row hover */
+  --table-row-selected-bg: rgba(0, 115, 230, 0.15); /* Blue tint for selected rows (15% for better visibility) */
+  --table-row-selected-hover-bg: #d6ebff; /* Light blue for selected row hover */
+
+  /* Text Colors */
+  --text-primary: #373F4E;
+  --text-secondary: #525969;
+  --text-muted: #6B7280;
+  --text-inverse: #FFFFFF;
+
+  /* Border Colors */
+  --border-color: #BFC6D4;
+  --border-light: #E2E8F0;
+  --border-focus: var(--theme-primary);
+
+  /* Link Color */
+  --link-color: #005bb3;
+
+  /* Semantic Colors */
+  --color-success: #17A871;
+  --color-success-hover: #128A5E;
+  --color-warning: #FFB020;
+  --color-error: #D83148;
+  --color-info: #3366FF;
+
+  /* Semantic Color Opacity Variants */
+  --color-info-light: rgba(51, 102, 255, 0.1);
+  --color-info-border: rgba(51, 102, 255, 0.3);
+  --color-success-light: rgba(23, 168, 113, 0.1);
+  --color-success-border: rgba(23, 168, 113, 0.3);
+  --color-success-bg-subtle: rgba(23, 168, 113, 0.05);
+  --color-warning-light: rgba(255, 176, 32, 0.1);
+  --color-warning-border: rgba(255, 176, 32, 0.2);
+  --color-warning-focus: rgba(255, 176, 32, 0.48);
+  --color-error-light: rgba(216, 49, 72, 0.1);
+  --color-error-border: rgba(216, 49, 72, 0.2);
+  --color-error-bg-subtle: rgba(216, 49, 72, 0.05);
+  --color-error-focus: rgba(216, 49, 72, 0.32);
+
+  /* Theme Button Colors */
+  --theme-btn-primary: #2D5A9F;
+  --theme-btn-primary-hover: #1D4A7A;
+  --theme-btn-primary-disabled-bg: #e0e4eb;
+  --theme-btn-primary-disabled-fg: #bfc6d4;
+  --theme-btn-secondary-stroke: var(--theme-primary);
+  --theme-btn-secondary-hover-bg: #eaeff5;
+  --theme-btn-secondary-hover-fg: var(--theme-primary);
+  --theme-btn-secondary-hover-stroke: var(--theme-primary);
+  --theme-btn-secondary-disabled-fg: #e0e4eb;
+  --theme-btn-tertiary-fg: var(--theme-primary);
+  --theme-btn-tertiary-hover-bg: #eaeff5;
+  --theme-btn-tertiary-disabled-fg: #bfc6d4;
+
+  /* Page Header Button Colors */
+  --page-header-btn-primary: #043852;
+  --page-header-btn-primary-fg: #ffffff;
+  --page-header-btn-primary-hover: #03273a;
+  --page-header-btn-primary-disabled-bg: #e0e4eb;
+  --page-header-btn-primary-disabled-fg: #ffffff;
+  --page-header-btn-secondary-stroke: #043852;
+  --page-header-btn-secondary-default-fg: #043852;
+  --page-header-btn-secondary-hover-bg: #eaeff5;
+  --page-header-btn-secondary-hover-fg: #043852;
+  --page-header-btn-secondary-hover-stroke: #043852;
+  --page-header-btn-secondary-disabled-fg: #e0e4eb;
+  --page-header-btn-tertiary-fg: #043852;
+  --page-header-btn-tertiary-hover-bg: #eaeff5;
+  --page-header-btn-tertiary-disabled-fg: #e0e4eb;
+
+  /* Scrollbar */
+  --scrollbar-track: #f4f4f5;
+  --scrollbar-thumb: #d4d4d8;
+  --scrollbar-thumb-hover: #a1a1aa;
+}
+
+/* ===========================================
+   CP THEME - DARK MODE (Semi-Dark)
+   =========================================== */
+
+html.theme-cp.dark {
+  /* Primary Colors */
+  --theme-primary: #59ACFF;
+  --theme-primary-hover: #7BB8FF;
+  --theme-primary-light: rgba(89, 172, 255, 0.1);
+  --theme-primary-border: rgba(89, 172, 255, 0.2);
+  --theme-primary-hover-light: rgba(89, 172, 255, 0.08);
+
+  /* Floating Nav Colors (CP-specific dark mode) */
+  --floating-nav-bg-dark: #333d47;
+  --floating-nav-border-dark: #4a5568;
+  --floating-nav-btn-secondary-dark: #59acff;
+  --floating-nav-btn-secondary-hover-bg-dark: rgba(89, 172, 255, 0.12);
+  --floating-nav-btn-disabled-fg-dark: #6b7280;
+  --floating-nav-btn-disabled-bg-dark: #4a5568;
+  --floating-nav-divider-dark: #4a5568;
+  --floating-nav-divider-accent-dark: #3d4a5c;
+  --floating-nav-pin-dark: #a0aec0;
+  --floating-nav-pin-hover-dark: #e9ecef;
+
+  /* CP Sidebar Colors (dark mode) */
+  --cp-sidebar-section-bg-dark: #333d47;
+  --cp-sidebar-section-border-dark: #4a5568;
+  --cp-sidebar-item-fg-dark: #e9ecef;
+  --cp-sidebar-item-hover-bg-dark: rgba(255, 255, 255, 0.08);
+
+  /* Backgrounds */
+  --page-bg: #1F252E;
+  --card-bg: #37424D;
+  --nav-bg: #333D47;
+  --input-bg: #1F252E;
+  --input-disabled-bg: #333D47;
+  --surface-bg: #212935;
+  --elevated-bg: #37424D;
+  --hover-bg: #3D4A5C;
+  --table-total-bg: rgba(89, 172, 255, 0.15);
+  
+  /* Table Header Colors */
+  --table-header-gray-bg: #37424D; /* Gray header background for dark mode */
+  
+  /* Table Row Colors - Blue tints for accessibility and visibility */
+  --table-row-hover-bg: rgba(89, 172, 255, 0.15); /* Light blue tint for unselected row hover in dark mode */
+  --table-row-selected-bg: rgba(89, 172, 255, 0.15); /* Blue tint for selected rows (15% for better visibility) */
+  --table-row-selected-hover-bg: rgba(89, 172, 255, 0.15); /* Light blue tint for selected row hover in dark mode */
+
+  /* Text Colors */
+  --text-primary: #E9ECEF;
+  --text-secondary: #B6B6C4;
+  --text-muted: #BBBBC6;
+  --text-inverse: #1F252E;
+
+  /* Border Colors */
+  --border-color: #5F6871;
+  --border-light: #374151;
+  --border-focus: var(--theme-primary);
+
+  /* Link Color */
+  --link-color: #ADD0FF;
+
+  /* Semantic Colors */
+  --color-success: #00E78E;
+  --color-success-hover: #00C77A;
+  --color-warning: #F9AF00;
+  --color-error: #F46286;
+  --color-info: #00ADFD;
+
+  /* Semantic Color Opacity Variants */
+  --color-info-light: rgba(0, 173, 253, 0.1);
+  --color-info-border: rgba(0, 173, 253, 0.3);
+  --color-success-light: rgba(0, 231, 142, 0.1);
+  --color-success-border: rgba(0, 231, 142, 0.3);
+  --color-success-bg-subtle: rgba(0, 231, 142, 0.05);
+  --color-warning-light: rgba(249, 175, 0, 0.1);
+  --color-warning-border: rgba(249, 175, 0, 0.2);
+  --color-warning-focus: rgba(249, 175, 0, 0.48);
+  --color-error-light: rgba(244, 98, 134, 0.1);
+  --color-error-border: rgba(244, 98, 134, 0.2);
+  --color-error-bg-subtle: rgba(244, 98, 134, 0.05);
+  --color-error-focus: rgba(244, 98, 134, 0.32);
+
+  /* Theme Button Colors */
+  --theme-btn-primary: #4A7BC8;
+  --theme-btn-primary-hover: #3D6BA8;
+  --theme-btn-primary-disabled-bg: #e0e4eb;
+  --theme-btn-primary-disabled-fg: #bfc6d4;
+  --theme-btn-secondary-stroke: var(--theme-primary);
+  --theme-btn-secondary-hover-bg: #eaeff5;
+  --theme-btn-secondary-hover-fg: var(--theme-primary);
+  --theme-btn-secondary-hover-stroke: var(--theme-primary);
+  --theme-btn-secondary-disabled-fg: #e0e4eb;
+  --theme-btn-tertiary-fg: var(--theme-primary);
+  --theme-btn-tertiary-hover-bg: #eaeff5;
+  --theme-btn-tertiary-disabled-fg: #bfc6d4;
+
+  /* Page Header Button Colors */
+  --page-header-btn-primary: #043852;
+  --page-header-btn-primary-hover: #03273a;
+  --page-header-btn-primary-disabled-bg: #e0e4eb;
+  --page-header-btn-primary-disabled-fg: #ffffff;
+  --page-header-btn-secondary-stroke: #B6B6C4;
+  --page-header-btn-secondary-default-fg: #B6B6C4;
+  --page-header-btn-secondary-hover-bg: #3D4A5C;
+  --page-header-btn-secondary-hover-fg: #E9ECEF;
+  --page-header-btn-secondary-hover-stroke: #E9ECEF;
+  --page-header-btn-secondary-disabled-fg: #e0e4eb;
+  --page-header-btn-tertiary-fg: #E9ECEF;
+  --page-header-btn-tertiary-hover-bg: #3D4A5C;
+  --page-header-btn-tertiary-disabled-fg: #e0e4eb;
+
+  /* Scrollbar */
+  --scrollbar-track: #1F252E;
+  --scrollbar-thumb: #4B5563;
+  --scrollbar-thumb-hover: #6B7280;
+}
+
+/* ===========================================
+   VP THEME - LIGHT MODE
+   =========================================== */
+
+html.theme-vp {
+  /* Primary Colors */
+  --theme-primary: #4C92D9;
+  --theme-primary-hover: #3D7BC4;
+  --theme-primary-light: rgba(76, 146, 217, 0.1);
+
+  /* Backgrounds */
+  --page-bg: #E2E4E9;
+  --card-bg: #F7F8FA;
+  --nav-bg: #FCFDFF;
+  --input-bg: #FFFFFF;
+  --input-disabled-bg: #EAEAEA;
+  --surface-bg: #FFFFFF;
+  --elevated-bg: #F7F8FA;
+  --hover-bg: #E5E7EB;
+  --table-total-bg: rgba(0, 115, 230, 0.15);
+  
+  /* Table Header Colors */
+  --table-header-gray-bg: #EDF0F6; /* Gray header background */
+  
+  /* Kanban Column Border Colors */
+  --kanban-in-progress-border: #F5A616; /* In progress column top border */
+  --kanban-done-border: #37B8B5; /* Done column top border */
+  
+  /* Table Row Colors - Blue tints for accessibility and visibility */
+  --table-row-hover-bg: #d6ebff; /* Light blue for unselected row hover */
+  --table-row-selected-bg: rgba(0, 115, 230, 0.15); /* Blue tint for selected rows (15% for better visibility) */
+  --table-row-selected-hover-bg: #d6ebff; /* Light blue for selected row hover */
+
+  /* Text Colors */
+  --text-primary: #373F4E;
+  --text-secondary: #525969;
+  --text-muted: #6B7280;
+  --text-inverse: #FFFFFF;
+
+  /* Border Colors */
+  --border-color: #BFC6D4;
+  --border-light: #E2E8F0;
+  --border-focus: var(--theme-primary);
+
+  /* Link Color */
+  --link-color: #005bb3;
+
+  /* Semantic Colors */
+  --color-success: #17A871;
+  --color-success-hover: #128A5E;
+  --color-warning: #FFB020;
+  --color-error: #D83148;
+  --color-info: #3366FF;
+
+  /* Semantic Color Opacity Variants */
+  --color-info-light: rgba(51, 102, 255, 0.1);
+  --color-info-border: rgba(51, 102, 255, 0.3);
+  --color-success-light: rgba(23, 168, 113, 0.1);
+  --color-success-border: rgba(23, 168, 113, 0.3);
+  --color-success-bg-subtle: rgba(23, 168, 113, 0.05);
+  --color-warning-light: rgba(255, 176, 32, 0.1);
+  --color-warning-border: rgba(255, 176, 32, 0.2);
+  --color-warning-focus: rgba(255, 176, 32, 0.48);
+  --color-error-light: rgba(216, 49, 72, 0.1);
+  --color-error-border: rgba(216, 49, 72, 0.2);
+  --color-error-bg-subtle: rgba(216, 49, 72, 0.05);
+  --color-error-focus: rgba(216, 49, 72, 0.32);
+
+  /* Theme Button Colors */
+  --theme-btn-primary: #2D5A9F;
+  --theme-btn-primary-hover: #1D4A7A;
+  --theme-btn-primary-disabled-bg: #e0e4eb;
+  --theme-btn-primary-disabled-fg: #bfc6d4;
+  --theme-btn-secondary-stroke: var(--theme-primary);
+  --theme-btn-secondary-hover-bg: #eaeff5;
+  --theme-btn-secondary-hover-fg: var(--theme-primary);
+  --theme-btn-secondary-hover-stroke: var(--theme-primary);
+  --theme-btn-secondary-disabled-fg: #e0e4eb;
+  --theme-btn-tertiary-fg: var(--theme-primary);
+  --theme-btn-tertiary-hover-bg: #eaeff5;
+  --theme-btn-tertiary-disabled-fg: #bfc6d4;
+
+  /* Page Header Button Colors */
+  --page-header-btn-primary: #043852;
+  --page-header-btn-primary-hover: #03273a;
+  --page-header-btn-primary-disabled-bg: #e0e4eb;
+  --page-header-btn-primary-disabled-fg: #ffffff;
+  --page-header-btn-secondary-stroke: #043852;
+  --page-header-btn-secondary-default-fg: #043852;
+  --page-header-btn-secondary-hover-bg: #eaeff5;
+  --page-header-btn-secondary-hover-fg: #043852;
+  --page-header-btn-secondary-hover-stroke: #043852;
+  --page-header-btn-secondary-disabled-fg: #e0e4eb;
+  --page-header-btn-tertiary-fg: #043852;
+  --page-header-btn-tertiary-hover-bg: #eaeff5;
+  --page-header-btn-tertiary-disabled-fg: #e0e4eb;
+
+  /* Scrollbar */
+  --scrollbar-track: #f4f4f5;
+  --scrollbar-thumb: #d4d4d8;
+  --scrollbar-thumb-hover: #a1a1aa;
+}
+
+/* ===========================================
+   VP THEME - DARK MODE
+   =========================================== */
+
+html.theme-vp.dark {
+  /* Primary Colors */
+  --theme-primary: #59ACFF;
+  --theme-primary-hover: #7bb8ff;
+  --theme-primary-light: rgba(89, 172, 255, 0.1);
+
+  /* Backgrounds */
+  --page-bg: #15171A;
+  --card-bg: #1F2124;
+  --nav-bg: #1A1C1F;
+  --input-bg: #1F2124;
+  --input-disabled-bg: #2A2D32;
+  --surface-bg: #1A1C1F;
+  --elevated-bg: #1F2124;
+  --hover-bg: #2A2D32;
+  --table-total-bg: rgba(89, 172, 255, 0.15);
+  
+  /* Table Header Colors */
+  --table-header-gray-bg: #37424D; /* Gray header background for dark mode */
+  
+  /* Table Row Colors - Blue tints for accessibility and visibility */
+  --table-row-hover-bg: rgba(89, 172, 255, 0.15); /* Light blue tint for unselected row hover in dark mode */
+  --table-row-selected-bg: rgba(89, 172, 255, 0.15); /* Blue tint for selected rows (15% for better visibility) */
+  --table-row-selected-hover-bg: rgba(89, 172, 255, 0.15); /* Light blue tint for selected row hover in dark mode */
+
+  /* Text Colors */
+  --text-primary: #FAFAFA;
+  --text-secondary: #B5B5BC;
+  --text-muted: #B5B5BC;
+  --text-inverse: #15171A;
+
+  /* Border Colors */
+  --border-color: #2A2D32;
+  --border-light: #3A3D42;
+  --border-focus: var(--theme-primary);
+
+  /* Link Color */
+  --link-color: #ADD0FF;
+
+  /* Semantic Colors */
+  --color-success: #00E78E;
+  --color-success-hover: #00C77A;
+  --color-warning: #F9AF00;
+  --color-error: #F46286;
+  --color-info: #00ADFD;
+
+  /* Semantic Color Opacity Variants */
+  --color-info-light: rgba(0, 173, 253, 0.1);
+  --color-info-border: rgba(0, 173, 253, 0.3);
+  --color-success-light: rgba(0, 231, 142, 0.1);
+  --color-success-border: rgba(0, 231, 142, 0.3);
+  --color-success-bg-subtle: rgba(0, 231, 142, 0.05);
+  --color-warning-light: rgba(249, 175, 0, 0.1);
+  --color-warning-border: rgba(249, 175, 0, 0.2);
+  --color-warning-focus: rgba(249, 175, 0, 0.48);
+  --color-error-light: rgba(244, 98, 134, 0.1);
+  --color-error-border: rgba(244, 98, 134, 0.2);
+  --color-error-bg-subtle: rgba(244, 98, 134, 0.05);
+  --color-error-focus: rgba(244, 98, 134, 0.32);
+
+  /* Theme Button Colors */
+  --theme-btn-primary: #4A7BC8;
+  --theme-btn-primary-hover: #3D6BA8;
+  --theme-btn-primary-disabled-bg: #e0e4eb;
+  --theme-btn-primary-disabled-fg: #bfc6d4;
+  --theme-btn-secondary-stroke: var(--theme-primary);
+  --theme-btn-secondary-hover-bg: #eaeff5;
+  --theme-btn-secondary-hover-fg: var(--theme-primary);
+  --theme-btn-secondary-hover-stroke: var(--theme-primary);
+  --theme-btn-secondary-disabled-fg: #e0e4eb;
+  --theme-btn-tertiary-fg: var(--theme-primary);
+  --theme-btn-tertiary-hover-bg: #eaeff5;
+  --theme-btn-tertiary-disabled-fg: #bfc6d4;
+
+  /* Page Header Button Colors */
+  --page-header-btn-primary: #495057;
+  --page-header-btn-primary-hover: #03273a;
+  --page-header-btn-primary-disabled-bg: #e0e4eb;
+  --page-header-btn-primary-disabled-fg: #ffffff;
+  --page-header-btn-secondary-stroke: #495057;
+  --page-header-btn-secondary-default-fg: #495057;
+  --page-header-btn-secondary-hover-bg: #eaeff5;
+  --page-header-btn-secondary-hover-fg: #495057;
+  --page-header-btn-secondary-hover-stroke: #495057;
+  --page-header-btn-secondary-disabled-fg: #e0e4eb;
+  --page-header-btn-tertiary-fg: #495057;
+  --page-header-btn-tertiary-hover-bg: #eaeff5;
+  --page-header-btn-tertiary-disabled-fg: #e0e4eb;
+
+  /* Scrollbar */
+  --scrollbar-track: #15171A;
+  --scrollbar-thumb: #3A3D42;
+  --scrollbar-thumb-hover: #52525b;
+}
+
+/* ===========================================
+   PPM THEME - LIGHT MODE
+   =========================================== */
+
+html.theme-ppm {
+  /* Primary Colors */
+  --theme-primary: #4C92D9;
+  --theme-primary-hover: #3D7BC4;
+  --theme-primary-light: rgba(76, 146, 217, 0.1);
+
+  /* Backgrounds */
+  --page-bg: #E2E4E9;
+  --card-bg: #F7F8FA;
+  --nav-bg: #FCFDFF;
+  --input-bg: #FFFFFF;
+  --input-disabled-bg: #EAEAEA;
+  --surface-bg: #FFFFFF;
+  --elevated-bg: #F7F8FA;
+  --hover-bg: #E5E7EB;
+  --table-total-bg: rgba(0, 115, 230, 0.15);
+  
+  /* Table Header Colors */
+  --table-header-gray-bg: #EDF0F6; /* Gray header background */
+  
+  /* Kanban Column Border Colors */
+  --kanban-in-progress-border: #F5A616; /* In progress column top border */
+  --kanban-done-border: #37B8B5; /* Done column top border */
+  
+  /* Table Row Colors - Blue tints for accessibility and visibility */
+  --table-row-hover-bg: #d6ebff; /* Light blue for unselected row hover */
+  --table-row-selected-bg: rgba(0, 115, 230, 0.15); /* Blue tint for selected rows (15% for better visibility) */
+  --table-row-selected-hover-bg: #d6ebff; /* Light blue for selected row hover */
+
+  /* Text Colors */
+  --text-primary: #373F4E;
+  --text-secondary: #525969;
+  --text-muted: #6B7280;
+  --text-inverse: #FFFFFF;
+
+  /* Border Colors */
+  --border-color: #BFC6D4;
+  --border-light: #E2E8F0;
+  --border-focus: var(--theme-primary);
+
+  /* Link Color */
+  --link-color: #005bb3;
+
+  /* Semantic Colors */
+  --color-success: #17A871;
+  --color-success-hover: #128A5E;
+  --color-warning: #FFB020;
+  --color-error: #D83148;
+  --color-info: #3366FF;
+
+  /* Semantic Color Opacity Variants */
+  --color-info-light: rgba(51, 102, 255, 0.1);
+  --color-info-border: rgba(51, 102, 255, 0.3);
+  --color-success-light: rgba(23, 168, 113, 0.1);
+  --color-success-border: rgba(23, 168, 113, 0.3);
+  --color-success-bg-subtle: rgba(23, 168, 113, 0.05);
+  --color-warning-light: rgba(255, 176, 32, 0.1);
+  --color-warning-border: rgba(255, 176, 32, 0.2);
+  --color-warning-focus: rgba(255, 176, 32, 0.48);
+  --color-error-light: rgba(216, 49, 72, 0.1);
+  --color-error-border: rgba(216, 49, 72, 0.2);
+  --color-error-bg-subtle: rgba(216, 49, 72, 0.05);
+  --color-error-focus: rgba(216, 49, 72, 0.32);
+
+  /* Theme Button Colors */
+  --theme-btn-primary: #2D5A9F;
+  --theme-btn-primary-hover: #1D4A7A;
+  --theme-btn-primary-disabled-bg: #e0e4eb;
+  --theme-btn-primary-disabled-fg: #bfc6d4;
+  --theme-btn-secondary-stroke: var(--theme-primary);
+  --theme-btn-secondary-hover-bg: #eaeff5;
+  --theme-btn-secondary-hover-fg: var(--theme-primary);
+  --theme-btn-secondary-hover-stroke: var(--theme-primary);
+  --theme-btn-secondary-disabled-fg: #e0e4eb;
+  --theme-btn-tertiary-fg: var(--theme-primary);
+  --theme-btn-tertiary-hover-bg: #eaeff5;
+  --theme-btn-tertiary-disabled-fg: #bfc6d4;
+
+  /* Page Header Button Colors */
+  --page-header-btn-primary: #043852;
+  --page-header-btn-primary-hover: #03273a;
+  --page-header-btn-primary-disabled-bg: #e0e4eb;
+  --page-header-btn-primary-disabled-fg: #ffffff;
+  --page-header-btn-secondary-stroke: #043852;
+  --page-header-btn-secondary-default-fg: #043852;
+  --page-header-btn-secondary-hover-bg: #eaeff5;
+  --page-header-btn-secondary-hover-fg: #043852;
+  --page-header-btn-secondary-hover-stroke: #043852;
+  --page-header-btn-secondary-disabled-fg: #e0e4eb;
+  --page-header-btn-tertiary-fg: #043852;
+  --page-header-btn-tertiary-hover-bg: #eaeff5;
+  --page-header-btn-tertiary-disabled-fg: #e0e4eb;
+
+  /* Scrollbar */
+  --scrollbar-track: #f4f4f5;
+  --scrollbar-thumb: #d4d4d8;
+  --scrollbar-thumb-hover: #a1a1aa;
+}
+
+/* ===========================================
+   PPM THEME - DARK MODE
+   =========================================== */
+
+html.theme-ppm.dark {
+  /* Primary Colors */
+  --theme-primary: #59ACFF;
+  --theme-primary-hover: #7bb8ff;
+  --theme-primary-light: rgba(89, 172, 255, 0.1);
+
+  /* Backgrounds */
+  --page-bg: #15171A;
+  --card-bg: #1F2124;
+  --nav-bg: #1A1C1F;
+  --input-bg: #1F2124;
+  --input-disabled-bg: #2A2D32;
+  --surface-bg: #1A1C1F;
+  --elevated-bg: #1F2124;
+  --hover-bg: #2A2D32;
+  --table-total-bg: rgba(89, 172, 255, 0.15);
+  
+  /* Table Header Colors */
+  --table-header-gray-bg: #37424D; /* Gray header background for dark mode */
+  
+  /* Table Row Colors - Blue tints for accessibility and visibility */
+  --table-row-hover-bg: rgba(89, 172, 255, 0.15); /* Light blue tint for unselected row hover in dark mode */
+  --table-row-selected-bg: rgba(89, 172, 255, 0.15); /* Blue tint for selected rows (15% for better visibility) */
+  --table-row-selected-hover-bg: rgba(89, 172, 255, 0.15); /* Light blue tint for selected row hover in dark mode */
+
+  /* Text Colors */
+  --text-primary: #FAFAFA;
+  --text-secondary: #B5B5BC;
+  --text-muted: #B5B5BC;
+  --text-inverse: #15171A;
+
+  /* Border Colors */
+  --border-color: #2A2D32;
+  --border-light: #3A3D42;
+  --border-focus: var(--theme-primary);
+
+  /* Link Color */
+  --link-color: #ADD0FF;
+
+  /* Semantic Colors */
+  --color-success: #00E78E;
+  --color-success-hover: #00C77A;
+  --color-warning: #F9AF00;
+  --color-error: #F46286;
+  --color-info: #00ADFD;
+
+  /* Semantic Color Opacity Variants */
+  --color-info-light: rgba(0, 173, 253, 0.1);
+  --color-info-border: rgba(0, 173, 253, 0.3);
+  --color-success-light: rgba(0, 231, 142, 0.1);
+  --color-success-border: rgba(0, 231, 142, 0.3);
+  --color-success-bg-subtle: rgba(0, 231, 142, 0.05);
+  --color-warning-light: rgba(249, 175, 0, 0.1);
+  --color-warning-border: rgba(249, 175, 0, 0.2);
+  --color-warning-focus: rgba(249, 175, 0, 0.48);
+  --color-error-light: rgba(244, 98, 134, 0.1);
+  --color-error-border: rgba(244, 98, 134, 0.2);
+  --color-error-bg-subtle: rgba(244, 98, 134, 0.05);
+  --color-error-focus: rgba(244, 98, 134, 0.32);
+
+  /* Theme Button Colors */
+  --theme-btn-primary: #4A7BC8;
+  --theme-btn-primary-hover: #3D6BA8;
+  --theme-btn-primary-disabled-bg: #e0e4eb;
+  --theme-btn-primary-disabled-fg: #bfc6d4;
+  --theme-btn-secondary-stroke: var(--theme-primary);
+  --theme-btn-secondary-hover-bg: #eaeff5;
+  --theme-btn-secondary-hover-fg: var(--theme-primary);
+  --theme-btn-secondary-hover-stroke: var(--theme-primary);
+  --theme-btn-secondary-disabled-fg: #e0e4eb;
+  --theme-btn-tertiary-fg: var(--theme-primary);
+  --theme-btn-tertiary-hover-bg: #eaeff5;
+  --theme-btn-tertiary-disabled-fg: #bfc6d4;
+
+  /* Page Header Button Colors */
+  --page-header-btn-primary: #495057;
+  --page-header-btn-primary-hover: #03273a;
+  --page-header-btn-primary-disabled-bg: #e0e4eb;
+  --page-header-btn-primary-disabled-fg: #ffffff;
+  --page-header-btn-secondary-stroke: #495057;
+  --page-header-btn-secondary-default-fg: #495057;
+  --page-header-btn-secondary-hover-bg: #eaeff5;
+  --page-header-btn-secondary-hover-fg: #495057;
+  --page-header-btn-secondary-hover-stroke: #495057;
+  --page-header-btn-secondary-disabled-fg: #e0e4eb;
+  --page-header-btn-tertiary-fg: #495057;
+  --page-header-btn-tertiary-hover-bg: #eaeff5;
+  --page-header-btn-tertiary-disabled-fg: #e0e4eb;
+
+  /* Scrollbar */
+  --scrollbar-track: #15171A;
+  --scrollbar-thumb: #3A3D42;
+  --scrollbar-thumb-hover: #52525b;
+}
+
+/* ===========================================
+   MACONOMY THEME - LIGHT MODE
+   =========================================== */
+
+html.theme-maconomy {
+  /* Primary Colors */
+  --theme-primary: #4C92D9;
+  --theme-primary-hover: #3D7BC4;
+  --theme-primary-light: rgba(76, 146, 217, 0.1);
+
+  /* Backgrounds */
+  --page-bg: #E2E4E9;
+  --card-bg: #F7F8FA;
+  --nav-bg: #FCFDFF;
+  --input-bg: #FFFFFF;
+  --input-disabled-bg: #EAEAEA;
+  --surface-bg: #FFFFFF;
+  --elevated-bg: #F7F8FA;
+  --hover-bg: #E5E7EB;
+  --table-total-bg: rgba(0, 115, 230, 0.15);
+  
+  /* Table Header Colors */
+  --table-header-gray-bg: #EDF0F6; /* Gray header background */
+  
+  /* Kanban Column Border Colors */
+  --kanban-in-progress-border: #F5A616; /* In progress column top border */
+  --kanban-done-border: #37B8B5; /* Done column top border */
+  
+  /* Table Row Colors - Blue tints for accessibility and visibility */
+  --table-row-hover-bg: #d6ebff; /* Light blue for unselected row hover */
+  --table-row-selected-bg: rgba(0, 115, 230, 0.15); /* Blue tint for selected rows (15% for better visibility) */
+  --table-row-selected-hover-bg: #d6ebff; /* Light blue for selected row hover */
+
+  /* Text Colors */
+  --text-primary: #373F4E;
+  --text-secondary: #525969;
+  --text-muted: #6B7280;
+  --text-inverse: #FFFFFF;
+
+  /* Border Colors */
+  --border-color: #BFC6D4;
+  --border-light: #E2E8F0;
+  --border-focus: var(--theme-primary);
+
+  /* Link Color */
+  --link-color: #005bb3;
+
+  /* Semantic Colors */
+  --color-success: #17A871;
+  --color-success-hover: #128A5E;
+  --color-warning: #FFB020;
+  --color-error: #D83148;
+  --color-info: #3366FF;
+
+  /* Semantic Color Opacity Variants */
+  --color-info-light: rgba(51, 102, 255, 0.1);
+  --color-info-border: rgba(51, 102, 255, 0.3);
+  --color-success-light: rgba(23, 168, 113, 0.1);
+  --color-success-border: rgba(23, 168, 113, 0.3);
+  --color-success-bg-subtle: rgba(23, 168, 113, 0.05);
+  --color-warning-light: rgba(255, 176, 32, 0.1);
+  --color-warning-border: rgba(255, 176, 32, 0.2);
+  --color-warning-focus: rgba(255, 176, 32, 0.48);
+  --color-error-light: rgba(216, 49, 72, 0.1);
+  --color-error-border: rgba(216, 49, 72, 0.2);
+  --color-error-bg-subtle: rgba(216, 49, 72, 0.05);
+  --color-error-focus: rgba(216, 49, 72, 0.32);
+
+  /* Theme Button Colors */
+  --theme-btn-primary: #2D5A9F;
+  --theme-btn-primary-hover: #1D4A7A;
+  --theme-btn-primary-disabled-bg: #e0e4eb;
+  --theme-btn-primary-disabled-fg: #bfc6d4;
+  --theme-btn-secondary-stroke: var(--theme-primary);
+  --theme-btn-secondary-hover-bg: #eaeff5;
+  --theme-btn-secondary-hover-fg: var(--theme-primary);
+  --theme-btn-secondary-hover-stroke: var(--theme-primary);
+  --theme-btn-secondary-disabled-fg: #e0e4eb;
+  --theme-btn-tertiary-fg: var(--theme-primary);
+  --theme-btn-tertiary-hover-bg: #eaeff5;
+  --theme-btn-tertiary-disabled-fg: #bfc6d4;
+
+  /* Page Header Button Colors */
+  --page-header-btn-primary: #043852;
+  --page-header-btn-primary-hover: #03273a;
+  --page-header-btn-primary-disabled-bg: #e0e4eb;
+  --page-header-btn-primary-disabled-fg: #ffffff;
+  --page-header-btn-secondary-stroke: #043852;
+  --page-header-btn-secondary-default-fg: #043852;
+  --page-header-btn-secondary-hover-bg: #eaeff5;
+  --page-header-btn-secondary-hover-fg: #043852;
+  --page-header-btn-secondary-hover-stroke: #043852;
+  --page-header-btn-secondary-disabled-fg: #e0e4eb;
+  --page-header-btn-tertiary-fg: #043852;
+  --page-header-btn-tertiary-hover-bg: #eaeff5;
+  --page-header-btn-tertiary-disabled-fg: #e0e4eb;
+
+  /* Scrollbar */
+  --scrollbar-track: #f4f4f5;
+  --scrollbar-thumb: #d4d4d8;
+  --scrollbar-thumb-hover: #a1a1aa;
+}
+
+/* ===========================================
+   MACONOMY THEME - DARK MODE
+   =========================================== */
+
+html.theme-maconomy.dark {
+  /* Primary Colors */
+  --theme-primary: #59ACFF;
+  --theme-primary-hover: #7bb8ff;
+  --theme-primary-light: rgba(89, 172, 255, 0.1);
+
+  /* Backgrounds */
+  --page-bg: #15171A;
+  --card-bg: #1F2124;
+  --nav-bg: #1A1C1F;
+  --input-bg: #1F2124;
+  --input-disabled-bg: #2A2D32;
+  --surface-bg: #1A1C1F;
+  --elevated-bg: #1F2124;
+  --hover-bg: #2A2D32;
+  --table-total-bg: rgba(89, 172, 255, 0.15);
+  
+  /* Table Header Colors */
+  --table-header-gray-bg: #37424D; /* Gray header background for dark mode */
+  
+  /* Table Row Colors - Blue tints for accessibility and visibility */
+  --table-row-hover-bg: rgba(89, 172, 255, 0.15); /* Light blue tint for unselected row hover in dark mode */
+  --table-row-selected-bg: rgba(89, 172, 255, 0.15); /* Blue tint for selected rows (15% for better visibility) */
+  --table-row-selected-hover-bg: rgba(89, 172, 255, 0.15); /* Light blue tint for selected row hover in dark mode */
+
+  /* Text Colors */
+  --text-primary: #FAFAFA;
+  --text-secondary: #B5B5BC;
+  --text-muted: #B5B5BC;
+  --text-inverse: #15171A;
+
+  /* Border Colors */
+  --border-color: #2A2D32;
+  --border-light: #3A3D42;
+  --border-focus: var(--theme-primary);
+
+  /* Link Color */
+  --link-color: #ADD0FF;
+
+  /* Semantic Colors */
+  --color-success: #00E78E;
+  --color-success-hover: #00C77A;
+  --color-warning: #F9AF00;
+  --color-error: #F46286;
+  --color-info: #00ADFD;
+
+  /* Semantic Color Opacity Variants */
+  --color-info-light: rgba(0, 173, 253, 0.1);
+  --color-info-border: rgba(0, 173, 253, 0.3);
+  --color-success-light: rgba(0, 231, 142, 0.1);
+  --color-success-border: rgba(0, 231, 142, 0.3);
+  --color-success-bg-subtle: rgba(0, 231, 142, 0.05);
+  --color-warning-light: rgba(249, 175, 0, 0.1);
+  --color-warning-border: rgba(249, 175, 0, 0.2);
+  --color-warning-focus: rgba(249, 175, 0, 0.48);
+  --color-error-light: rgba(244, 98, 134, 0.1);
+  --color-error-border: rgba(244, 98, 134, 0.2);
+  --color-error-bg-subtle: rgba(244, 98, 134, 0.05);
+  --color-error-focus: rgba(244, 98, 134, 0.32);
+
+  /* Theme Button Colors */
+  --theme-btn-primary: #4A7BC8;
+  --theme-btn-primary-hover: #3D6BA8;
+  --theme-btn-primary-disabled-bg: #e0e4eb;
+  --theme-btn-primary-disabled-fg: #bfc6d4;
+  --theme-btn-secondary-stroke: var(--theme-primary);
+  --theme-btn-secondary-hover-bg: #eaeff5;
+  --theme-btn-secondary-hover-fg: var(--theme-primary);
+  --theme-btn-secondary-hover-stroke: var(--theme-primary);
+  --theme-btn-secondary-disabled-fg: #e0e4eb;
+  --theme-btn-tertiary-fg: var(--theme-primary);
+  --theme-btn-tertiary-hover-bg: #eaeff5;
+  --theme-btn-tertiary-disabled-fg: #bfc6d4;
+
+  /* Page Header Button Colors */
+  --page-header-btn-primary: #495057;
+  --page-header-btn-primary-hover: #03273a;
+  --page-header-btn-primary-disabled-bg: #e0e4eb;
+  --page-header-btn-primary-disabled-fg: #ffffff;
+  --page-header-btn-secondary-stroke: #495057;
+  --page-header-btn-secondary-default-fg: #495057;
+  --page-header-btn-secondary-hover-bg: #eaeff5;
+  --page-header-btn-secondary-hover-fg: #495057;
+  --page-header-btn-secondary-hover-stroke: #495057;
+  --page-header-btn-secondary-disabled-fg: #e0e4eb;
+  --page-header-btn-tertiary-fg: #495057;
+  --page-header-btn-tertiary-hover-bg: #eaeff5;
+  --page-header-btn-tertiary-disabled-fg: #e0e4eb;
+
+  /* Scrollbar */
+  --scrollbar-track: #15171A;
+  --scrollbar-thumb: #3A3D42;
+  --scrollbar-thumb-hover: #52525b;
+}
+

@@ -1,0 +1,63 @@
+/* LIST MENU (Harmony Design System) */
+.list-menu {
+  background-color: var(--card-bg);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+}
+
+.list-menu__item {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  gap: var(--space-3);
+  padding: var(--space-3) var(--space-4);
+  font-size: var(--text-sm);
+  color: var(--text-primary);
+  cursor: pointer;
+  transition: background-color var(--transition-fast);
+  border-bottom: 1px solid var(--border-color);
+}
+
+.list-menu__item:last-child {
+  border-bottom: none;
+}
+
+.list-menu__item:hover {
+  background-color: var(--hover-bg);
+}
+
+.list-menu__item.is-active {
+  background-color: var(--theme-primary-light);
+  color: var(--theme-primary);
+}
+
+.list-menu__item-icon {
+  color: var(--text-muted);
+}
+
+.list-menu__custom-icon {
+  width: var(--space-5);
+  height: var(--space-5);
+  object-fit: contain;
+}
+
+.list-menu__item:hover .list-menu__item-icon,
+.list-menu__item.is-active .list-menu__item-icon {
+  color: var(--theme-primary);
+}
+
+.list-menu--no-borders .list-menu__item {
+  border-bottom: none;
+}
+
+@media (max-width: var(--breakpoint-md)) {
+  .list-menu {
+    width: 100%;
+  }
+
+  .list-menu__item {
+    min-height: 44px;
+    padding: var(--space-3) var(--space-4);
+  }
+}

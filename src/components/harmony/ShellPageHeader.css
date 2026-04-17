@@ -1,0 +1,73 @@
+/* ShellPageHeader scoped styles (ported from Harmony source) */
+.shell-page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: var(--space-3) 0;
+  margin-bottom: var(--space-3);
+  gap: var(--space-4);
+}
+
+.shell-page-header__left {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  flex: 1;
+  min-width: 0;
+}
+
+.shell-page-header__title {
+  font-family: var(--font-display);
+  font-size: var(--heading-l);
+  font-weight: var(--font-semibold);
+  line-height: var(--leading-snug);
+  color: var(--text-primary);
+  margin: 0;
+}
+
+.shell-page-header__subtitle {
+  font-family: var(--font-sans);
+  font-size: var(--text-base);
+  font-weight: var(--font-normal);
+  line-height: var(--leading-normal);
+  color: var(--text-secondary);
+  margin: 0;
+}
+
+.shell-page-header__actions {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  flex-shrink: 0;
+}
+
+.shell-page-header__actions .btn--page-header.btn--secondary {
+  background-color: transparent;
+}
+
+.shell-page-header__actions .btn--page-header.btn--secondary:hover {
+  background-color: var(--page-header-btn-secondary-hover-bg);
+}
+
+.shell-page-header__actions .btn--page-header.btn--secondary:disabled,
+.shell-page-header__actions .btn--page-header.btn--secondary.btn--disabled {
+  background-color: transparent;
+}
+
+@media (max-width: var(--breakpoint-md)) {
+  .shell-page-header {
+    flex-direction: column;
+    align-items: stretch;
+    gap: var(--space-4);
+  }
+
+  .shell-page-header__actions {
+    flex-wrap: wrap;
+    width: 100%;
+  }
+
+  .shell-page-header__actions .btn {
+    flex: 1;
+    min-width: 120px;
+  }
+}

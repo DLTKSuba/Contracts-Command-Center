@@ -1,0 +1,121 @@
+/* DIALOG (Harmony Design System) */
+.dialog-overlay {
+  position: fixed;
+  inset: 0;
+  background-color: var(--overlay-backdrop-opacity);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: var(--z-modal);
+  opacity: 0;
+  visibility: hidden;
+  transition: all var(--transition-fast);
+}
+
+.dialog-overlay.is-open {
+  opacity: 1;
+  visibility: visible;
+}
+
+.dialog {
+  display: flex;
+  flex-direction: column;
+  background-color: var(--card-bg);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-xl);
+  min-width: var(--dialog-min-width);
+  max-width: var(--dialog-max-width-default);
+  width: var(--dialog-width-percentage);
+  max-height: var(--dialog-max-height);
+  overflow: hidden;
+  transform: scale(0.95);
+  transition: transform var(--transition-fast);
+}
+
+.dialog-overlay.is-open .dialog {
+  transform: scale(1);
+}
+
+.dialog__header {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--space-4) var(--space-6);
+  border-bottom: 1px solid var(--border-color);
+  background-color: var(--card-bg);
+}
+
+.dialog__header--variant-primary {
+  background-color: var(--theme-primary);
+  border-bottom-color: var(--theme-primary);
+}
+
+.dialog__header--variant-primary .dialog__title {
+  color: var(--text-inverse);
+}
+
+.dialog__header--variant-primary .dialog__close {
+  color: var(--text-inverse);
+}
+
+.dialog__header--variant-primary .dialog__close:hover {
+  color: var(--text-inverse);
+  opacity: 0.8;
+}
+
+.dialog__title {
+  font-family: var(--font-display);
+  font-size: var(--text-lg);
+  font-weight: var(--font-semibold);
+  color: var(--text-primary);
+}
+
+.dialog__close {
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: color var(--transition-fast);
+  background: none;
+  border: none;
+  padding: 0;
+}
+
+.dialog__close:hover {
+  color: var(--text-primary);
+}
+
+.dialog__body {
+  flex: 1 1 auto;
+  min-height: 0;
+  max-height: 600px;
+  padding: var(--space-6);
+  overflow-y: auto;
+  color: var(--text-secondary);
+}
+
+.dialog__footer {
+  flex-shrink: 0;
+  display: flex;
+  justify-content: flex-start;
+  gap: var(--space-3);
+  padding: var(--space-4) var(--space-6);
+  border-top: 1px solid var(--border-color);
+  background-color: var(--elevated-bg);
+}
+
+.dialog__footer--align-right {
+  justify-content: flex-end;
+}
+
+.dialog__footer--align-left {
+  justify-content: flex-start;
+}
+
+@media (max-width: var(--breakpoint-md)) {
+  .dialog {
+    width: calc(100vw - var(--dialog-margin-horizontal));
+    max-width: 100%;
+    margin: var(--dialog-margin);
+    max-height: calc(100vh - var(--dialog-margin-vertical));
+  }
+}

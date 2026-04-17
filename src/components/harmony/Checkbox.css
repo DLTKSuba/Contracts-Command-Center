@@ -1,0 +1,143 @@
+/* CHECKBOX (Harmony Design System) */
+.checkbox {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  cursor: pointer;
+}
+
+.checkbox__input {
+  position: absolute;
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.checkbox__box {
+  width: 18px;
+  height: 18px;
+  border: var(--border-width-standard) solid var(--border-color);
+  border-radius: var(--radius-sm);
+  background-color: var(--input-bg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all var(--transition-fast);
+  flex-shrink: 0;
+}
+
+.checkbox__input:checked + .checkbox__box {
+  background-color: var(--theme-primary);
+  border-color: var(--theme-primary);
+}
+
+.checkbox__input:focus + .checkbox__box {
+  box-shadow: var(--focus-ring-primary);
+}
+
+.checkbox__input:disabled + .checkbox__box {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.checkbox__icon {
+  color: white;
+  font-size: var(--text-xs);
+  opacity: 0;
+  transform: scale(0);
+  transition: all var(--transition-fast);
+}
+
+.checkbox__input:checked + .checkbox__box .checkbox__icon {
+  opacity: 1;
+  transform: scale(1);
+}
+
+.checkbox__label {
+  font-size: var(--text-sm);
+  color: var(--text-primary);
+}
+
+.checkbox--disabled {
+  cursor: not-allowed;
+}
+
+.checkbox--disabled .checkbox__label {
+  color: var(--text-muted);
+}
+
+.checkbox--warning .checkbox__box {
+  border-color: var(--color-warning);
+}
+
+.checkbox--warning .checkbox__input:checked + .checkbox__box {
+  background-color: var(--theme-primary);
+  border-color: var(--theme-primary);
+  box-shadow: 0 0 0 1px var(--color-warning);
+}
+
+.checkbox--warning .checkbox__input:focus + .checkbox__box {
+  box-shadow: var(--focus-ring-warning);
+}
+
+.checkbox--warning .checkbox__input:checked:focus + .checkbox__box {
+  box-shadow: var(--focus-ring-warning-checked);
+}
+
+.checkbox--error .checkbox__box {
+  border-color: var(--color-error);
+  border-width: var(--border-width-standard);
+}
+
+.checkbox--error .checkbox__input:checked + .checkbox__box {
+  background-color: var(--theme-primary);
+  border-color: var(--theme-primary);
+  box-shadow: 0 0 0 2px var(--color-error);
+}
+
+.checkbox--error .checkbox__input:focus + .checkbox__box {
+  box-shadow: var(--focus-ring-error);
+}
+
+.checkbox--error .checkbox__input:checked:focus + .checkbox__box {
+  box-shadow: var(--focus-ring-error-checked);
+}
+
+.checkbox-wrapper {
+  display: flex;
+  flex-direction: column;
+}
+
+.checkbox-wrapper__warning,
+.checkbox-wrapper__error {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+  margin-top: var(--space-1);
+  font-size: var(--text-sm);
+  color: var(--text-secondary);
+}
+
+.checkbox-wrapper__warning {
+  color: var(--text-secondary);
+}
+
+.checkbox-wrapper__warning-icon {
+  color: var(--color-warning);
+  flex-shrink: 0;
+}
+
+.checkbox-wrapper__error {
+  color: var(--text-secondary);
+}
+
+.checkbox-wrapper__error-icon {
+  color: var(--color-error);
+  flex-shrink: 0;
+}
+
+@media (max-width: var(--breakpoint-md)) {
+  .checkbox {
+    min-height: 44px;
+  }
+}

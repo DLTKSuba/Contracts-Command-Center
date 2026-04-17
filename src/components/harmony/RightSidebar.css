@@ -1,0 +1,57 @@
+/* RightSidebar: scoped styles for theme visibility. Base styles from components.css (loaded globally). */
+
+/* Hide all variants by default */
+.right-sidebar__variant {
+  display: none;
+}
+
+/* Show CP variant when CP theme is active */
+html.theme-cp .right-sidebar__variant--cp {
+  display: contents;
+}
+
+/* Show VP variant when VP theme is active */
+html.theme-vp .right-sidebar__variant--vp {
+  display: contents;
+}
+
+/* Show PPM variant when PPM theme is active */
+html.theme-ppm .right-sidebar__variant--ppm {
+  display: contents;
+}
+
+/* Show Maconomy variant when Maconomy theme is active */
+html.theme-maconomy .right-sidebar__variant--maconomy {
+  display: contents;
+}
+
+/* Dela logo: size and default/active visibility */
+.right-sidebar__dela-logo {
+  width: 36px;
+  height: 36px;
+  border-radius: 12px;
+}
+
+.right-sidebar__dela-logo--active {
+  display: none;
+}
+
+.right-sidebar__item[data-active="true"]:has(.right-sidebar__dela-logo) .right-sidebar__dela-logo--default {
+  display: none;
+}
+
+.right-sidebar__item[data-active="true"]:has(.right-sidebar__dela-logo) .right-sidebar__dela-logo--active {
+  display: block;
+}
+
+/* Dark mode: img-based sidebar icons (RS_DelaDefault, etc.) appear white; exclude active Dela (gradient) */
+html.dark .right-sidebar__icon img:not(.right-sidebar__dela-logo--active),
+.dark .right-sidebar__icon img:not(.right-sidebar__dela-logo--active),
+body.dark .right-sidebar__icon img:not(.right-sidebar__dela-logo--active) {
+  filter: brightness(0) invert(1);
+}
+html.dark .right-sidebar__icon-img:not(.right-sidebar__dela-logo--active),
+.dark .right-sidebar__icon-img:not(.right-sidebar__dela-logo--active),
+body.dark .right-sidebar__icon-img:not(.right-sidebar__dela-logo--active) {
+  filter: brightness(0) invert(1);
+}

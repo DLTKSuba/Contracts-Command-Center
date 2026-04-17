@@ -1,0 +1,119 @@
+/* RANGE INPUT (Harmony Design System) */
+.range-wrap {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.range {
+  --thumb-size: 20px;
+  --track-height: 6px;
+  --track-color: var(--border-color);
+  --thumb-color: var(--theme-primary);
+  width: 100%;
+  height: var(--thumb-size);
+  background: transparent;
+  cursor: pointer;
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+.range:focus {
+  outline: none;
+}
+
+.range::-webkit-slider-runnable-track {
+  height: var(--track-height);
+  background: var(--track-color);
+  border-radius: var(--radius-full);
+}
+
+.range::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: var(--thumb-size);
+  height: var(--thumb-size);
+  background: var(--thumb-color);
+  border-radius: var(--radius-full);
+  margin-top: calc((var(--track-height) - var(--thumb-size)) / 2);
+  box-shadow: var(--shadow-sm);
+  transition: transform var(--transition-fast);
+}
+
+.range::-webkit-slider-thumb:hover {
+  transform: scale(1.1);
+}
+
+.range::-moz-range-track {
+  height: var(--track-height);
+  background: var(--track-color);
+  border-radius: var(--radius-full);
+}
+
+.range::-moz-range-thumb {
+  width: var(--thumb-size);
+  height: var(--thumb-size);
+  background: var(--thumb-color);
+  border: none;
+  border-radius: var(--radius-full);
+  box-shadow: var(--shadow-sm);
+}
+
+.range:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.range-value {
+  min-width: 50px;
+  text-align: right;
+  font-size: var(--text-sm);
+  color: var(--text-secondary);
+  flex-shrink: 0;
+}
+
+.range-input-form-wrapper {
+  display: flex;
+  flex-direction: column;
+}
+
+.range-input-form-wrapper--inline {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: var(--space-1);
+}
+
+.range-input-form-wrapper--stacked {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1-5);
+}
+
+.range-input-form-wrapper__label {
+  margin-bottom: 0;
+  white-space: nowrap;
+}
+
+@media (max-width: var(--breakpoint-md)) {
+  .range-wrap {
+    width: 100%;
+    gap: var(--space-2);
+  }
+
+  .range {
+    width: 100%;
+    --thumb-size: 24px;
+    --track-height: 8px;
+  }
+
+  .range-value {
+    min-width: 40px;
+    font-size: var(--text-xs);
+  }
+
+  .range-input-form-wrapper--inline {
+    flex-direction: column;
+    align-items: stretch;
+    gap: var(--space-2);
+  }
+}

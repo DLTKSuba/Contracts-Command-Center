@@ -1,0 +1,31 @@
+/* LeftSidebar: scoped styles for theme visibility. Base styles from components.css (loaded globally). */
+
+/* Hide all variants by default */
+.left-sidebar__variant {
+  display: none;
+}
+
+/* Show CP variant when CP theme is active */
+html.theme-cp .left-sidebar__variant--cp {
+  display: contents;
+}
+
+/* Show VP variant when VP theme is active */
+html.theme-vp .left-sidebar__variant--vp {
+  display: contents;
+}
+
+/* Show PPM variant when PPM theme is active */
+html.theme-ppm .left-sidebar__variant--ppm {
+  display: contents;
+}
+
+/* Show Maconomy variant when Maconomy theme is active */
+html.theme-maconomy .left-sidebar__variant--maconomy {
+  display: contents;
+}
+
+/* Dark mode: img-based custom icons (e.g. Report, Resource) appear white */
+html.dark .left-sidebar__icon .left-sidebar__custom-icon {
+  filter: brightness(0) invert(1);
+}
