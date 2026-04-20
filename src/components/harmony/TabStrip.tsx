@@ -15,6 +15,9 @@ export interface TabStripTab {
 
 export interface TabStripProps {
   tabs: TabStripTab[]
+  /** When set with `onTabChange`, selection is controlled by this id instead of each tab’s `active` flag. */
+  activeTabId?: string
+  onTabChange?: (tabId: string) => void
   showAddTab?: boolean
   addTabLabel?: string
   overflowMode?: 'auto' | 'manual' | 'none'
@@ -26,6 +29,8 @@ export interface TabStripProps {
 
 export function TabStrip({
   tabs = [],
+  activeTabId,
+  onTabChange,
   showAddTab = false,
   addTabLabel = 'Add Tab',
   overflowMode = 'auto',
@@ -53,6 +58,8 @@ export function TabStrip({
         <div className="tabstrip__container">
           <div className="tabstrip__tabs" data-tabstrip-tabs>
             {tabs.map((tab) => {
+              const controlled = onTabChange != null
+              const isActive = controlled ? activeTabId === tab.id : !!tab.active
               const iconModifier =
                 iconPosition === 'top'
                   ? 'tab--icon-top'
@@ -79,12 +86,14 @@ export function TabStrip({
               )
               const tabClasses = clsx(
                 'tab',
-                tab.active && 'is-active',
+                isActive && 'is-active',
                 tab.disabled && 'tab--disabled',
                 iconModifier
               )
-              const tabIndex =
-                tab.active && !tab.disabled ? 0 : -1
+              const tabIndex = isActive && !tab.disabled ? 0 : -1
+              const select = () => {
+                if (!tab.disabled) onTabChange?.(tab.id)
+              }
 
               if (tab.href) {
                 return (
@@ -92,7 +101,7 @@ export function TabStrip({
                     key={tab.id}
                     href={tab.href}
                     role="tab"
-                    aria-selected={tab.active ? 'true' : 'false'}
+                    aria-selected={isActive ? 'true' : 'false'}
                     aria-disabled={tab.disabled ? 'true' : 'false'}
                     className={tabClasses}
                     tabIndex={tabIndex}
@@ -108,13 +117,14 @@ export function TabStrip({
                   key={tab.id}
                   type="button"
                   role="tab"
-                  aria-selected={tab.active ? 'true' : 'false'}
+                  aria-selected={isActive ? 'true' : 'false'}
                   aria-disabled={tab.disabled ? 'true' : 'false'}
                   className={tabClasses}
                   disabled={tab.disabled}
                   tabIndex={tabIndex}
                   data-tab-id={tab.id}
                   data-tab-icon={tab.icon ?? ''}
+                  onClick={select}
                 >
                   {tabContent}
                 </button>

@@ -117,6 +117,25 @@
   flex-shrink: 0;
 }
 
+/* Command Center home: no full-width rule; tab indicators only on tab controls */
+.tabstrip--command-center-tabs {
+  width: fit-content;
+  max-width: 100%;
+}
+
+.tabstrip--command-center-tabs .tabstrip__nav {
+  width: auto;
+}
+
+.tabstrip--command-center-tabs .tabstrip__container {
+  width: fit-content;
+  border-bottom: none;
+}
+
+.tabstrip--command-center-tabs .tabstrip__tabs {
+  flex: 0 1 auto;
+}
+
 .tabstrip__dropdown-item-actions {
   display: flex;
   align-items: center;

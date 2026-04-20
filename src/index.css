@@ -11,3 +11,12 @@
 #root {
   display: block;
 }
+
+/* Command Center home card + body: white surface per design reference */
+.command-center-home.card {
+  background-color: #ffffff;
+}
+
+.command-center-home .card__body {
+  background-color: #ffffff;
+}

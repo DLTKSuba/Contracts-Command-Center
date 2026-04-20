@@ -55,6 +55,8 @@ export interface ShellLayoutProps {
   pageHeaderOutlineButton1?: ShellPageHeaderButtonConfig
   pageHeaderOutlineButton2?: ShellPageHeaderButtonConfig
   pageHeaderOutlineButton3?: ShellPageHeaderButtonConfig
+  /** When false, hides default Primary / Secondary buttons when no custom header buttons are set. */
+  pageHeaderShowDefaultButtons?: boolean
   pageHeaderActions?: React.ReactNode
   leftSidebarSections?: LeftSidebarSection[]
   rightSidebarSections?: RightSidebarSection[]
@@ -96,6 +98,7 @@ export function ShellLayout({
   pageHeaderOutlineButton1,
   pageHeaderOutlineButton2,
   pageHeaderOutlineButton3,
+  pageHeaderShowDefaultButtons = true,
   pageHeaderActions,
   leftSidebarSections,
   rightSidebarSections,
@@ -161,6 +164,7 @@ export function ShellLayout({
             <ShellPageHeader
               title={pageHeaderTitle}
               subtitle={pageHeaderSubtitle}
+              showDefaultButtons={pageHeaderShowDefaultButtons}
               primaryButton={pageHeaderPrimaryButton}
               outlineButton1={pageHeaderOutlineButton1}
               outlineButton2={pageHeaderOutlineButton2}
