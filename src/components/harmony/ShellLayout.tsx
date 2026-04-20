@@ -63,6 +63,8 @@ export interface ShellLayoutProps {
   rightSidebarVariant?: RightSidebarVariant
   className?: string
   children?: React.ReactNode
+  /** Portals / overlays fixed to the shell (e.g. `ShellPanel`) — must be a descendant of `.shell-layout`. */
+  shellOverlay?: React.ReactNode
 }
 
 const DEFAULT_TABS: ShellFooterTab[] = [
@@ -105,6 +107,7 @@ export function ShellLayout({
   rightSidebarVariant,
   className = '',
   children,
+  shellOverlay,
 }: ShellLayoutProps) {
   const isCPVariant = showFloatingNav === true
   const effectiveHasFooter = showFooter
@@ -199,6 +202,7 @@ export function ShellLayout({
           />
         )}
       </div>
+      {shellOverlay}
     </div>
   )
 }

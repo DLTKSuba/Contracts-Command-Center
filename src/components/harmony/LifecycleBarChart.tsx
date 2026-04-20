@@ -1,6 +1,8 @@
 import type { ReactNode } from 'react'
+import { useMemo, useState } from 'react'
 import clsx from 'clsx'
-import { Icon } from './Icon'
+import { Dropdown } from './Dropdown'
+import type { Option } from './Dropdown'
 import './LifecycleBarChart.css'
 
 export interface LifecycleBarChartBar {
@@ -17,25 +19,57 @@ export interface LifecycleBarChartProps {
   bars: LifecycleBarChartBar[]
   /** Top of Y-axis (e.g. 200); bars scale to this max */
   yAxisMax: number
+  /** Label for the default “all” scope when `filterOptions` is not provided */
   filterLabel?: string
+  /** Harmony Dropdown options (defaults: All Projects + common scopes) */
+  filterOptions?: Option[]
+  /** Controlled filter value (must match an option `value`) */
+  filterValue?: string
+  onFilterChange?: (value: string) => void
   /** Optional status definitions (e.g. requisition lifecycle copy) */
   legendItems?: string[]
   legendTitle?: string
   /** Renders inside the same bordered container (e.g. lifecycle data table). */
   children?: ReactNode
+  /** Merged onto the table wrapper (e.g. `position: relative` for an inline detail panel). */
+  tableWrapperClassName?: string
   className?: string
 }
+
+const DEFAULT_FILTER_OPTIONS = (allLabel: string): Option[] => [
+  { value: 'all', label: allLabel },
+  { value: 'active', label: 'Active projects' },
+  { value: 'recent', label: 'Recently updated' },
+]
 
 export function LifecycleBarChart({
   title,
   bars,
   yAxisMax,
   filterLabel = 'All Projects',
+  filterOptions: filterOptionsProp,
+  filterValue: filterValueProp,
+  onFilterChange,
   legendItems,
   legendTitle = 'Status definitions',
   children,
+  tableWrapperClassName,
   className = '',
 }: LifecycleBarChartProps) {
+  const [internalFilter, setInternalFilter] = useState('all')
+  const controlled = filterValueProp !== undefined
+  const filterValue = controlled ? filterValueProp : internalFilter
+
+  const filterOptions = useMemo(() => {
+    if (filterOptionsProp != null && filterOptionsProp.length > 0) return filterOptionsProp
+    return DEFAULT_FILTER_OPTIONS(filterLabel)
+  }, [filterOptionsProp, filterLabel])
+
+  const handleFilterChange = (value: string) => {
+    if (!controlled) setInternalFilter(value)
+    onFilterChange?.(value)
+  }
+
   const ticks = 5
   const tickValues = Array.from({ length: ticks }, (_, i) => {
     const step = yAxisMax / (ticks - 1)
@@ -48,10 +82,13 @@ export function LifecycleBarChart({
     <section className={clsx('lifecycle-bar-chart', className)} aria-label={summary}>
       <div className="lifecycle-bar-chart__header">
         <h3 className="lifecycle-bar-chart__title">{title}</h3>
-        <div className="lifecycle-bar-chart__filter">
-          <span>{filterLabel}</span>
-          <Icon name="chevron-down" size="sm" aria-hidden />
-        </div>
+        <Dropdown
+          className="lifecycle-bar-chart__dropdown"
+          options={filterOptions}
+          value={filterValue}
+          onChange={handleFilterChange}
+          placeholder={filterLabel}
+        />
       </div>
 
       <div className="lifecycle-bar-chart__plot">
@@ -73,8 +110,15 @@ export function LifecycleBarChart({
                   role="listitem"
                   title={bar.description ?? bar.label}
                 >
-                  <span className="lifecycle-bar-chart__value">{bar.value}</span>
                   <div className="lifecycle-bar-chart__track">
+                    <span
+                      className="lifecycle-bar-chart__value"
+                      style={{
+                        bottom: `calc(${pct}% + 4px)`,
+                      }}
+                    >
+                      {bar.value}
+                    </span>
                     <div
                       className="lifecycle-bar-chart__bar"
                       style={{
@@ -100,7 +144,7 @@ export function LifecycleBarChart({
               role="listitem"
               title={bar.description ?? bar.label}
             >
-              {bar.label}
+              <span className="lifecycle-bar-chart__label-cell-inner">{bar.label}</span>
             </div>
           ))}
         </div>
@@ -118,7 +162,7 @@ export function LifecycleBarChart({
       )}
 
       {children != null && (
-        <div className="lifecycle-bar-chart__table">{children}</div>
+        <div className={clsx('lifecycle-bar-chart__table', tableWrapperClassName)}>{children}</div>
       )}
     </section>
   )

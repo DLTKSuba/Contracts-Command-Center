@@ -11,6 +11,8 @@ export interface TabStripTab {
   active?: boolean
   disabled?: boolean
   href?: string
+  /** When true (and `onTabClose` is provided), a close control is shown for this tab (button tabs only). */
+  closable?: boolean
 }
 
 export interface TabStripProps {
@@ -18,6 +20,8 @@ export interface TabStripProps {
   /** When set with `onTabChange`, selection is controlled by this id instead of each tab’s `active` flag. */
   activeTabId?: string
   onTabChange?: (tabId: string) => void
+  /** Called when a tab with `closable: true` is dismissed. */
+  onTabClose?: (tabId: string) => void
   showAddTab?: boolean
   addTabLabel?: string
   overflowMode?: 'auto' | 'manual' | 'none'
@@ -31,6 +35,7 @@ export function TabStrip({
   tabs = [],
   activeTabId,
   onTabChange,
+  onTabClose,
   showAddTab = false,
   addTabLabel = 'Add Tab',
   overflowMode = 'auto',
@@ -112,6 +117,49 @@ export function TabStrip({
                   </a>
                 )
               }
+
+              const closable = Boolean(tab.closable && onTabClose)
+              if (closable) {
+                return (
+                  <div
+                    key={tab.id}
+                    className={clsx('tabstrip__tab-group', isActive && 'is-active')}
+                    data-tab-id={tab.id}
+                  >
+                    <button
+                      type="button"
+                      role="tab"
+                      aria-selected={isActive ? 'true' : 'false'}
+                      aria-disabled={tab.disabled ? 'true' : 'false'}
+                      className={clsx(
+                        'tab',
+                        'tab--in-group',
+                        tab.disabled && 'tab--disabled',
+                        iconModifier,
+                      )}
+                      disabled={tab.disabled}
+                      tabIndex={tabIndex}
+                      data-tab-icon={tab.icon ?? ''}
+                      onClick={select}
+                    >
+                      {tabContent}
+                    </button>
+                    <button
+                      type="button"
+                      className="tabstrip__tab-close"
+                      aria-label={`Close ${tab.label}`}
+                      title="Close tab"
+                      onClick={(e) => {
+                        e.preventDefault()
+                        onTabClose?.(tab.id)
+                      }}
+                    >
+                      <Icon name="x-mark" size="xs" />
+                    </button>
+                  </div>
+                )
+              }
+
               return (
                 <button
                   key={tab.id}

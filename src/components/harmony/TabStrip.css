@@ -117,10 +117,13 @@
   flex-shrink: 0;
 }
 
-/* Command Center home: no full-width rule; tab indicators only on tab controls */
+/* Command Center home: tab row width follows tabs; baseline rule does not span the card */
 .tabstrip--command-center-tabs {
   width: fit-content;
   max-width: 100%;
+  padding-bottom: var(--space-1);
+  border-bottom: 1px solid var(--border-color);
+  box-sizing: border-box;
 }
 
 .tabstrip--command-center-tabs .tabstrip__nav {
@@ -134,6 +137,59 @@
 
 .tabstrip--command-center-tabs .tabstrip__tabs {
   flex: 0 1 auto;
+}
+
+.tabstrip__tab-group {
+  display: inline-flex;
+  align-items: stretch;
+  margin-bottom: -1px;
+}
+
+.tabstrip__tab-group .tab--in-group {
+  margin-bottom: 0;
+  border-bottom: var(--border-width-standard) solid transparent;
+  color: var(--text-secondary);
+}
+
+.tabstrip__tab-group .tab--in-group:hover {
+  color: var(--text-primary);
+}
+
+.tabstrip__tab-group.is-active {
+  border-bottom: var(--border-width-thick) solid var(--theme-primary);
+}
+
+.tabstrip__tab-group.is-active .tab--in-group {
+  color: var(--theme-primary);
+}
+
+.tabstrip__tab-close {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 var(--space-2);
+  margin-bottom: 0;
+  border: none;
+  border-bottom: none;
+  background: transparent;
+  color: var(--text-secondary);
+  cursor: pointer;
+  border-radius: var(--radius-sm);
+  transition: color var(--transition-fast), background-color var(--transition-fast);
+}
+
+.tabstrip__tab-close:hover {
+  color: var(--text-primary);
+  background-color: var(--hover-bg);
+}
+
+.tabstrip__tab-group.is-active .tabstrip__tab-close {
+  color: var(--theme-primary);
+}
+
+.tabstrip__tab-group.is-active .tabstrip__tab-close:hover {
+  color: var(--theme-primary);
+  background-color: var(--hover-bg);
 }
 
 .tabstrip__dropdown-item-actions {

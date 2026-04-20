@@ -12,6 +12,8 @@ export interface ShellPanelProps {
   headerVariant?: 'theme' | 'default'
   width?: 'narrow' | 'full'
   showClose?: boolean
+  /** When false, hides the narrow/full width toggle (maximize) control. */
+  showWidthToggle?: boolean
   showPopout?: boolean
   variant?: 'default' | 'dela'
   id?: string
@@ -30,6 +32,7 @@ export function ShellPanel({
   headerVariant = 'theme',
   width: controlledWidth,
   showClose = true,
+  showWidthToggle = true,
   showPopout = true,
   variant = 'default',
   id,
@@ -83,16 +86,18 @@ export function ShellPanel({
             </span>
             <h2 className="shell-panel__title">{title}</h2>
             <div className="shell-panel__actions">
-              <button
-                type="button"
-                className="shell-panel__action shell-panel__action--toggle-width"
-                aria-label="Toggle panel width"
-                data-panel-toggle-width
-                onClick={handleToggleWidth}
-              >
-                <Icon name="arrows-pointing-out" size="md" variant="outline" className="shell-panel__icon-maximize" />
-                <Icon name="arrows-pointing-in" size="md" variant="outline" className="shell-panel__icon-minimize" />
-              </button>
+              {showWidthToggle && (
+                <button
+                  type="button"
+                  className="shell-panel__action shell-panel__action--toggle-width"
+                  aria-label="Toggle panel width"
+                  data-panel-toggle-width
+                  onClick={handleToggleWidth}
+                >
+                  <Icon name="arrows-pointing-out" size="md" variant="outline" className="shell-panel__icon-maximize" />
+                  <Icon name="arrows-pointing-in" size="md" variant="outline" className="shell-panel__icon-minimize" />
+                </button>
+              )}
               {showPopout && (
                 <button
                   type="button"

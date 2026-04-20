@@ -154,6 +154,11 @@
   --alert-chip-disabled-fg: #94a3b8;
   --alert-chip-disabled-border: #bfc6d4;
 
+  /* Command Center — Purchase Requisition overdue strip (Harmony spec gold) */
+  --command-center-overdue-strip-bg: #edc46c;
+  --command-center-overdue-strip-fg: #1f2937;
+  --command-center-overdue-strip-border: rgba(31, 41, 55, 0.18);
+
   /* Gradient Tokens */
   --gradient-dela: linear-gradient(119deg, #8A33C2 17.59%, #423FE2 77.78%);
   --gradient-dela-start: #8A33C2;
