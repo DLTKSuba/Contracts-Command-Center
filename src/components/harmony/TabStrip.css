@@ -121,8 +121,6 @@
 .tabstrip--command-center-tabs {
   width: fit-content;
   max-width: 100%;
-  padding-bottom: var(--space-1);
-  border-bottom: 1px solid var(--border-color);
   box-sizing: border-box;
 }
 
@@ -135,8 +133,14 @@
   border-bottom: none;
 }
 
+/*
+ * Put the 1px baseline on .tabstrip__tabs (same layer as default .tabstrip__container border)
+ * so .tab { margin-bottom: -1px } and .tabstrip__tab-group { margin-bottom: -1px } overlap it
+ * exactly with the active selection underline.
+ */
 .tabstrip--command-center-tabs .tabstrip__tabs {
   flex: 0 1 auto;
+  border-bottom: 1px solid var(--border-color);
 }
 
 .tabstrip__tab-group {
