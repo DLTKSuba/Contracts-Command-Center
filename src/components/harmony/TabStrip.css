@@ -1,4 +1,4 @@
-/* TabStrip scoped styles (ported from Harmony source) */
+/* TabStrip scoped styles (from TabStrip.astro <style>) */
 .tabstrip {
   width: 100%;
 }
@@ -15,13 +15,102 @@
   border-bottom: 1px solid var(--border-color);
 }
 
+/* overflow-x: hidden + overflow-y: visible computes to y: auto and clips per-tab ⋮ menus */
 .tabstrip__tabs {
   display: flex;
   flex: 1;
   gap: var(--space-1);
   min-width: 0;
-  overflow-x: hidden;
-  overflow-y: hidden;
+  overflow-x: clip;
+  overflow-y: visible;
+  align-items: stretch;
+}
+
+.tabstrip__tab-cell {
+  display: flex;
+  flex-direction: row;
+  align-items: stretch;
+  flex-shrink: 0;
+  min-width: 0;
+  max-width: 100%;
+}
+
+.tabstrip__tab-cell .tab {
+  flex: 1;
+  min-width: 0;
+}
+
+.tabstrip__tab-toolbar {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: var(--space-1);
+  flex-shrink: 0;
+  padding-left: var(--space-1);
+  padding-right: var(--space-1);
+}
+
+.tabstrip__tab-menu-wrapper {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+}
+
+.tabstrip__tab-action-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-1);
+  border: none;
+  background: transparent;
+  color: var(--text-secondary);
+  cursor: pointer;
+  border-radius: var(--radius-sm);
+  transition: background-color var(--transition-fast), color var(--transition-fast);
+}
+
+.tabstrip__tab-action-btn:hover {
+  background-color: var(--hover-bg);
+  color: var(--text-primary);
+}
+
+.tabstrip__dropdown--per-tab {
+  display: none;
+  position: absolute;
+  bottom: 100%;
+  right: 0;
+  left: auto;
+  margin-bottom: var(--space-2);
+  min-width: var(--dropdown-min-width);
+  background-color: var(--card-bg);
+  border: var(--border-width-thin) solid var(--border-color);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-dropdown);
+  padding: var(--space-1) 0;
+  z-index: calc(var(--z-dropdown) + 1);
+  max-height: var(--dropdown-max-height);
+  overflow-y: auto;
+}
+
+.tabstrip__tab-menu-wrapper.is-open .tabstrip__dropdown--per-tab {
+  display: block;
+}
+
+.tabstrip__dropdown-menu-item {
+  display: block;
+  width: 100%;
+  text-align: left;
+  padding: var(--space-2) var(--space-4);
+  border: none;
+  background: transparent;
+  color: var(--text-primary);
+  font-size: var(--text-sm);
+  cursor: pointer;
+  transition: background-color var(--transition-fast);
+}
+
+.tabstrip__dropdown-menu-item:hover {
+  background-color: var(--hover-bg);
 }
 
 .tabstrip__add {
@@ -115,85 +204,6 @@
 
 .tabstrip__dropdown-item-icon {
   flex-shrink: 0;
-}
-
-/* Command Center home: tab row width follows tabs; baseline rule does not span the card */
-.tabstrip--command-center-tabs {
-  width: fit-content;
-  max-width: 100%;
-  box-sizing: border-box;
-}
-
-.tabstrip--command-center-tabs .tabstrip__nav {
-  width: auto;
-}
-
-.tabstrip--command-center-tabs .tabstrip__container {
-  width: fit-content;
-  border-bottom: none;
-}
-
-/*
- * Put the 1px baseline on .tabstrip__tabs (same layer as default .tabstrip__container border)
- * so .tab { margin-bottom: -1px } and .tabstrip__tab-group { margin-bottom: -1px } overlap it
- * exactly with the active selection underline.
- */
-.tabstrip--command-center-tabs .tabstrip__tabs {
-  flex: 0 1 auto;
-  border-bottom: 1px solid var(--border-color);
-}
-
-.tabstrip__tab-group {
-  display: inline-flex;
-  align-items: stretch;
-  margin-bottom: -1px;
-}
-
-.tabstrip__tab-group .tab--in-group {
-  margin-bottom: 0;
-  border-bottom: var(--border-width-standard) solid transparent;
-  color: var(--text-secondary);
-}
-
-.tabstrip__tab-group .tab--in-group:hover {
-  color: var(--text-primary);
-}
-
-.tabstrip__tab-group.is-active {
-  border-bottom: var(--border-width-thick) solid var(--theme-primary);
-}
-
-.tabstrip__tab-group.is-active .tab--in-group {
-  color: var(--theme-primary);
-}
-
-.tabstrip__tab-close {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 0 var(--space-2);
-  margin-bottom: 0;
-  border: none;
-  border-bottom: none;
-  background: transparent;
-  color: var(--text-secondary);
-  cursor: pointer;
-  border-radius: var(--radius-sm);
-  transition: color var(--transition-fast), background-color var(--transition-fast);
-}
-
-.tabstrip__tab-close:hover {
-  color: var(--text-primary);
-  background-color: var(--hover-bg);
-}
-
-.tabstrip__tab-group.is-active .tabstrip__tab-close {
-  color: var(--theme-primary);
-}
-
-.tabstrip__tab-group.is-active .tabstrip__tab-close:hover {
-  color: var(--theme-primary);
-  background-color: var(--hover-bg);
 }
 
 .tabstrip__dropdown-item-actions {
@@ -302,9 +312,58 @@
   font-size: var(--text-xs);
 }
 
+/* VP theme only: pill selected state (mirrors src/styles/components.css) */
+html.theme-vp .tabstrip--pill .tabstrip__container {
+  align-items: flex-end;
+  padding-bottom: var(--space-2);
+}
+
+html.theme-vp .tabstrip--pill .tabstrip__tabs {
+  gap: var(--space-2);
+}
+
+html.theme-vp .tabstrip--pill .tab {
+  border-bottom: none;
+  margin-bottom: 0;
+  border-radius: var(--radius-08);
+  padding: var(--space-2) var(--space-3);
+  color: var(--theme-primary);
+}
+
+html.theme-vp .tabstrip--pill .tab:hover:not(:disabled):not(.tab--disabled):not(.is-active) {
+  color: var(--theme-primary-hover);
+}
+
+html.theme-vp .tabstrip--pill .tab.is-active {
+  color: var(--text-inverse);
+  background-color: var(--theme-primary);
+  border-bottom: none;
+  font-weight: var(--font-semibold);
+}
+
+html.theme-vp .tabstrip--pill .tab.is-active:hover:not(:disabled):not(.tab--disabled) {
+  background-color: var(--theme-primary-hover);
+  color: var(--text-inverse);
+}
+
+html.theme-vp .tabstrip--pill .tab--disabled,
+html.theme-vp .tabstrip--pill .tab:disabled {
+  color: var(--text-muted);
+}
+
+html.theme-vp.dark .tabstrip--pill .tab:hover:not(:disabled):not(.tab--disabled):not(.is-active) {
+  color: var(--theme-primary-hover);
+}
+
+html.theme-vp.dark .tabstrip--pill .tab.is-active:hover:not(:disabled):not(.tab--disabled) {
+  background-color: var(--theme-primary-hover);
+  color: var(--text-inverse);
+}
+
 @media (max-width: var(--breakpoint-md)) {
   .tabstrip__tabs {
     overflow-x: auto;
+    overflow-y: visible;
     -webkit-overflow-scrolling: touch;
     scrollbar-width: thin;
   }

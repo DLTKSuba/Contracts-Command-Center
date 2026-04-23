@@ -111,6 +111,39 @@
   justify-content: flex-start;
 }
 
+.dialog__footer-actions {
+  display: flex;
+  gap: var(--space-3);
+  flex-wrap: wrap;
+}
+
+.dialog--resizable {
+  position: relative;
+}
+
+/* Shorter height for scrollable demo so body scrolls more */
+.dialog--scrollable-demo {
+  max-height: 45vh;
+}
+
+.dialog__resize-grip {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  padding: var(--space-2);
+  cursor: nwse-resize;
+  color: var(--text-muted);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1;
+  transition: color var(--transition-fast);
+}
+
+.dialog__resize-grip:hover {
+  color: var(--text-primary);
+}
+
 @media (max-width: var(--breakpoint-md)) {
   .dialog {
     width: calc(100vw - var(--dialog-margin-horizontal));

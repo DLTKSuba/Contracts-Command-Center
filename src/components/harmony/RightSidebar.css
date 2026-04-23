@@ -1,4 +1,4 @@
-/* RightSidebar: scoped styles for theme visibility. Base styles from components.css (loaded globally). */
+/* RightSidebar: scoped styles from Astro <style> (theme visibility). Base styles from package components.css (loaded globally). */
 
 /* Hide all variants by default */
 .right-sidebar__variant {

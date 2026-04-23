@@ -23,32 +23,6 @@ export interface LeftSidebarSection {
   items: LeftSidebarNavItem[]
 }
 
-const CP_SECTIONS: LeftSidebarSection[] = [
-  {
-    items: [
-      { icon: 'home', label: 'Welcome screen' },
-      { icon: 'squares-2x2', label: 'Dashboard' },
-      { icon: 'star', label: 'My menu' },
-      { icon: 'clock', label: 'Recent' },
-    ],
-  },
-  {
-    items: [
-      { icon: 'magnifying-glass', label: 'Search' },
-      { icon: 'squares-plus', label: 'Command Center' },
-      { icon: 'calculator', label: 'Accounting' },
-      { icon: 'chart-bar', label: 'Planning' },
-      { icon: 'document-arrow-down', label: 'Capture & contracts' },
-      { icon: 'clipboard-document-list', label: 'Projects' },
-      { icon: 'cube', label: 'Materials' },
-      { icon: 'clock', label: 'Time & expense' },
-      { icon: 'users', label: 'People' },
-      { icon: 'document-chart-bar', label: 'Reports' },
-      { icon: 'cog-6-tooth', label: 'Admin' },
-    ],
-  },
-]
-
 const PPM_SECTIONS: LeftSidebarSection[] = [
   {
     items: [
@@ -68,22 +42,6 @@ const PPM_SECTIONS: LeftSidebarSection[] = [
   },
 ]
 
-const VP_SECTIONS: LeftSidebarSection[] = PPM_SECTIONS
-
-const MACONOMY_SECTIONS: LeftSidebarSection[] = PPM_SECTIONS
-
-const SECTIONS_BY_VARIANT: Record<LeftSidebarVariant, LeftSidebarSection[]> = {
-  cp: CP_SECTIONS,
-  vp: VP_SECTIONS,
-  ppm: PPM_SECTIONS,
-  maconomy: MACONOMY_SECTIONS,
-}
-
-function getSections(variant: LeftSidebarVariant, sections?: LeftSidebarSection[]): LeftSidebarSection[] {
-  if (sections) return sections
-  return SECTIONS_BY_VARIANT[variant] ?? PPM_SECTIONS
-}
-
 export interface LeftSidebarProps {
   variant?: LeftSidebarVariant
   sections?: LeftSidebarSection[]
@@ -95,7 +53,7 @@ export function LeftSidebar({
   sections,
   className = '',
 }: LeftSidebarProps) {
-  const sidebarSections = getSections(variant, sections)
+  const sidebarSections = sections ?? PPM_SECTIONS
 
   return (
     <nav

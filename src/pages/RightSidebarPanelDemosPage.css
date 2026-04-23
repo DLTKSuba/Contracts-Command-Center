@@ -1,0 +1,66 @@
+/* Scoped mini-shell: panel absolute inside box (like Astro panel/dela demos), not viewport-fixed */
+.right-sidebar-panel-demo-shell.shell-layout {
+  position: relative;
+  min-height: 420px;
+  width: 100%;
+  max-width: 420px;
+  margin: 0 auto;
+  border: 1px solid var(--border-color, #e5e5e5);
+  border-radius: var(--radius-lg, 12px);
+  overflow: hidden;
+  isolation: isolate;
+  background: var(--page-bg, #fafafa);
+}
+
+.right-sidebar-panel-demo-shell.shell-layout .shell-panel {
+  position: absolute !important;
+  top: 0 !important;
+  right: 0 !important;
+  bottom: 0 !important;
+  left: auto !important;
+  z-index: 10 !important;
+}
+
+.right-sidebar-panel-demo-shell.shell-layout .right-sidebar {
+  position: absolute;
+  top: 50%;
+  right: 0;
+  transform: translateY(-50%);
+  z-index: 11;
+}
+
+.right-sidebar-panel-demo-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: 1.5rem;
+  align-items: start;
+}
+
+.right-sidebar-panel-global-demo.shell-layout {
+  position: relative;
+  min-height: 420px;
+  max-width: 420px;
+  margin: 0 auto;
+  border: 1px solid var(--border-color, #e5e5e5);
+  border-radius: var(--radius-lg, 12px);
+  overflow: hidden;
+  isolation: isolate;
+  background: var(--page-bg, #fafafa);
+}
+
+.right-sidebar-panel-global-demo.shell-layout .shell-panel {
+  position: absolute !important;
+  top: 0 !important;
+  right: 0 !important;
+  bottom: 0 !important;
+  left: auto !important;
+  z-index: 10 !important;
+}
+
+.right-sidebar-panel-global-demo.shell-layout .right-sidebar {
+  position: absolute;
+  top: 50%;
+  right: 0;
+  transform: translateY(-50%);
+  z-index: 11;
+}

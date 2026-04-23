@@ -1,4 +1,5 @@
 import { useId } from 'react'
+import type { ReactNode } from 'react'
 import clsx from 'clsx'
 import { Icon } from './Icon'
 import { Label } from './Label'
@@ -16,6 +17,10 @@ export interface InputProps extends Omit<React.InputHTMLAttributes<HTMLInputElem
   error?: boolean
   errorMessage?: string
   icon?: string
+  /** Heroicon name; ignored when `trailing` is set */
+  trailingIcon?: string
+  /** Right-side content (e.g. password toggle, clear); takes precedence over `trailingIcon` */
+  trailing?: ReactNode
   required?: boolean
   label?: string
   labelVariant?: 'inline' | 'stacked'
@@ -33,6 +38,8 @@ export function Input({
   error = false,
   errorMessage,
   icon,
+  trailingIcon,
+  trailing,
   required = false,
   label,
   labelVariant,
@@ -43,9 +50,12 @@ export function Input({
   const generatedId = useId().replace(/:/g, '-')
   const inputId = id || `input-${generatedId}`
 
+  const hasTrailing = trailing != null || Boolean(trailingIcon)
+
   const inputClasses = clsx(
     'input',
     icon && 'input--with-icon',
+    hasTrailing && 'input--with-trailing',
     error && 'input--error',
     className
   )
@@ -54,6 +64,13 @@ export function Input({
     'input-form-wrapper',
     label && labelVariant && `input-form-wrapper--${labelVariant}`
   )
+
+  const trailingEl =
+    trailing != null ? (
+      <div className="input-wrapper__trailing">{trailing}</div>
+    ) : trailingIcon ? (
+      <Icon name={trailingIcon} size="sm" className="input-wrapper__icon input-wrapper__icon--trailing" />
+    ) : null
 
   const inputEl = (
     <>
@@ -71,6 +88,7 @@ export function Input({
         aria-describedby={error && errorMessage ? `${inputId}-error` : undefined}
         {...rest}
       />
+      {trailingEl}
       {error && errorMessage && (
         <p id={`${inputId}-error`} className="input-wrapper__error">
           {errorMessage}

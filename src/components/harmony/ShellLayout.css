@@ -1,4 +1,4 @@
-/* ShellLayout scoped styles (ported from Harmony source) */
+/* ShellLayout scoped styles (from ShellLayout.astro <style>) */
 .shell-layout {
   position: relative;
   width: 100%;
@@ -65,6 +65,11 @@
   transform: translateY(-50%);
   z-index: var(--z-45);
   isolation: isolate;
+}
+
+/* Right rail + panel share a logical scope for refs/querySelector; no layout box */
+.shell-layout__right-shell-scope {
+  display: contents;
 }
 
 /* Footer-aware sidebar positioning (from Harmony components.css – keeps sidebars above footer) */
@@ -151,6 +156,7 @@
   z-index: var(--z-40);
   height: 100%;
   background-color: var(--shell-footer-bg);
+  overflow: visible;
 }
 
 .shell-layout__container[data-has-footer="false"] .shell-layout__footer {
@@ -172,7 +178,8 @@
 
 @media (max-width: var(--breakpoint-md)) {
   .shell-layout__left-sidebar,
-  .shell-layout__right-sidebar {
+  .shell-layout__right-sidebar,
+  .shell-layout__right-shell-panel {
     display: none;
   }
 

@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react'
-import { useState, useCallback } from 'react'
+import { useState, useCallback, forwardRef } from 'react'
 import clsx from 'clsx'
 import { Icon } from './Icon'
 import './ShellPanel.css'
@@ -12,10 +12,10 @@ export interface ShellPanelProps {
   headerVariant?: 'theme' | 'default'
   width?: 'narrow' | 'full'
   showClose?: boolean
-  /** When false, hides the narrow/full width toggle (maximize) control. */
-  showWidthToggle?: boolean
   showPopout?: boolean
   variant?: 'default' | 'dela'
+  /** Theme header gradient (Dela AI / useGradientHeader items); mirrors data-gradient-header in Astro */
+  useGradientHeader?: boolean
   id?: string
   className?: string
   onClose?: () => void
@@ -24,24 +24,27 @@ export interface ShellPanelProps {
   children?: ReactNode
 }
 
-export function ShellPanel({
-  side,
-  open,
-  title,
-  titleIcon,
-  headerVariant = 'theme',
-  width: controlledWidth,
-  showClose = true,
-  showWidthToggle = true,
-  showPopout = true,
-  variant = 'default',
-  id,
-  className = '',
-  onClose,
-  onWidthToggle,
-  header,
-  children,
-}: ShellPanelProps) {
+export const ShellPanel = forwardRef<HTMLDivElement, ShellPanelProps>(function ShellPanel(
+  {
+    side,
+    open,
+    title,
+    titleIcon,
+    headerVariant = 'theme',
+    width: controlledWidth,
+    showClose = true,
+    showPopout = true,
+    variant = 'default',
+    useGradientHeader = false,
+    id,
+    className = '',
+    onClose,
+    onWidthToggle,
+    header,
+    children,
+  },
+  ref
+) {
   const [internalWidth, setInternalWidth] = useState<'narrow' | 'full'>('narrow')
   const width = controlledWidth ?? internalWidth
 
@@ -67,6 +70,7 @@ export function ShellPanel({
 
   return (
     <div
+      ref={ref}
       id={id}
       className={panelClasses}
       data-side={side}
@@ -77,7 +81,11 @@ export function ShellPanel({
       {header != null ? (
         header
       ) : (
-        <div className={headerClasses} data-header-variant={headerVariant}>
+        <div
+          className={headerClasses}
+          data-header-variant={headerVariant}
+          data-gradient-header={useGradientHeader ? 'true' : undefined}
+        >
           <div className="shell-panel__header-content">
             <span className="shell-panel__header-icon" data-panel-icon-container>
               {titleIcon != null && (
@@ -86,18 +94,16 @@ export function ShellPanel({
             </span>
             <h2 className="shell-panel__title">{title}</h2>
             <div className="shell-panel__actions">
-              {showWidthToggle && (
-                <button
-                  type="button"
-                  className="shell-panel__action shell-panel__action--toggle-width"
-                  aria-label="Toggle panel width"
-                  data-panel-toggle-width
-                  onClick={handleToggleWidth}
-                >
-                  <Icon name="arrows-pointing-out" size="md" variant="outline" className="shell-panel__icon-maximize" />
-                  <Icon name="arrows-pointing-in" size="md" variant="outline" className="shell-panel__icon-minimize" />
-                </button>
-              )}
+              <button
+                type="button"
+                className="shell-panel__action shell-panel__action--toggle-width"
+                aria-label="Toggle panel width"
+                data-panel-toggle-width
+                onClick={handleToggleWidth}
+              >
+                <Icon name="arrows-pointing-out" size="md" variant="outline" className="shell-panel__icon-maximize" />
+                <Icon name="arrows-pointing-in" size="md" variant="outline" className="shell-panel__icon-minimize" />
+              </button>
               {showPopout && (
                 <button
                   type="button"
@@ -130,4 +136,4 @@ export function ShellPanel({
       </div>
     </div>
   )
-}
+})

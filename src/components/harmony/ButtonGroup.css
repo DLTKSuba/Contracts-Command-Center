@@ -150,6 +150,14 @@
   font-size: var(--text-lg);
 }
 
+/* Icon-only buttons in groups: keep zero padding so icons don't shrink */
+.btn-group .btn--icon-xs,
+.btn-group .btn--icon-sm,
+.btn-group .btn--icon-md,
+.btn-group .btn--icon-lg {
+  padding: 0;
+}
+
 .btn-group--default .btn:disabled,
 .btn-group--default .btn.btn--disabled {
   opacity: 0.5;

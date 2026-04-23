@@ -1,4 +1,4 @@
-/* LeftSidebar: scoped styles for theme visibility. Base styles from components.css (loaded globally). */
+/* LeftSidebar: scoped styles from Astro <style> (theme visibility). Base styles from package components.css (loaded globally). */
 
 /* Hide all variants by default */
 .left-sidebar__variant {

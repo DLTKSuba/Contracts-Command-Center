@@ -1,8 +1,23 @@
 /* ACCORDION (Harmony Design System) */
+.accordion-field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1-5);
+}
+
+.accordion-field__label {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: var(--text-base);
+  font-weight: var(--font-normal);
+  color: var(--text-primary);
+}
+
 .accordion {
   border: 1px solid var(--border-color);
   border-radius: var(--radius-lg);
   overflow: hidden;
+  background-color: var(--card-bg);
 }
 
 .accordion__item {
@@ -13,23 +28,60 @@
   border-bottom: none;
 }
 
+.accordion__item:first-child .accordion__trigger {
+  border-top-left-radius: calc(var(--radius-lg) - 1px);
+  border-top-right-radius: calc(var(--radius-lg) - 1px);
+}
+
+.accordion__item:last-child:not(.is-open) .accordion__trigger {
+  border-bottom-left-radius: calc(var(--radius-lg) - 1px);
+  border-bottom-right-radius: calc(var(--radius-lg) - 1px);
+}
+
+.accordion__item:last-child.is-open .accordion__content {
+  border-bottom-left-radius: calc(var(--radius-lg) - 1px);
+  border-bottom-right-radius: calc(var(--radius-lg) - 1px);
+}
+
 .accordion__trigger {
   display: flex;
   align-items: center;
   justify-content: space-between;
   width: 100%;
   padding: var(--space-4);
-  font-size: var(--text-base);
+  font-size: var(--text-sm);
   font-weight: var(--font-medium);
   color: var(--text-primary);
   text-align: left;
   background-color: transparent;
+  border: none;
   cursor: pointer;
   transition: background-color var(--transition-fast);
 }
 
 .accordion__trigger:hover {
   background-color: var(--hover-bg);
+}
+
+.accordion__trigger:focus {
+  outline: none;
+  background-color: var(--hover-bg);
+}
+
+.accordion__item--disabled .accordion__trigger {
+  color: var(--text-muted);
+  cursor: not-allowed;
+  opacity: 0.65;
+}
+
+.accordion__item--disabled .accordion__trigger:hover,
+.accordion__item--disabled .accordion__trigger:focus {
+  background-color: transparent;
+}
+
+.accordion__item--disabled .accordion__icon {
+  color: var(--text-muted);
+  opacity: 0.8;
 }
 
 .accordion__icon {
@@ -43,7 +95,7 @@
 
 .accordion__content {
   display: none;
-  padding: 0 var(--space-4) var(--space-4);
+  padding: var(--space-4);
   font-size: var(--text-sm);
   color: var(--text-secondary);
 }

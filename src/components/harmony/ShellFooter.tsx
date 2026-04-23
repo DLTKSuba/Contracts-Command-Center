@@ -11,7 +11,15 @@ export interface ShellFooterProps {
   overflowTabs?: ShellFooterTab[]
   showAddTab?: boolean
   variant?: 'default' | 'compact'
+  showTabOpenInNew?: boolean
+  showTabClose?: boolean
+  showTabOverflowMenu?: boolean
   className?: string
+  onTabSelected?: (tabId: string) => void
+  onAddTab?: () => void
+  onCloseTab?: (tabId: string) => void
+  onOpenNewWindow?: (tabId: string) => void
+  onSetDefault?: (tabId: string) => void
 }
 
 export function ShellFooter({
@@ -21,7 +29,15 @@ export function ShellFooter({
   overflowTabs = [],
   showAddTab = true,
   variant = 'default',
+  showTabOpenInNew = false,
+  showTabClose = false,
+  showTabOverflowMenu = false,
   className = '',
+  onTabSelected,
+  onAddTab,
+  onCloseTab,
+  onOpenNewWindow,
+  onSetDefault,
 }: ShellFooterProps) {
   const overflowMode =
     showMore && overflowTabs.length > 0 ? 'manual' : 'none'
@@ -55,6 +71,14 @@ export function ShellFooter({
         overflowMode={overflowMode}
         overflowTabs={overflowTabsWithPinIcon}
         variant={variant}
+        showTabOpenInNew={showTabOpenInNew}
+        showTabClose={showTabClose}
+        showTabOverflowMenu={showTabOverflowMenu}
+        onTabSelected={onTabSelected}
+        onAddTab={onAddTab}
+        onCloseTab={onCloseTab}
+        onOpenNewWindow={onOpenNewWindow}
+        onSetDefault={onSetDefault}
         className="shell-footer__tabstrip"
       />
     </div>

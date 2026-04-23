@@ -28,8 +28,12 @@
 }
 
 .list-menu__item.is-active {
-  background-color: var(--theme-primary-light);
-  color: var(--theme-primary);
+  background-color: var(--theme-primary);
+  color: #fff;
+}
+
+.list-menu__item.is-active:hover {
+  background-color: var(--theme-primary-hover);
 }
 
 .list-menu__item-icon {
@@ -42,9 +46,12 @@
   object-fit: contain;
 }
 
-.list-menu__item:hover .list-menu__item-icon,
-.list-menu__item.is-active .list-menu__item-icon {
+.list-menu__item:hover:not(.is-active) .list-menu__item-icon {
   color: var(--theme-primary);
+}
+
+.list-menu__item.is-active .list-menu__item-icon {
+  color: #fff;
 }
 
 .list-menu--no-borders .list-menu__item {

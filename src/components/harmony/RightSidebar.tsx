@@ -1,5 +1,8 @@
 import clsx from 'clsx'
+import { forwardRef } from 'react'
+import type { KeyboardEvent, MouseEvent, RefObject } from 'react'
 import { Icon } from './Icon'
+import type { RightSidebarItemActivateDetail } from './useRightSidebarPanel'
 import './RightSidebar.css'
 
 /* Theme visibility: html.theme-cp .right-sidebar__variant--cp, theme-vp, theme-ppm, theme-maconomy in RightSidebar.css */
@@ -22,35 +25,6 @@ export interface RightSidebarNavItem {
 export interface RightSidebarSection {
   items: RightSidebarNavItem[]
 }
-
-const CP_SECTIONS: RightSidebarSection[] = [
-  {
-    items: [
-      {
-        label: 'Dela AI',
-        isCustom: true,
-        customSrc: '/RS_DelaDefault.svg',
-        customSrcActive: '/RS_Dela_Active.svg',
-      },
-      { icon: 'bell', label: 'Notifications' },
-      { icon: 'arrow-up-tray', label: 'Files' },
-    ],
-  },
-  {
-    items: [
-      { icon: 'printer', label: 'Print' },
-      { icon: 'view-columns', label: 'Layout Options' },
-    ],
-  },
-  {
-    items: [
-      { icon: 'mic-slash', label: 'Microphone' },
-      { icon: 'signal-slash', label: 'Offline' },
-      { icon: 'command-line', label: 'Keyboard Shortcuts' },
-      { icon: 'question-mark-circle', label: 'Help' },
-    ],
-  },
-]
 
 const PPM_SECTIONS: RightSidebarSection[] = [
   {
@@ -86,39 +60,52 @@ const PPM_SECTIONS: RightSidebarSection[] = [
   },
 ]
 
-const VP_SECTIONS: RightSidebarSection[] = PPM_SECTIONS
-
-const MACONOMY_SECTIONS: RightSidebarSection[] = PPM_SECTIONS
-
-const SECTIONS_BY_VARIANT: Record<RightSidebarVariant, RightSidebarSection[]> = {
-  cp: CP_SECTIONS,
-  vp: VP_SECTIONS,
-  ppm: PPM_SECTIONS,
-  maconomy: MACONOMY_SECTIONS,
-}
-
-function getSections(variant: RightSidebarVariant, sections?: RightSidebarSection[]): RightSidebarSection[] {
-  if (sections) return sections
-  return SECTIONS_BY_VARIANT[variant] ?? PPM_SECTIONS
-}
-
 export interface RightSidebarProps {
   variant?: RightSidebarVariant
   sections?: RightSidebarSection[]
   className?: string
+  /** Optional refs for documentation / composition parity with Astro (panel wiring uses useRightSidebarPanel with the same refs). */
+  rightPanelRef?: RefObject<HTMLElement | null>
+  shellPanelScopeRef?: RefObject<HTMLElement | null>
+  /** Mirrors data-panel-open when wired to a shell panel */
+  panelOpen?: boolean
+  activeItemKey?: string | null
+  onItemActivate?: (detail: RightSidebarItemActivateDetail) => void
 }
 
-export function RightSidebar({
-  variant = 'ppm',
-  sections,
-  className = '',
-}: RightSidebarProps) {
-  const sidebarSections = getSections(variant, sections)
+export const RightSidebar = forwardRef<HTMLElement, RightSidebarProps>(function RightSidebar(
+  {
+    variant = 'ppm',
+    sections,
+    className = '',
+    panelOpen,
+    activeItemKey = null,
+    onItemActivate,
+    rightPanelRef: _rightPanelRef,
+    shellPanelScopeRef: _shellPanelScopeRef,
+  },
+  ref
+) {
+  const sidebarSections = sections ?? PPM_SECTIONS
+
+  const activate = (
+    item: RightSidebarNavItem,
+    sectionIndex: number,
+    itemIndex: number,
+    itemKey: string,
+    e: MouseEvent<HTMLAnchorElement> | KeyboardEvent<HTMLAnchorElement>
+  ) => {
+    if (!onItemActivate) return
+    e.preventDefault()
+    onItemActivate({ item, sectionIndex, itemIndex, itemKey })
+  }
 
   return (
     <nav
+      ref={ref}
       className={clsx('right-sidebar', `right-sidebar--${variant}`, className)}
       data-variant={variant}
+      data-panel-open={panelOpen ? 'true' : undefined}
     >
       {sidebarSections.map((section, sectionIndex) => (
         <div key={sectionIndex} className="right-sidebar__section">
@@ -138,7 +125,19 @@ export function RightSidebar({
                 data-item-id={itemId}
                 data-use-gradient-header={String(item.useGradientHeader ?? false)}
                 data-right-sidebar-item
+                data-active={activeItemKey === itemId ? 'true' : undefined}
                 title={item.label}
+                role={onItemActivate ? 'button' : undefined}
+                onClick={onItemActivate ? (e) => activate(item, sectionIndex, itemIndex, itemId, e) : undefined}
+                onKeyDown={
+                  onItemActivate
+                    ? (e) => {
+                        if (e.key === 'Enter' || e.key === ' ') {
+                          activate(item, sectionIndex, itemIndex, itemId, e)
+                        }
+                      }
+                    : undefined
+                }
               >
                 <span className="right-sidebar__label">{item.label}</span>
                 <span className="right-sidebar__icon">
@@ -174,4 +173,4 @@ export function RightSidebar({
       ))}
     </nav>
   )
-}
+})

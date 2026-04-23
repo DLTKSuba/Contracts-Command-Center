@@ -1,4 +1,4 @@
-/* ShellFooter scoped styles (ported from Harmony source) */
+/* ShellFooter scoped styles (from ShellFooter.astro <style>) */
 .shell-footer {
   background-color: var(--shell-footer-bg);
   border-top: var(--border-width-thin) solid var(--border-color);
@@ -7,6 +7,7 @@
   padding: 0 var(--space-4);
   display: flex;
   align-items: center;
+  overflow: visible;
 }
 
 .shell-footer .tabstrip__container {
@@ -111,6 +112,21 @@ html.dark .shell-footer .tabstrip .tabstrip__tabs .tab.is-active:hover .tab__ico
 html.dark .shell-footer .tabstrip .tabstrip__add.tab.is-active:hover .tab__icon,
 html.dark .shell-footer .tabstrip .tabstrip__more.tab.is-active:hover .tab__icon {
   color: var(--shell-footer-tab-icon-color-active);
+}
+
+.shell-footer .tabstrip__tab-cell:not(:has(.tab.is-active)) .tabstrip__tab-action-btn {
+  color: var(--shell-footer-tab-label-color);
+  opacity: 0.85;
+}
+
+.shell-footer .tabstrip__tab-cell:has(.tab.is-active) .tabstrip__tab-action-btn {
+  color: var(--shell-footer-tab-icon-color-active);
+  opacity: 1;
+}
+
+.shell-footer .tabstrip__tab-action-btn:hover {
+  opacity: 1;
+  background-color: var(--shell-footer-tab-hover-bg);
 }
 
 .shell-footer--compact,

@@ -1,4 +1,6 @@
 import clsx from 'clsx'
+import { useRef } from 'react'
+import type { ReactNode } from 'react'
 import { ShellHeader } from './ShellHeader'
 import type { CompanyOption } from './ShellHeader'
 import { ShellFooter } from './ShellFooter'
@@ -6,23 +8,14 @@ import { FloatingNav } from './FloatingNav'
 import { LeftSidebar } from './LeftSidebar'
 import { RightSidebar } from './RightSidebar'
 import { ShellPageHeader } from './ShellPageHeader'
+import { ShellPanel } from './ShellPanel'
 import { Card } from './Card'
 import type { ShellFooterTab } from './ShellFooter'
 import type { ShellPageHeaderButtonConfig } from './ShellPageHeader'
 import type { LeftSidebarSection, LeftSidebarVariant } from './LeftSidebar'
 import type { RightSidebarSection, RightSidebarVariant } from './RightSidebar'
-import type { FloatingNavPreset } from './FloatingNav'
+import { useRightSidebarPanel } from './useRightSidebarPanel'
 import './ShellLayout.css'
-
-function resolveFloatingNavPreset(
-  explicit: FloatingNavPreset | undefined,
-): FloatingNavPreset {
-  if (explicit != null) return explicit
-  return typeof window !== 'undefined' &&
-    window.__COSTPOINT_COMMAND_CENTER_NAV__ === true
-    ? 'command-center'
-    : 'default'
-}
 
 export interface ShellLayoutProps {
   productName?: string
@@ -35,8 +28,6 @@ export interface ShellLayoutProps {
   // CP-specific props
   showFloatingNav?: boolean
   floatingNavVariant?: 'full' | 'compact'
-  /** When unset, uses `window.__COSTPOINT_COMMAND_CENTER_NAV__` from `index-cc.html`. */
-  floatingNavPreset?: FloatingNavPreset
   showExecute?: boolean
   saveDisabled?: boolean
   leftSidebarVariant?: LeftSidebarVariant
@@ -47,24 +38,31 @@ export interface ShellLayoutProps {
   overflowTabs?: ShellFooterTab[]
   showAddTab?: boolean
   footerVariant?: 'default' | 'compact'
+  showTabOpenInNew?: boolean
+  showTabClose?: boolean
+  showTabOverflowMenu?: boolean
   showFooter?: boolean
   showRightSidebar?: boolean
+  /** When true with showRightSidebar, renders scoped RightSidebar + ShellPanel with useRightSidebarPanel wiring. */
+  showRightShellPanel?: boolean
+  rightShellPanelVariant?: 'default' | 'dela'
+  rightShellPanelInitialTitle?: string
+  rightShellPanelInitialTitleIcon?: string
+  rightShellPanelSlot?: ReactNode
   pageHeaderTitle?: string
   pageHeaderSubtitle?: string
+  /** When false, hides placeholder Primary/Secondary buttons when no custom header buttons are set. */
+  pageHeaderShowDefaultButtons?: boolean
   pageHeaderPrimaryButton?: ShellPageHeaderButtonConfig
   pageHeaderOutlineButton1?: ShellPageHeaderButtonConfig
   pageHeaderOutlineButton2?: ShellPageHeaderButtonConfig
   pageHeaderOutlineButton3?: ShellPageHeaderButtonConfig
-  /** When false, hides default Primary / Secondary buttons when no custom header buttons are set. */
-  pageHeaderShowDefaultButtons?: boolean
-  pageHeaderActions?: React.ReactNode
+  pageHeaderActions?: ReactNode
   leftSidebarSections?: LeftSidebarSection[]
   rightSidebarSections?: RightSidebarSection[]
   rightSidebarVariant?: RightSidebarVariant
   className?: string
-  children?: React.ReactNode
-  /** Portals / overlays fixed to the shell (e.g. `ShellPanel`) — must be a descendant of `.shell-layout`. */
-  shellOverlay?: React.ReactNode
+  children?: ReactNode
 }
 
 const DEFAULT_TABS: ShellFooterTab[] = [
@@ -82,7 +80,6 @@ export function ShellLayout({
   companies,
   showFloatingNav,
   floatingNavVariant,
-  floatingNavPreset,
   showExecute,
   saveDisabled,
   leftSidebarVariant,
@@ -92,27 +89,43 @@ export function ShellLayout({
   overflowTabs,
   showAddTab = true,
   footerVariant = 'default',
+  showTabOpenInNew = false,
+  showTabClose = false,
+  showTabOverflowMenu = false,
   showFooter = true,
   showRightSidebar = true,
+  showRightShellPanel = true,
+  rightShellPanelVariant = 'default',
+  rightShellPanelInitialTitle = 'Notifications',
+  rightShellPanelInitialTitleIcon = 'bell',
+  rightShellPanelSlot,
   pageHeaderTitle = 'Page title',
   pageHeaderSubtitle,
+  pageHeaderShowDefaultButtons = true,
   pageHeaderPrimaryButton,
   pageHeaderOutlineButton1,
   pageHeaderOutlineButton2,
   pageHeaderOutlineButton3,
-  pageHeaderShowDefaultButtons = true,
   pageHeaderActions,
   leftSidebarSections,
   rightSidebarSections,
   rightSidebarVariant,
   className = '',
   children,
-  shellOverlay,
 }: ShellLayoutProps) {
   const isCPVariant = showFloatingNav === true
   const effectiveHasFooter = showFooter
   const effectiveShowFloatingNav = showFloatingNav ?? false
-  const effectiveFloatingNavPreset = resolveFloatingNavPreset(floatingNavPreset)
+
+  const rightShellScopeRef = useRef<HTMLDivElement>(null)
+  const rightShellPanelRef = useRef<HTMLDivElement>(null)
+  const rightRailPanel = useRightSidebarPanel({
+    shellPanelScopeRef: rightShellScopeRef,
+    rightPanelRef: rightShellPanelRef,
+    shellPanelVariant: rightShellPanelVariant,
+    initialTitle: rightShellPanelInitialTitle,
+    initialTitleIcon: rightShellPanelInitialTitleIcon,
+  })
 
   return (
     <div
@@ -141,7 +154,6 @@ export function ShellLayout({
           <div className="shell-layout__floating-nav-wrap">
             <FloatingNav
               variant={floatingNavVariant ?? 'full'}
-              preset={effectiveFloatingNavPreset}
               showExecute={showExecute}
               saveDisabled={saveDisabled}
             />
@@ -154,7 +166,49 @@ export function ShellLayout({
           className="shell-layout__left-sidebar"
         />
 
-        {showRightSidebar && (
+        {showRightSidebar && showRightShellPanel && (
+          <div
+            ref={rightShellScopeRef}
+            data-shell-panel-scope
+            className="shell-layout__right-shell-scope"
+          >
+            <RightSidebar
+              variant={rightSidebarVariant ?? 'ppm'}
+              sections={rightSidebarSections}
+              className="shell-layout__right-sidebar"
+              rightPanelRef={rightShellPanelRef}
+              shellPanelScopeRef={rightShellScopeRef}
+              panelOpen={rightRailPanel.open}
+              activeItemKey={rightRailPanel.activeItemKey}
+              onItemActivate={rightRailPanel.handleItemActivate}
+            />
+            <ShellPanel
+              ref={rightShellPanelRef}
+              side="right"
+              open={rightRailPanel.open}
+              title={rightRailPanel.title}
+              titleIcon={rightRailPanel.titleIcon}
+              useGradientHeader={rightRailPanel.useGradientHeader}
+              headerVariant="theme"
+              width="narrow"
+              variant={rightShellPanelVariant}
+              showPopout
+              onClose={rightRailPanel.closePanel}
+              className="shell-layout__right-shell-panel"
+            >
+              {rightShellPanelSlot ?? (
+                <div style={{ padding: 'var(--space-4)' }}>
+                  <p className="text-secondary" style={{ fontSize: 'var(--text-sm)' }}>
+                    Contextual drawer for the right rail. Icons update the header title, gradient, and
+                    icon when appropriate; Dela panels preserve layout for Dela AI / gradient items.
+                  </p>
+                </div>
+              )}
+            </ShellPanel>
+          </div>
+        )}
+
+        {showRightSidebar && !showRightShellPanel && (
           <RightSidebar
             variant={rightSidebarVariant ?? 'ppm'}
             sections={rightSidebarSections}
@@ -198,11 +252,13 @@ export function ShellLayout({
             overflowTabs={overflowTabs ?? []}
             showAddTab={showAddTab}
             variant={footerVariant}
+            showTabOpenInNew={showTabOpenInNew}
+            showTabClose={showTabClose}
+            showTabOverflowMenu={showTabOverflowMenu}
             className="shell-layout__footer"
           />
         )}
       </div>
-      {shellOverlay}
     </div>
   )
 }

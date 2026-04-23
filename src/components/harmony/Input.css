@@ -41,6 +41,10 @@
   padding-left: var(--space-10);
 }
 
+.input--with-trailing {
+  padding-right: var(--space-10);
+}
+
 .input-wrapper {
   position: relative;
 }
@@ -53,6 +57,23 @@
   color: var(--text-muted);
   pointer-events: none;
   z-index: var(--z-10);
+}
+
+.input-wrapper__icon--trailing {
+  left: auto;
+  right: var(--space-4);
+}
+
+.input-wrapper__trailing {
+  position: absolute;
+  right: var(--space-4);
+  top: 50%;
+  transform: translateY(-50%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: var(--z-10);
+  pointer-events: auto;
 }
 
 .input-wrapper__error {
@@ -86,4 +107,41 @@
 
 html.theme-cp .input {
   border-radius: var(--radius-04);
+}
+
+/* CP theme: vertically center input icons with compact row height */
+.theme-cp .input-wrapper__icon {
+  left: var(--space-2);
+  top: 60%;
+}
+
+.theme-cp .input-wrapper__icon--trailing {
+  left: auto;
+  right: var(--space-2);
+}
+
+.theme-cp .input-wrapper__trailing {
+  right: var(--space-2);
+  top: 60%;
+  height: var(--input-height-cp);
+  min-height: var(--input-height-cp);
+  box-sizing: border-box;
+}
+
+/* Match decorative trailingIcon alignment when slot uses button/link (e.g. password eye) */
+.theme-cp .input-wrapper__trailing button,
+.theme-cp .input-wrapper__trailing a {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  margin: 0;
+  line-height: 0;
+  height: 100%;
+  min-height: 0;
+}
+
+.theme-cp .input-wrapper svg {
+  display: block;
+  flex-shrink: 0;
 }

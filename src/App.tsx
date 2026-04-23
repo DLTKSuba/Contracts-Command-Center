@@ -13,6 +13,7 @@ import { Link } from './components/harmony/Link'
 import { Icon } from './components/harmony/Icon'
 import { ComponentGalleryPage } from './pages/ComponentGalleryPage'
 import { ComponentDemoPage } from './pages/ComponentDemoPage'
+import { RightSidebarPanelDemosPage } from './pages/RightSidebarPanelDemosPage'
 
 /** Default product theme for the designer preview (change via document.documentElement.classList if needed). */
 const DEFAULT_THEME = 'theme-cp'
@@ -1207,20 +1208,29 @@ function HomeShell() {
     const base = REQ_MAIN_TAB_IDS.map((id) => ({
       id,
       label: id === 'requisitions' ? 'Requisitions' : 'Purchase Orders',
-      closable: false as const,
+      active: activeTabId === id,
+      showClose: false as const,
     }))
-    const prDetailTabs = prDetailRequisitionIds.map((prId) => ({
-      id: prDetailTabId(prId),
-      label: `Requisition Details : ${prId}`,
-      closable: true as const,
-    }))
-    const poDetailTabs = poDetailOrderIds.map((poId) => ({
-      id: poDetailTabId(poId),
-      label: `Order Details: ${poId}`,
-      closable: true as const,
-    }))
+    const prDetailTabs = prDetailRequisitionIds.map((prId) => {
+      const id = prDetailTabId(prId)
+      return {
+        id,
+        label: `Requisition Details : ${prId}`,
+        active: activeTabId === id,
+        showClose: true as const,
+      }
+    })
+    const poDetailTabs = poDetailOrderIds.map((poId) => {
+      const id = poDetailTabId(poId)
+      return {
+        id,
+        label: `Order Details: ${poId}`,
+        active: activeTabId === id,
+        showClose: true as const,
+      }
+    })
     return [...base, ...prDetailTabs, ...poDetailTabs]
-  }, [prDetailRequisitionIds, poDetailOrderIds])
+  }, [activeTabId, prDetailRequisitionIds, poDetailOrderIds])
 
   return (
     <ShellLayout
@@ -1233,8 +1243,7 @@ function HomeShell() {
           <div className="command-center-tab-row">
             <TabStrip
               tabs={commandCenterTabs}
-              activeTabId={activeTabId}
-              onTabChange={(id) => {
+              onTabSelected={(id: string) => {
                 if (
                   id === 'requisitions' ||
                   id === 'purchase-orders' ||
@@ -1244,7 +1253,7 @@ function HomeShell() {
                   setActiveTabId(id)
                 }
               }}
-              onTabClose={closeClosableCommandCenterTab}
+              onCloseTab={closeClosableCommandCenterTab}
               overflowMode="none"
               className="tabstrip--command-center-tabs"
             />
@@ -1339,6 +1348,7 @@ function App() {
       <Route path="/" element={<HomeShell />} />
       <Route path="/components" element={<ComponentGalleryPage />} />
       <Route path="/components/:componentName" element={<ComponentDemoPage />} />
+      <Route path="/demos/right-sidebar-panels" element={<RightSidebarPanelDemosPage />} />
     </Routes>
   )
 }

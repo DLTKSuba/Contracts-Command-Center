@@ -56,7 +56,7 @@ export function ComponentDemoPage() {
   }
 
   return (
-    <div style={{ padding: '2rem', maxWidth: '56rem', margin: '0 auto' }}>
+    <div style={{ padding: '2rem', maxWidth: '75rem', margin: '0 auto' }}>
       <Link
         to="/components"
         style={{ color: 'var(--link-color)', textDecoration: 'none', display: 'inline-block', marginBottom: '1rem' }}

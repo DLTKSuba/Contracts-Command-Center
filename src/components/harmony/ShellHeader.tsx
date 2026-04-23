@@ -16,7 +16,6 @@ const PPM_COMPANIES: CompanyOption[] = [
 
 export interface ShellHeaderProps {
   productName?: string
-  productSuffix?: string
   logoSrc?: string
   companyName?: string
   showCompanyPicker?: boolean
@@ -27,7 +26,6 @@ export interface ShellHeaderProps {
 
 export function ShellHeader({
   productName = 'Harmony',
-  productSuffix,
   logoSrc = '/logos/PPMLogo.svg',
   companyName = 'Company name',
   showCompanyPicker = true,
@@ -69,12 +67,7 @@ export function ShellHeader({
       <div className="header__brand">
         <a href="/" className="header__brand-link">
           <img src={logoSrc} alt="Logo" className="header__logo" />
-          <span className="header__title">
-            <span className="header__title-product">{productName}</span>
-            {productSuffix && (
-              <span className="header__title-suffix"> {productSuffix}</span>
-            )}
-          </span>
+          <span className="header__title">{productName}</span>
         </a>
       </div>
       <div className="header__actions">
@@ -144,7 +137,7 @@ export function ShellHeader({
           </div>
         )}
         {showCompanyPicker && <div className="divider" />}
-        <Avatar size="sm" />
+        <Avatar size="sm" interactive />
       </div>
       <div
         className="header__gradient"

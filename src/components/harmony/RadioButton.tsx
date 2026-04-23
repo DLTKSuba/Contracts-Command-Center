@@ -12,6 +12,7 @@ export interface RadioButtonProps extends Omit<React.InputHTMLAttributes<HTMLInp
   disabled?: boolean
   label?: string
   value: string
+  size?: 'small' | 'medium' | 'large'
   warning?: boolean
   error?: boolean
   warningMessage?: string
@@ -27,6 +28,7 @@ export function RadioButton({
   disabled = false,
   label,
   value,
+  size = 'medium',
   warning = false,
   error = false,
   warningMessage,
@@ -65,6 +67,7 @@ export function RadioButton({
 
   const classes = clsx(
     'radio',
+    size !== 'medium' && (size === 'small' ? 'radio--sm' : 'radio--lg'),
     disabled && 'radio--disabled',
     warning && 'radio--warning',
     error && 'radio--error',

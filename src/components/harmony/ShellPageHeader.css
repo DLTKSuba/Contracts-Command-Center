@@ -1,4 +1,4 @@
-/* ShellPageHeader scoped styles (ported from Harmony source) */
+/* ShellPageHeader scoped styles (from ShellPageHeader.astro <style>) */
 .shell-page-header {
   display: flex;
   justify-content: space-between;

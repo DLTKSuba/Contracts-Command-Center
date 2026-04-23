@@ -637,3 +637,11 @@
   background-color: var(--border-color);
 }
 
+/* ===========================================
+   THEME-GATED DOCS (e.g. VP-only component demos)
+   =========================================== */
+
+html:not(.theme-vp) .ds-demo-only-theme-vp {
+  display: none !important;
+}
+

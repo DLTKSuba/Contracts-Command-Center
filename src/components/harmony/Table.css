@@ -298,9 +298,48 @@
 .table__expand-btn--expanded .table__expand-icon {
   transform: rotate(90deg);
 }
-/* Reserve width for max indentation (depth 4) so column doesn't grow on expand */
-.table--grouped tbody td:nth-child(2) {
+/* Reserve width for max indentation (depth 4) — default grouped only (CC uses inline Project ID cell) */
+.table--grouped:not(.table--command-center) tbody td:nth-child(2) {
   min-width: calc(var(--space-4) * 5 + 12ch);
+}
+
+/* Command Center + grouped: chevron inside Project ID cell */
+.table--command-center.table--grouped .table__cc-project-id-cell {
+  vertical-align: middle;
+}
+.table--command-center.table--grouped .table__cc-project-id-inner {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: var(--space-1);
+  min-width: 0;
+}
+.table--command-center.table--grouped .table__cc-project-id-inner .text-link,
+.table--command-center.table--grouped .table__cc-project-id-inner a.text-link {
+  white-space: nowrap;
+}
+.table--command-center.table--grouped .table__cc-inline-expand,
+.table--command-center.table--grouped .table__cc-inline-expand-gutter {
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 1.5rem;
+  width: 1.5rem;
+  box-sizing: content-box;
+}
+.table--command-center.table--grouped .table__cc-inline-expand-gutter {
+  min-height: 1.25rem;
+}
+.table--command-center.table--grouped .table__expand-icon--cc-leaf {
+  opacity: 0.85;
+}
+
+/* Project ID column chevrons: no focus ring (hover / expanded states unchanged) */
+.table--command-center.table--grouped .table__cc-inline-expand .table__expand-btn:focus,
+.table--command-center.table--grouped .table__cc-inline-expand .table__expand-btn:focus-visible {
+  outline: none;
+  box-shadow: none;
 }
 
 /* 11. Text Alignment Utilities */
@@ -339,6 +378,582 @@
 }
 .table thead th.text-right .table__sort-header {
   flex-direction: row-reverse;
+}
+
+/* 11b. Command Center table and layout (mirror src/styles/components.css) */
+.table-wrapper--command-center {
+  border-radius: 0;
+  max-width: 100%;
+  overflow: visible;
+}
+
+.table__command-center-toolbar {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  width: 100%;
+  /* Inset from the canvas (which uses overflow: hidden) so control borders / rounded corners are not clipped */
+  padding: var(--space-1) var(--space-1) var(--space-2) var(--space-1);
+  font-size: var(--text-sm);
+  color: var(--text-secondary);
+}
+
+.table--command-center {
+  /* `<tr>` does not reliably paint `box-shadow`; use cell borders for the selection frame */
+  --table-command-center-selection-stroke: 3px;
+  border-radius: 0;
+  border-collapse: collapse;
+  border: 1px solid var(--table-command-center-border);
+  overflow: visible;
+  font-size: var(--text-xs, 0.75rem);
+  line-height: var(--leading-tight, 1.35);
+}
+
+/* Full 2D grid: explicit borders on every cell (higher specificity than default table "middle line" model) */
+.table.table--command-center thead th,
+.table.table--command-center tbody td {
+  border: 1px solid var(--table-command-center-border);
+  border-width: 1px;
+  border-color: var(--table-command-center-border);
+  border-style: solid;
+}
+
+.table--command-center thead th {
+  vertical-align: middle;
+  color: var(--text-primary);
+  font-weight: var(--font-semibold);
+  background-color: var(--table-command-center-header-bg);
+  padding: var(--space-2) var(--space-3);
+}
+
+.table--command-center tbody td {
+  vertical-align: middle;
+  padding: var(--space-2) var(--space-3);
+  color: var(--text-primary);
+}
+
+.table--command-center thead tr:first-child th:first-child,
+.table--command-center thead tr:first-child th:last-child,
+.table--command-center tbody tr:last-child td:first-child,
+.table--command-center tbody tr:last-child td:last-child {
+  border-radius: 0;
+}
+
+.table__cc-header {
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--space-1);
+  width: 100%;
+  text-align: left;
+}
+
+.table thead th.text-left .table__cc-header,
+.table--command-center thead th.text-left .table__cc-header {
+  text-align: left;
+  justify-content: flex-start;
+}
+
+.table thead th.text-right .table__cc-header,
+.table--command-center thead th.text-right .table__cc-header {
+  flex-direction: row;
+  text-align: right;
+  justify-content: flex-end;
+}
+
+/* Command Center: center label and sort/filter affordances within the cell */
+.table--command-center thead th .table__cc-header {
+  align-items: center;
+}
+
+.table--command-center thead th .table__cc-header-label {
+  padding-top: 0;
+}
+
+.table__cc-header-label {
+  flex: 1 1 auto;
+  min-width: 0;
+  line-height: var(--leading-tight, 1.3);
+  padding-top: 2px;
+}
+
+.table__cc-header-actions {
+  display: inline-flex;
+  flex-shrink: 0;
+  align-items: center;
+  gap: 0;
+}
+
+.table__cc-header-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-1);
+  border: none;
+  background: transparent;
+  color: var(--text-secondary);
+  border-radius: var(--radius-04);
+  cursor: pointer;
+  transition: color var(--transition-fast), background-color var(--transition-fast);
+}
+
+.table--command-center .table__cc-header-btn {
+  color: var(--text-muted, #6b7280);
+}
+
+.table__cc-header-btn:hover {
+  color: var(--text-primary);
+  background-color: var(--elevated-bg);
+}
+
+.table__cc-header-btn:focus-visible {
+  outline: 2px solid var(--border-focus);
+  outline-offset: 2px;
+}
+
+.table--command-center tbody tr.table-row--command-center-selected {
+  position: relative;
+  z-index: 1;
+}
+
+.table--command-center tbody tr.table-row--command-center-selected > td,
+.table--command-center tbody tr.table-row--command-center-selected > th {
+  position: relative;
+  z-index: 1;
+  border-top-width: var(--table-command-center-selection-stroke) !important;
+  border-top-style: solid;
+  border-top-color: var(--table-command-center-selection-outline, var(--theme-primary)) !important;
+  border-bottom-width: var(--table-command-center-selection-stroke) !important;
+  border-bottom-style: solid;
+  border-bottom-color: var(--table-command-center-selection-outline, var(--theme-primary)) !important;
+}
+
+.table--command-center tbody tr.table-row--command-center-selected > :first-child {
+  border-left-width: var(--table-command-center-selection-stroke) !important;
+  border-left-style: solid;
+  border-left-color: var(--table-command-center-selection-outline, var(--theme-primary)) !important;
+}
+
+.table--command-center tbody tr.table-row--command-center-selected > :last-child {
+  border-right-width: var(--table-command-center-selection-stroke) !important;
+  border-right-style: solid;
+  border-right-color: var(--table-command-center-selection-outline, var(--theme-primary)) !important;
+}
+
+/* Zebra: odd rows = subtle gray, even = white (mockup) */
+.table--striped.table--command-center tbody tr:nth-child(odd) {
+  background-color: var(--table-command-center-stripe-bg);
+}
+
+.table--striped.table--command-center tbody tr:nth-child(even) {
+  background-color: var(--surface-bg);
+}
+
+/* Neutral row hover (overrides default primary-tint table hover); includes selected Command Center row */
+.table--command-center tbody tr:hover:not(.table-row--selected):not(:has(.checkbox__input:checked)) {
+  background-color: var(--table-command-center-row-hover-bg) !important;
+}
+
+.command-center-layout {
+  display: block;
+  width: 100%;
+  min-width: 0;
+}
+
+.command-center-canvas {
+  display: grid;
+  width: 100%;
+  min-width: 0;
+  column-gap: 0;
+  row-gap: 0;
+  align-items: start;
+  overflow: hidden;
+}
+
+.command-center-canvas--with-toolbar {
+  grid-template-columns: minmax(0, 1fr) min(420px, 42vw);
+  grid-template-rows: auto minmax(0, 1fr);
+}
+
+.command-center-canvas--with-toolbar .command-center-canvas__toolbar {
+  grid-column: 1;
+  grid-row: 1;
+  min-width: 0;
+}
+
+.command-center-canvas--with-toolbar .command-center-canvas__spacer {
+  grid-column: 2;
+  grid-row: 1;
+  min-width: 0;
+}
+
+.command-center-canvas--with-toolbar .command-center-canvas__main {
+  grid-column: 1;
+  grid-row: 2;
+  min-width: 0;
+  min-height: 0;
+  overflow-x: auto;
+}
+
+.command-center-canvas--with-toolbar .command-center-canvas__aside {
+  grid-column: 2;
+  grid-row: 2;
+  min-width: 0;
+  align-self: stretch;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.command-center-canvas--no-toolbar {
+  grid-template-columns: minmax(0, 1fr) min(420px, 42vw);
+  grid-template-rows: minmax(0, 1fr);
+}
+
+.command-center-canvas--no-toolbar .command-center-canvas__main {
+  grid-column: 1;
+  grid-row: 1;
+  min-width: 0;
+  min-height: 0;
+  overflow-x: auto;
+}
+
+.command-center-canvas--no-toolbar .command-center-canvas__aside {
+  grid-column: 2;
+  grid-row: 1;
+  min-width: 0;
+  align-self: stretch;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.command-center-canvas__aside .command-center-panel {
+  flex: 1 1 auto;
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  min-height: 0;
+  box-sizing: border-box;
+}
+
+.table-wrapper--has-command-center-aside {
+  min-width: 0;
+}
+
+@keyframes command-center-panel-slide-in {
+  from {
+    transform: translate3d(100%, 0, 0);
+  }
+  to {
+    transform: translate3d(0, 0, 0);
+  }
+}
+
+.command-center-layout__main {
+  min-width: 0;
+  width: 100%;
+  overflow: auto;
+}
+
+.command-center-panel {
+  flex: 0 0 420px;
+  width: 420px;
+  max-width: 42vw;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  border: 1px solid var(--command-center-panel-border, var(--border-color));
+  border-left: 2px solid var(--table-command-center-border);
+  background-color: var(--command-center-panel-surface-bg, var(--surface-bg));
+  color: var(--text-primary);
+  animation: command-center-panel-slide-in 0.32s cubic-bezier(0.25, 0.8, 0.25, 1) forwards;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .command-center-panel {
+    animation: none;
+  }
+}
+
+.command-center-panel--hidden {
+  display: none;
+}
+
+.command-center-panel__header {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  flex-shrink: 0;
+  gap: var(--space-3);
+  min-height: 48px;
+  padding: 0 var(--space-3);
+  background-color: var(--command-center-panel-header-bg, var(--theme-primary));
+  color: var(--text-inverse);
+}
+
+.command-center-panel__title {
+  margin: 0;
+  font-size: var(--text-base, 1rem);
+  font-weight: var(--font-semibold);
+  line-height: 1.2;
+  color: inherit;
+}
+
+.command-center-panel__close {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 2.5rem;
+  height: 2.5rem;
+  padding: 0;
+  border: none;
+  background: transparent;
+  color: inherit;
+  border-radius: var(--radius-04);
+  cursor: pointer;
+  transition: background-color var(--transition-fast);
+}
+
+.command-center-panel__close:hover {
+  background-color: rgba(255, 255, 255, 0.12);
+}
+
+.command-center-panel__close:focus-visible {
+  outline: 2px solid var(--text-inverse);
+  outline-offset: 2px;
+}
+
+.command-center-panel__body {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow: auto;
+  padding: var(--space-4) var(--space-3) var(--space-3);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  background-color: var(--command-center-panel-surface-bg, var(--surface-bg));
+}
+
+.command-center-panel__visual {
+  margin: 0;
+  padding: 0 0 var(--space-1);
+  border: none;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.command-center-panel__visual > :last-child {
+  margin-bottom: 0;
+}
+
+/* Stacked “meter” / range illustration under project link (optional) */
+.command-center-panel__meter {
+  position: relative;
+  display: block;
+  width: 100%;
+  height: 2.5rem;
+  border-radius: var(--radius-08);
+  border: 1px solid var(--command-center-panel-card-border, var(--border-color));
+  background: linear-gradient(90deg, #fce7f3 0%, #ffedd5 32%, #fef3c7 60%, #bbf7d0 100%);
+  overflow: hidden;
+}
+
+.command-center-panel__meter-line {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 50%;
+  height: 2px;
+  margin-top: -1px;
+  background: rgba(55, 65, 81, 0.5);
+  pointer-events: none;
+}
+
+.command-center-panel__meter-ticks {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  width: 100%;
+  margin-top: var(--space-1);
+  font-size: var(--text-2xs, 0.625rem);
+  font-weight: var(--font-medium, 500);
+  color: var(--text-secondary);
+  letter-spacing: 0.02em;
+}
+
+/* Collapsible regions (independent; not a single-accordion set) */
+.command-center-panel__sections {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+  width: 100%;
+}
+
+.command-center-panel-section {
+  /* section container */
+  width: 100%;
+}
+
+.command-center-panel-section__trigger {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: flex-start;
+  width: 100%;
+  margin: 0;
+  padding: var(--space-1) 0;
+  border: none;
+  background: transparent;
+  text-align: left;
+  font: inherit;
+  color: var(--text-primary);
+  cursor: pointer;
+  gap: var(--space-2);
+  border-radius: var(--radius-04);
+  transition: color var(--transition-fast), background-color var(--transition-fast);
+}
+
+.command-center-panel-section__trigger:hover {
+  color: var(--text-primary);
+  background-color: rgba(0, 0, 0, 0.03);
+}
+
+.command-center-panel-section__trigger:focus-visible {
+  outline: 2px solid var(--border-focus);
+  outline-offset: 2px;
+}
+
+.command-center-panel-section__chevron {
+  flex-shrink: 0;
+  color: var(--text-muted, #6b7280);
+  width: 1.125rem;
+  height: 1.125rem;
+  margin-top: 0.1rem;
+  transform: rotate(-90deg);
+  transform-origin: center;
+  transition: transform var(--transition-fast);
+}
+
+.command-center-panel-section--open .command-center-panel-section__chevron {
+  transform: rotate(0);
+}
+
+.command-center-panel-section__title {
+  font-size: var(--text-sm);
+  font-weight: var(--font-semibold);
+  color: var(--text-primary);
+  line-height: 1.35;
+}
+
+.command-center-panel-section__content {
+  display: none;
+  margin-top: var(--space-3);
+}
+
+.command-center-panel-section--open .command-center-panel-section__content {
+  display: block;
+}
+
+.command-center-panel-section__inner {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: var(--space-3);
+  width: 100%;
+  padding: 0;
+}
+
+/* Field cards in panel (white on gray surface) */
+.command-center-card {
+  box-sizing: border-box;
+  background-color: var(--surface-bg);
+  border: 1px solid var(--command-center-panel-card-border, var(--border-color));
+  border-radius: var(--radius-08);
+  padding: var(--space-4);
+  min-width: 0;
+  box-shadow: none;
+}
+
+.command-center-card--flush {
+  padding: var(--space-3) var(--space-4);
+}
+
+.command-center-card__label {
+  margin: 0 0 var(--space-1) 0;
+  font-size: var(--text-xs, 0.75rem);
+  font-weight: var(--font-semibold, 600);
+  color: var(--text-primary);
+  line-height: 1.3;
+}
+
+.command-center-card__value {
+  margin: 0;
+  font-size: var(--text-sm, 0.875rem);
+  color: var(--text-secondary);
+  line-height: 1.4;
+  word-wrap: break-word;
+}
+
+.command-center-card__inline-icon {
+  flex-shrink: 0;
+  color: var(--link-color, var(--theme-primary));
+}
+
+.command-center-card-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-3);
+  width: 100%;
+}
+
+/* Borderless key-value grid for “Financial Information” (mockup) */
+.command-center-stat-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: var(--text-xs, 0.75rem);
+}
+
+.command-center-stat-table th,
+.command-center-stat-table td {
+  border: none;
+  padding: var(--space-1) 0;
+  vertical-align: top;
+  background: transparent;
+}
+
+.command-center-stat-table th {
+  font-weight: var(--font-normal);
+  color: var(--text-primary);
+  text-align: right;
+  white-space: nowrap;
+  padding-left: var(--space-2);
+  width: 1%;
+}
+
+.command-center-stat-table th:first-of-type,
+.command-center-stat-table__label {
+  text-align: left;
+  font-weight: var(--font-medium, 500);
+  width: auto;
+  padding-left: 0;
+  padding-right: var(--space-2);
+  color: var(--text-primary);
+}
+
+.command-center-stat-table__num {
+  text-align: right;
+  color: var(--text-secondary);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
 }
 
 /* 12. Avatar in Table Cells (keep existing functionality) */

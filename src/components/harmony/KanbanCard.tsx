@@ -39,7 +39,7 @@ export function KanbanCard({
   return (
     <Card className={clsx('kanban-card', className)} elevated>
       <div className="kanban-card__header">
-        <Avatar size={avatar?.size ?? 'sm'} className="kanban-card__avatar" />
+        <Avatar size={avatar?.size ?? 'md'} className="kanban-card__avatar" />
         <div className="kanban-card__header-right">
           {icons.length > 0 && (
             <div className="kanban-card__icons">

@@ -1,8 +1,13 @@
 import type { ReactNode } from 'react'
-import { useState, useId, useRef, useEffect } from 'react'
+import { useState, useId, useRef, useEffect, useLayoutEffect } from 'react'
 import clsx from 'clsx'
 import { Icon } from './Icon'
 import { Label } from './Label'
+import {
+  bindKanbanCpMenuScrollSync,
+  clearKanbanCpFixedMenu,
+  syncKanbanCpFixedMenu,
+} from '../../utils/kanban-cp-dropdown-position'
 import './Dropdown.css'
 
 export interface Option {
@@ -52,13 +57,45 @@ export function Dropdown({
   const currentValue = controlled ? value : internalValue
   const selectedOption = options.find((opt) => opt.value === currentValue)
   const containerRef = useRef<HTMLDivElement>(null)
+  const menuRef = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    bindKanbanCpMenuScrollSync()
+  }, [])
+
+  useLayoutEffect(() => {
+    const container = containerRef.current
+    const menu = menuRef.current
+    if (!isOpen || !container || !menu) return
+
+    const trigger = container.querySelector('.dropdown__trigger')
+    if (!(trigger instanceof HTMLElement)) return
+    if (!container.closest('.kanban-card-cp')) return
+
+    let raf1 = 0
+    let raf2 = 0
+    raf1 = requestAnimationFrame(() => {
+      raf2 = requestAnimationFrame(() => {
+        syncKanbanCpFixedMenu(trigger, menu)
+      })
+    })
+    return () => {
+      cancelAnimationFrame(raf1)
+      cancelAnimationFrame(raf2)
+      if (container.closest('.kanban-card-cp')) clearKanbanCpFixedMenu(menu)
+    }
+  }, [isOpen])
 
   useEffect(() => {
     if (!isOpen) return
     const handleClick = (e: MouseEvent) => {
-      if (containerRef.current && !containerRef.current.contains(e.target as Node)) {
-        setIsOpen(false)
-      }
+      const t = e.target as Node
+      const container = containerRef.current
+      const menu = menuRef.current
+      if (!container) return
+      const inDropdown = container.contains(t)
+      const inMenu = menu?.contains(t) ?? false
+      if (!inDropdown && !inMenu) setIsOpen(false)
     }
     document.addEventListener('click', handleClick)
     return () => document.removeEventListener('click', handleClick)
@@ -111,7 +148,7 @@ export function Dropdown({
       >
         {triggerContent}
       </button>
-      <div className="dropdown__menu" role="listbox">
+      <div ref={menuRef} className="dropdown__menu" role="listbox">
         {options.map((option, optIndex) => {
           const customContent = optionSlots && optIndex < optionSlots.length ? optionSlots[optIndex] : null
           const isSelected = option.value === currentValue

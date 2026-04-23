@@ -48,7 +48,7 @@
   transition: transform var(--transition-fast);
 }
 
-.toggle__input:checked + .toggle__track .toggle__thumb {
+.toggle__input:checked + .toggle__track:not(.toggle__track--segmented) .toggle__thumb {
   transform: translateX(var(--space-5));
 }
 
@@ -62,13 +62,104 @@
   height: var(--space-5);
 }
 
-.toggle--sm .toggle__thumb {
+.toggle--sm .toggle__track:not(.toggle__track--segmented) .toggle__thumb {
   width: var(--space-4);
   height: var(--space-4);
 }
 
-.toggle--sm .toggle__input:checked + .toggle__track .toggle__thumb {
+.toggle--sm .toggle__input:checked + .toggle__track:not(.toggle__track--segmented) .toggle__thumb {
   transform: translateX(var(--space-4));
+}
+
+/* Segmented (two labeled options) */
+.toggle--segmented {
+  gap: 0;
+}
+
+.toggle--segmented .toggle__input:checked + .toggle__track {
+  background-color: var(--border-color);
+}
+
+.toggle__track--segmented {
+  display: flex;
+  flex-direction: row;
+  align-items: stretch;
+  justify-content: stretch;
+  width: 11rem;
+  min-width: 11rem;
+  min-height: var(--space-7);
+  padding: var(--space-1);
+  box-sizing: border-box;
+  border: none;
+  border-radius: var(--radius-full);
+  background-color: var(--border-color);
+}
+
+.toggle__thumb--segmented {
+  z-index: 0;
+  top: var(--space-1);
+  bottom: var(--space-1);
+  left: var(--space-1);
+  width: calc(50% - var(--space-1) * 1.5);
+  height: auto;
+  border-radius: var(--radius-full);
+  border: none;
+  box-shadow: none;
+  transition: left var(--transition-fast);
+  transform: none;
+}
+
+.toggle__input:checked + .toggle__track--segmented .toggle__thumb--segmented {
+  transform: none;
+  left: calc(50% + var(--space-0-5));
+}
+
+.toggle__segment {
+  position: relative;
+  z-index: 2;
+  flex: 1 1 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding-block: var(--space-0-5);
+  font-size: var(--text-sm);
+  line-height: 1.2;
+  color: var(--text-secondary);
+  font-weight: 400;
+  pointer-events: none;
+  user-select: none;
+}
+
+.toggle__input:not(:checked) + .toggle__track--segmented .toggle__segment--left {
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.toggle__input:checked + .toggle__track--segmented .toggle__segment--right {
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.toggle--sm .toggle__track--segmented {
+  width: 9rem;
+  min-width: 9rem;
+  min-height: var(--space-6);
+  padding: var(--space-0-5) var(--space-1);
+}
+
+.toggle--sm .toggle__thumb--segmented {
+  top: var(--space-0-5);
+  bottom: var(--space-0-5);
+  left: var(--space-1);
+  width: calc(50% - var(--space-1) * 1.5);
+}
+
+.toggle--sm .toggle__input:checked + .toggle__track--segmented .toggle__thumb--segmented {
+  left: calc(50% + var(--space-0-5));
+}
+
+.toggle--sm .toggle__segment {
+  font-size: var(--text-xs);
 }
 
 /* Toggle Responsive Styles */
