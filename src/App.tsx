@@ -166,7 +166,7 @@ const REQUISITION_ROWS: RequisitionRow[] = [
     organization: 'Region NA — Ops',
     createdDate: 'Mar 28, 2025',
     needBy: 'Apr 22, 2025',
-    bannerMessage: 'Vendor response is pending; review attachments on the report before approval.',
+    bannerMessage: '',
     buyerAssignedLineCount: 6,
     lateItemsStageCounts: [0, 0, 1, 0],
     requisitionerName: 'Sam Lee',
@@ -699,17 +699,25 @@ function RequisitionSidePanel({
         </div>
       </div>
       <div className="command-center-requisition-panel__overdue-strip">
-        <p
-          className="command-center-requisition-panel__overdue-pct"
-          aria-label={
-            frac != null && overduePct != null
-              ? `Overdue lines ${frac.late} of ${frac.total}, ${overduePct} percent`
-              : `Overdue lines ${row.overdue}`
-          }
+        <div
+          className="command-center-requisition-panel__stat-callout"
+          aria-label={(() => {
+            const base =
+              frac != null && overduePct != null
+                ? `Overdue lines ${frac.late} of ${frac.total}, ${overduePct} percent`
+                : `Overdue lines ${row.overdue}`
+            const extra = row.bannerMessage.trim()
+            return extra !== '' ? `${base}. ${extra}` : base
+          })()}
         >
-          {overduePct != null ? `${overduePct}%` : row.overdue}
-        </p>
-        <p className="command-center-requisition-panel__overdue-label">Overdue lines</p>
+          <p className="command-center-requisition-panel__stat-callout-pct">
+            {overduePct != null ? `${overduePct}%` : row.overdue}
+          </p>
+          <p className="command-center-requisition-panel__stat-callout-label">Overdue lines</p>
+          {row.bannerMessage.trim() !== '' && (
+            <p className="command-center-requisition-panel__stat-callout-desc">{row.bannerMessage}</p>
+          )}
+        </div>
       </div>
       <div className="command-center-requisition-panel__body">
         <RequisitionDetailSummary row={row} />

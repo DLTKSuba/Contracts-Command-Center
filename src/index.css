@@ -148,7 +148,7 @@
   flex-direction: column;
   border-radius: 0;
   border-left: 1px solid var(--border-color);
-  background-color: var(--elevated-bg);
+  background-color: #ffffff;
   box-shadow: none;
 }
 
@@ -193,7 +193,7 @@
 .command-center-requisition-panel__intro {
   flex-shrink: 0;
   padding: var(--space-4);
-  background-color: var(--surface-bg, #ffffff);
+  background-color: #ffffff;
   border-bottom: 1px solid var(--border-light);
 }
 
@@ -213,29 +213,52 @@
 
 .command-center-requisition-panel__overdue-strip {
   flex-shrink: 0;
-  padding: calc(var(--space-3) * 0.8) var(--space-4);
+  box-sizing: border-box;
+  padding: var(--space-3) 0;
   text-align: left;
-  background-color: var(--command-center-overdue-strip-bg);
-  border-bottom: 1px solid var(--command-center-overdue-strip-border);
+  background-color: #edc46c;
+  color: #1f1a0d;
+  border-bottom: 1px solid var(--border-light);
 }
 
-.command-center-requisition-panel__overdue-pct {
+.command-center-requisition-panel__stat-callout {
+  box-sizing: border-box;
+  margin: 0;
+  /* Match horizontal rhythm of `.command-center-requisition-panel__intro` and accordion summaries. */
+  padding: 0 var(--space-4);
+  border-radius: 0;
+  background-color: transparent;
+  color: inherit;
+}
+
+.command-center-requisition-panel__stat-callout-pct {
   margin: 0;
   font-family: var(--font-sans);
   font-size: calc(var(--text-2xl) * 0.8);
   font-weight: var(--font-semibold);
-  color: var(--command-center-overdue-strip-fg);
   font-variant-numeric: tabular-nums;
   line-height: calc(var(--leading-tight) * 0.85);
+  color: inherit;
 }
 
-.command-center-requisition-panel__overdue-label {
+.command-center-requisition-panel__stat-callout-label {
   margin: calc(var(--space-1) * 0.8) 0 0;
   font-family: var(--font-sans);
   font-size: calc(var(--text-sm) * 0.9);
-  font-weight: var(--font-medium);
-  color: var(--command-center-overdue-strip-fg);
+  font-weight: var(--font-semibold);
   line-height: calc(var(--leading-snug) * 0.9);
+  color: inherit;
+  opacity: 0.92;
+}
+
+.command-center-requisition-panel__stat-callout-desc {
+  margin: var(--space-3) 0 0;
+  font-family: var(--font-sans);
+  font-size: var(--text-sm);
+  font-weight: var(--font-normal);
+  line-height: var(--leading-snug);
+  color: inherit;
+  opacity: 0.95;
 }
 
 .command-center-requisition-panel__close {
@@ -263,6 +286,7 @@
   min-height: 0;
   overflow-x: auto;
   overflow-y: auto;
+  background-color: #ffffff;
 }
 
 .command-center-requisition-accordion {
@@ -292,7 +316,7 @@
   font-size: var(--label);
   font-weight: var(--font-semibold);
   color: var(--text-primary);
-  background-color: var(--surface-secondary, #f9fafb);
+  background-color: #ffffff;
 }
 
 .command-center-requisition-accordion__summary-main {
