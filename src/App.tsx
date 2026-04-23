@@ -100,7 +100,7 @@ type RequisitionRow = {
   organization: string
   createdDate: string
   needBy: string
-  /** Shown in the yellow alert bar above Summary */
+  /** Optional copy for the yellow stat strip above Summary (empty hides the line). */
   bannerMessage: string
   /** Lines assigned to the logged-in buyer (Summary). */
   buyerAssignedLineCount: number
@@ -146,8 +146,7 @@ const REQUISITION_ROWS: RequisitionRow[] = [
     organization: 'HQ — Procurement',
     createdDate: 'Apr 2, 2025',
     needBy: 'Apr 18, 2025',
-    bannerMessage:
-      'Approvers may need to confirm funding before this requisition can advance to the next lifecycle stage.',
+    bannerMessage: '',
     buyerAssignedLineCount: 4,
     lateItemsStageCounts: [1, 0, 1, 0],
     requisitionerName: 'Jamie Chen',
@@ -185,7 +184,7 @@ const REQUISITION_ROWS: RequisitionRow[] = [
     organization: 'HQ — Finance',
     createdDate: 'Mar 15, 2025',
     needBy: 'Apr 10, 2025',
-    bannerMessage: 'This requisition is ready for PO creation once budget validation completes.',
+    bannerMessage: '',
     buyerAssignedLineCount: 3,
     lateItemsStageCounts: [0, 0, 0, 1],
     requisitionerName: 'Jordan Smith',
@@ -204,7 +203,7 @@ const REQUISITION_ROWS: RequisitionRow[] = [
     organization: 'EMEA — Supply',
     createdDate: 'Mar 20, 2025',
     needBy: 'Apr 5, 2025',
-    bannerMessage: 'Overdue milestones detected — open the report to see affected line items.',
+    bannerMessage: '',
     buyerAssignedLineCount: 5,
     lateItemsStageCounts: [1, 0, 2, 1],
     requisitionerName: 'Priya Nair',
@@ -223,7 +222,7 @@ const REQUISITION_ROWS: RequisitionRow[] = [
     organization: 'HQ — L&D',
     createdDate: 'Apr 8, 2025',
     needBy: 'Apr 25, 2025',
-    bannerMessage: 'Submittal is still pending; buyers have been notified via the workflow report.',
+    bannerMessage: '',
     buyerAssignedLineCount: 2,
     lateItemsStageCounts: [1, 0, 0, 0],
     requisitionerName: 'Morgan Chen',
@@ -241,7 +240,7 @@ const REQUISITION_ROWS: RequisitionRow[] = [
     organization: 'IT — Infrastructure',
     createdDate: 'Apr 1, 2025',
     needBy: 'Apr 30, 2025',
-    bannerMessage: 'No blocking issues; optional review of catalog mapping on the report is recommended.',
+    bannerMessage: '',
     buyerAssignedLineCount: 1,
     lateItemsStageCounts: [0, 0, 0, 0],
     requisitionerName: 'Casey Brooks',
@@ -260,7 +259,7 @@ const REQUISITION_ROWS: RequisitionRow[] = [
     organization: 'Facilities — West',
     createdDate: 'Feb 10, 2025',
     needBy: 'Mar 1, 2025',
-    bannerMessage: 'This requisition was rejected — see the report for rejection reason and resubmit guidance.',
+    bannerMessage: '',
     buyerAssignedLineCount: 0,
     lateItemsStageCounts: [0, 1, 0, 0],
     requisitionerName: 'Riley Ortiz',
@@ -279,7 +278,7 @@ const REQUISITION_ROWS: RequisitionRow[] = [
     organization: 'HQ — Analytics',
     createdDate: 'Jan 22, 2025',
     needBy: 'Feb 28, 2025',
-    bannerMessage: 'All overdue lines are resolved in the system; verify totals on the report before closing.',
+    bannerMessage: '',
     buyerAssignedLineCount: 8,
     lateItemsStageCounts: [0, 1, 1, 1],
     requisitionerName: 'Taylor Kim',
