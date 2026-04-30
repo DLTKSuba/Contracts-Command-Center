@@ -993,10 +993,16 @@ const PO_TABLE_HEADER = (
   </thead>
 )
 
-function PoPurchaseOrdersTableBody({ onOpenOrder }: { onOpenOrder: (poId: string) => void }) {
+function PoPurchaseOrdersTableBody({
+  rows,
+  onOpenOrder,
+}: {
+  rows: PoTableRowData[]
+  onOpenOrder: (poId: string) => void
+}) {
   return (
     <tbody>
-      {PO_TABLE_ROWS.map((row) => (
+      {rows.map((row) => (
         <tr key={row.id}>
           <td>
             <Link
@@ -1168,12 +1174,49 @@ function HomeShell() {
   const [poDetailOrderIds, setPoDetailOrderIds] = useState<string[]>([])
   const [refreshTick, setRefreshTick] = useState(0)
   const [selectedRequisitionId, setSelectedRequisitionId] = useState<string | null>(null)
+  const [reqLifecycleBarId, setReqLifecycleBarId] = useState<string | null>(null)
+  const [poLifecycleBarId, setPoLifecycleBarId] = useState<string | null>(null)
   const themeProps = THEME_SHELL_PROPS[DEFAULT_THEME] ?? THEME_SHELL_PROPS['theme-cp']
+
+  const filteredRequisitionRows = useMemo(() => {
+    if (reqLifecycleBarId == null) return REQUISITION_ROWS
+    const bar = REQUISITION_CHART_BARS.find((b) => b.id === reqLifecycleBarId)
+    if (bar == null) return REQUISITION_ROWS
+    return REQUISITION_ROWS.filter((r) => r.statusLabel === bar.label)
+  }, [reqLifecycleBarId])
+
+  const filteredPoRows = useMemo(() => {
+    if (poLifecycleBarId == null) return PO_TABLE_ROWS
+    const idx = PO_CHART_BARS.findIndex((b) => b.id === poLifecycleBarId)
+    if (idx < 0) return PO_TABLE_ROWS
+    return PO_TABLE_ROWS.filter((r) => r.stageIndices.includes(idx))
+  }, [poLifecycleBarId])
+
+  const reqStatusTableHint = useMemo(() => {
+    if (reqLifecycleBarId == null) return null
+    const bar = REQUISITION_CHART_BARS.find((b) => b.id === reqLifecycleBarId)
+    if (bar == null) return null
+    return `Table shows "${bar.label}" only. Click the same bar again or Refresh to show all statuses.`
+  }, [reqLifecycleBarId])
+
+  const poStatusTableHint = useMemo(() => {
+    if (poLifecycleBarId == null) return null
+    const bar = PO_CHART_BARS.find((b) => b.id === poLifecycleBarId)
+    if (bar == null) return null
+    return `Table shows orders in "${bar.label}". Click the same bar again or Refresh to show all.`
+  }, [poLifecycleBarId])
 
   const selectedRequisition = useMemo(
     () => REQUISITION_ROWS.find((r) => r.id === selectedRequisitionId) ?? null,
     [selectedRequisitionId],
   )
+
+  useEffect(() => {
+    if (selectedRequisitionId == null) return
+    if (!filteredRequisitionRows.some((r) => r.id === selectedRequisitionId)) {
+      setSelectedRequisitionId(null)
+    }
+  }, [filteredRequisitionRows, selectedRequisitionId])
 
   const openPoOrderDetailTab = (poId: string) => {
     setPoDetailOrderIds((prev) => (prev.includes(poId) ? prev : [...prev, poId]))
@@ -1200,7 +1243,13 @@ function HomeShell() {
   }
 
   useEffect(() => {
-    if (activeTabId !== 'requisitions') setSelectedRequisitionId(null)
+    if (activeTabId !== 'requisitions') {
+      setSelectedRequisitionId(null)
+      setReqLifecycleBarId(null)
+    }
+    if (activeTabId !== 'purchase-orders') {
+      setPoLifecycleBarId(null)
+    }
   }, [activeTabId])
 
   useEffect(() => {
@@ -1271,7 +1320,11 @@ function HomeShell() {
               size="sm"
               icon="arrow-path"
               ariaLabel="Refresh"
-              onClick={() => setRefreshTick((t) => t + 1)}
+              onClick={() => {
+                setReqLifecycleBarId(null)
+                setPoLifecycleBarId(null)
+                setRefreshTick((t) => t + 1)
+              }}
             />
           </div>
 
@@ -1282,6 +1335,9 @@ function HomeShell() {
               bars={REQUISITION_CHART_BARS}
               yAxisMax={120}
               tableWrapperClassName="command-center-table-detail-anchor"
+              selectedBarId={reqLifecycleBarId}
+              onBarFilterChange={setReqLifecycleBarId}
+              statusTableHint={reqStatusTableHint}
             >
               <>
                 <div className="command-center-table-detail-stack">
@@ -1292,7 +1348,7 @@ function HomeShell() {
                     header={REQUISITION_TABLE_HEADER}
                     body={
                       <RequisitionTableBody
-                        rows={REQUISITION_ROWS}
+                        rows={filteredRequisitionRows}
                         selectedId={selectedRequisitionId}
                         onSelectRow={setSelectedRequisitionId}
                       />
@@ -1311,13 +1367,21 @@ function HomeShell() {
           )}
 
           {activeTabId === 'purchase-orders' && (
-            <LifecycleBarChart key={refreshTick} title="PO lifecycle" bars={PO_CHART_BARS} yAxisMax={200}>
+            <LifecycleBarChart
+              key={refreshTick}
+              title="PO lifecycle"
+              bars={PO_CHART_BARS}
+              yAxisMax={200}
+              selectedBarId={poLifecycleBarId}
+              onBarFilterChange={setPoLifecycleBarId}
+              statusTableHint={poStatusTableHint}
+            >
               <Table
                 headerVariant="white"
                 striped
                 className="command-center-data-table"
                 header={PO_TABLE_HEADER}
-                body={<PoPurchaseOrdersTableBody onOpenOrder={openPoOrderDetailTab} />}
+                body={<PoPurchaseOrdersTableBody rows={filteredPoRows} onOpenOrder={openPoOrderDetailTab} />}
               />
             </LifecycleBarChart>
           )}

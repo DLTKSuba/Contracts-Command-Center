@@ -37,6 +37,12 @@ export interface LifecycleBarChartProps {
   /** Merged onto the table wrapper (e.g. `position: relative` for an inline detail panel). */
   tableWrapperClassName?: string
   className?: string
+  /** When set, highlights the matching lifecycle column (bar `id`). */
+  selectedBarId?: string | null
+  /** Click a bar to narrow the table; pass the same id again or `null` to clear. */
+  onBarFilterChange?: (barId: string | null) => void
+  /** Shown under project scope when a bar filter is active (plain sentence). */
+  statusTableHint?: string | null
 }
 
 export function LifecycleBarChart({
@@ -52,6 +58,9 @@ export function LifecycleBarChart({
   children,
   tableWrapperClassName,
   className = '',
+  selectedBarId = null,
+  onBarFilterChange,
+  statusTableHint = null,
 }: LifecycleBarChartProps) {
   const projects = useMemo(
     () =>
@@ -115,6 +124,11 @@ export function LifecycleBarChart({
       <p className="lifecycle-bar-chart__scope-line" aria-live="polite">
         {scopeSummary}
       </p>
+      {statusTableHint != null && statusTableHint.trim() !== '' && (
+        <p className="lifecycle-bar-chart__status-filter-hint" aria-live="polite">
+          {statusTableHint}
+        </p>
+      )}
 
       <div className="lifecycle-bar-chart__plot">
         <div className="lifecycle-bar-chart__y-axis" aria-hidden="true">
@@ -128,31 +142,56 @@ export function LifecycleBarChart({
           <div className="lifecycle-bar-chart__bars" role="list">
             {bars.map((bar) => {
               const pct = yAxisMax > 0 ? Math.min(100, (bar.value / yAxisMax) * 100) : 0
+              const interactive = onBarFilterChange != null
+              const selected = selectedBarId === bar.id
+              const toggleBar = () => {
+                if (!onBarFilterChange) return
+                onBarFilterChange(selected ? null : bar.id)
+              }
+              const track = (
+                <div className="lifecycle-bar-chart__track">
+                  <span
+                    className="lifecycle-bar-chart__value"
+                    style={{
+                      bottom: `calc(${pct}% + 4px)`,
+                    }}
+                  >
+                    {bar.value}
+                  </span>
+                  <div
+                    className="lifecycle-bar-chart__bar"
+                    style={{
+                      height: `${pct}%`,
+                      backgroundColor: bar.color,
+                    }}
+                    role="presentation"
+                  />
+                </div>
+              )
               return (
                 <div
                   key={bar.id}
-                  className="lifecycle-bar-chart__column"
+                  className={clsx(
+                    'lifecycle-bar-chart__column',
+                    interactive && 'lifecycle-bar-chart__column--interactive',
+                    selected && 'lifecycle-bar-chart__column--selected',
+                  )}
                   role="listitem"
                   title={bar.description ?? bar.label}
                 >
-                  <div className="lifecycle-bar-chart__track">
-                    <span
-                      className="lifecycle-bar-chart__value"
-                      style={{
-                        bottom: `calc(${pct}% + 4px)`,
-                      }}
+                  {interactive ? (
+                    <button
+                      type="button"
+                      className="lifecycle-bar-chart__column-hit"
+                      aria-pressed={selected}
+                      aria-label={`Filter table by ${bar.label}. ${selected ? 'Selected; press to clear.' : 'Press to show only this status.'}`}
+                      onClick={toggleBar}
                     >
-                      {bar.value}
-                    </span>
-                    <div
-                      className="lifecycle-bar-chart__bar"
-                      style={{
-                        height: `${pct}%`,
-                        backgroundColor: bar.color,
-                      }}
-                      role="presentation"
-                    />
-                  </div>
+                      {track}
+                    </button>
+                  ) : (
+                    track
+                  )}
                 </div>
               )
             })}
@@ -162,16 +201,41 @@ export function LifecycleBarChart({
         <div className="lifecycle-bar-chart__baseline" aria-hidden="true" />
 
         <div className="lifecycle-bar-chart__x-labels" role="list">
-          {bars.map((bar) => (
-            <div
-              key={`${bar.id}-label`}
-              className="lifecycle-bar-chart__label-cell"
-              role="listitem"
-              title={bar.description ?? bar.label}
-            >
-              <span className="lifecycle-bar-chart__label-cell-inner">{bar.label}</span>
-            </div>
-          ))}
+          {bars.map((bar) => {
+            const interactive = onBarFilterChange != null
+            const selected = selectedBarId === bar.id
+            const toggleBar = () => {
+              if (!onBarFilterChange) return
+              onBarFilterChange(selected ? null : bar.id)
+            }
+            const inner = <span className="lifecycle-bar-chart__label-cell-inner">{bar.label}</span>
+            return (
+              <div
+                key={`${bar.id}-label`}
+                className={clsx(
+                  'lifecycle-bar-chart__label-cell',
+                  interactive && 'lifecycle-bar-chart__label-cell--interactive',
+                  selected && 'lifecycle-bar-chart__label-cell--selected',
+                )}
+                role="listitem"
+                title={bar.description ?? bar.label}
+              >
+                {interactive ? (
+                  <button
+                    type="button"
+                    className="lifecycle-bar-chart__label-hit"
+                    aria-pressed={selected}
+                    aria-label={`Filter table by ${bar.label}. ${selected ? 'Selected; press to clear.' : 'Press to show only this status.'}`}
+                    onClick={toggleBar}
+                  >
+                    {inner}
+                  </button>
+                ) : (
+                  inner
+                )}
+              </div>
+            )
+          })}
         </div>
       </div>
 
