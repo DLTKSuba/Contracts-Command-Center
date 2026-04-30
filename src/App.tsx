@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState, type MouseEvent } from 'react'
+import { createPortal } from 'react-dom'
 import clsx from 'clsx'
 import { Routes, Route } from 'react-router-dom'
 import { ShellLayout } from './components/harmony/ShellLayout'
@@ -1346,7 +1347,10 @@ function shortBuildStampLabel(iso: string): string {
 
 /** Tiny on-screen + console proof of which bundle loaded (`vite.config` `__APP_BUILD_ID__`). */
 function AppBuildStamp() {
+  const [mounted, setMounted] = useState(false)
+
   useEffect(() => {
+    setMounted(true)
     console.info('[Costpoint Command Center] bundle', {
       buildId: __APP_BUILD_ID__,
       mode: import.meta.env.MODE,
@@ -1356,9 +1360,10 @@ function AppBuildStamp() {
   const modeTag = import.meta.env.DEV ? 'dev' : 'prod'
   const short = shortBuildStampLabel(__APP_BUILD_ID__)
 
-  return (
+  const el = (
     <div
       className="app-build-stamp"
+      data-app-build-stamp
       title={`Build: ${__APP_BUILD_ID__}\nMODE: ${import.meta.env.MODE}`}
       aria-label={`Application bundle ${modeTag} ${short}`}
     >
@@ -1369,6 +1374,9 @@ function AppBuildStamp() {
       <span className="app-build-stamp__time">{short}</span>
     </div>
   )
+
+  if (!mounted || typeof document === 'undefined') return null
+  return createPortal(el, document.body)
 }
 
 function App() {
