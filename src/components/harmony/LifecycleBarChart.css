@@ -40,8 +40,7 @@
   margin: calc(-1 * var(--space-2)) 0 var(--space-3);
   font-size: var(--text-xs);
   line-height: 1.4;
-  color: var(--theme-primary);
-  font-weight: var(--font-medium);
+  color: var(--text-secondary);
 }
 
 /* Project filter (trigger uses ProjectFilterControl.css; width matches former dropdown). */
@@ -205,13 +204,60 @@
   border-radius: var(--radius-md);
 }
 
-.lifecycle-bar-chart__column--interactive .lifecycle-bar-chart__column-hit:focus {
+.lifecycle-bar-chart__column--interactive .lifecycle-bar-chart__column-hit:focus-visible {
   outline: none;
-  box-shadow: var(--focus-ring-primary);
+  box-shadow: 0 0 0 2px var(--text-primary);
 }
 
-.lifecycle-bar-chart__column--selected .lifecycle-bar-chart__column-hit {
-  box-shadow: inset 0 0 0 2px var(--theme-primary);
+.lifecycle-bar-chart--status-filter-on .lifecycle-bar-chart__column--selected .lifecycle-bar-chart__bar {
+  filter: brightness(1.06) saturate(1.12);
+}
+
+.lifecycle-bar-chart--status-filter-on .lifecycle-bar-chart__column--selected .lifecycle-bar-chart__value {
+  opacity: 1;
+  color: var(--text-primary);
+  font-weight: var(--font-semibold);
+}
+
+/* When a status filter is active, non-selected bars read as de-emphasized. */
+.lifecycle-bar-chart__column--dimmed .lifecycle-bar-chart__bar {
+  opacity: 0.32;
+  filter: saturate(0.55);
+  transition:
+    opacity 0.22s ease,
+    filter 0.22s ease,
+    height 0.2s ease;
+}
+
+.lifecycle-bar-chart__column--dimmed .lifecycle-bar-chart__value {
+  opacity: 0.42;
+  color: var(--text-secondary);
+  transition:
+    opacity 0.22s ease,
+    color 0.22s ease;
+}
+
+.lifecycle-bar-chart__column:not(.lifecycle-bar-chart__column--dimmed) .lifecycle-bar-chart__bar {
+  transition:
+    opacity 0.22s ease,
+    filter 0.22s ease,
+    height 0.2s ease;
+}
+
+.lifecycle-bar-chart__column:not(.lifecycle-bar-chart__column--dimmed) .lifecycle-bar-chart__value {
+  transition:
+    opacity 0.22s ease,
+    color 0.22s ease;
+}
+
+.lifecycle-bar-chart__label-cell--dimmed .lifecycle-bar-chart__label-cell-inner {
+  opacity: 0.42;
+  color: var(--text-secondary);
+  transition: opacity 0.22s ease, color 0.22s ease;
+}
+
+.lifecycle-bar-chart__label-cell:not(.lifecycle-bar-chart__label-cell--dimmed) .lifecycle-bar-chart__label-cell-inner {
+  transition: opacity 0.22s ease, color 0.22s ease;
 }
 
 .lifecycle-bar-chart__label-cell--interactive .lifecycle-bar-chart__label-hit {
@@ -228,13 +274,15 @@
   border-radius: var(--radius-sm);
 }
 
-.lifecycle-bar-chart__label-cell--interactive .lifecycle-bar-chart__label-hit:focus {
+.lifecycle-bar-chart__label-cell--interactive .lifecycle-bar-chart__label-hit:focus-visible {
   outline: none;
-  box-shadow: var(--focus-ring-primary);
+  box-shadow: 0 0 0 2px var(--text-primary);
 }
 
-.lifecycle-bar-chart__label-cell--selected .lifecycle-bar-chart__label-hit {
-  box-shadow: inset 0 0 0 2px var(--theme-primary);
+.lifecycle-bar-chart--status-filter-on .lifecycle-bar-chart__label-cell--selected .lifecycle-bar-chart__label-cell-inner {
+  opacity: 1;
+  color: var(--text-primary);
+  font-weight: var(--font-semibold);
 }
 
 .lifecycle-bar-chart__track {

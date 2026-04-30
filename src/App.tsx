@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState, type MouseEvent } from 'react'
+import { useCallback, useEffect, useMemo, useState, type MouseEvent } from 'react'
 import { createPortal } from 'react-dom'
 import clsx from 'clsx'
 import { Routes, Route } from 'react-router-dom'
@@ -468,23 +468,47 @@ function commandCenterLifecycleStatusCell(
   )
 }
 
-function reqStatusTrailCell(statusLabel: string, stageIndicesInDisplayOrder: readonly number[]) {
+function reqStatusTrailCell(
+  statusLabel: string,
+  stageIndicesInDisplayOrder: readonly number[],
+  lifecycleChartFilterStageIndices: readonly number[] | null,
+) {
+  const useChartFilter =
+    lifecycleChartFilterStageIndices != null && lifecycleChartFilterStageIndices.length > 0
+  const displayIndices = useChartFilter
+    ? [...new Set(lifecycleChartFilterStageIndices)].sort((a, b) => a - b)
+    : stageIndicesInDisplayOrder
+  const summaryLabel = useChartFilter
+    ? displayIndices.map((i) => REQ_STATUS_STAGE_LABELS[i] ?? `Stage ${i}`).join(', ')
+    : statusLabel
   return commandCenterLifecycleStatusCell(
     'PR',
-    statusLabel,
+    summaryLabel,
     REQ_STATUS_DOT_COLORS,
     REQ_STATUS_STAGE_LABELS,
-    stageIndicesInDisplayOrder,
+    displayIndices,
   )
 }
 
-function poLifecycleStatusCell(summaryLabel: string, stageIndicesInDisplayOrder: readonly number[]) {
+function poLifecycleStatusCell(
+  summaryLabel: string,
+  stageIndicesInDisplayOrder: readonly number[],
+  lifecycleChartFilterStageIndices: readonly number[] | null,
+) {
+  const useChartFilter =
+    lifecycleChartFilterStageIndices != null && lifecycleChartFilterStageIndices.length > 0
+  const displayIndices = useChartFilter
+    ? [...new Set(lifecycleChartFilterStageIndices)].sort((a, b) => a - b)
+    : stageIndicesInDisplayOrder
+  const label = useChartFilter
+    ? displayIndices.map((i) => PO_LIFECYCLE_STAGE_LABELS[i] ?? `Stage ${i}`).join(', ')
+    : summaryLabel
   return commandCenterLifecycleStatusCell(
     'PO',
-    summaryLabel,
+    label,
     PO_LIFECYCLE_STAGE_COLORS,
     PO_LIFECYCLE_STAGE_LABELS,
-    stageIndicesInDisplayOrder,
+    displayIndices,
   )
 }
 
@@ -616,10 +640,13 @@ function RequisitionTableBody({
   rows,
   selectedId,
   onSelectRow,
+  lifecycleChartFilterStageIndices = null,
 }: {
   rows: RequisitionRow[]
   selectedId: string | null
   onSelectRow: (id: string) => void
+  /** When non-empty (bar chart filter), status column shows one marker per selected stage. */
+  lifecycleChartFilterStageIndices?: readonly number[] | null
 }) {
   return (
     <tbody>
@@ -643,7 +670,7 @@ function RequisitionTableBody({
           {prIdCell(row.id)}
           <td>{row.vendor}</td>
           <td className="text-right">{row.amount}</td>
-          {reqStatusTrailCell(row.statusLabel, row.stageIndices)}
+          {reqStatusTrailCell(row.statusLabel, row.stageIndices, lifecycleChartFilterStageIndices ?? null)}
           <td style={row.overdueUrgent ? { color: 'var(--color-error)' } : undefined}>{row.overdue}</td>
         </tr>
       ))}
@@ -996,9 +1023,11 @@ const PO_TABLE_HEADER = (
 function PoPurchaseOrdersTableBody({
   rows,
   onOpenOrder,
+  lifecycleChartFilterStageIndices = null,
 }: {
   rows: PoTableRowData[]
   onOpenOrder: (poId: string) => void
+  lifecycleChartFilterStageIndices?: readonly number[] | null
 }) {
   return (
     <tbody>
@@ -1022,7 +1051,7 @@ function PoPurchaseOrdersTableBody({
           <td>{row.type}</td>
           <td>{row.vendor}</td>
           <td className="text-right">{row.amount}</td>
-          {poLifecycleStatusCell(row.statusLabel, row.stageIndices)}
+          {poLifecycleStatusCell(row.statusLabel, row.stageIndices, lifecycleChartFilterStageIndices ?? null)}
           <td
             className="text-right"
             style={row.overdueUrgent ? { color: 'var(--color-error)' } : undefined}
@@ -1174,37 +1203,78 @@ function HomeShell() {
   const [poDetailOrderIds, setPoDetailOrderIds] = useState<string[]>([])
   const [refreshTick, setRefreshTick] = useState(0)
   const [selectedRequisitionId, setSelectedRequisitionId] = useState<string | null>(null)
-  const [reqLifecycleBarId, setReqLifecycleBarId] = useState<string | null>(null)
-  const [poLifecycleBarId, setPoLifecycleBarId] = useState<string | null>(null)
+  const [reqLifecycleBarIds, setReqLifecycleBarIds] = useState<string[]>([])
+  const [poLifecycleBarIds, setPoLifecycleBarIds] = useState<string[]>([])
   const themeProps = THEME_SHELL_PROPS[DEFAULT_THEME] ?? THEME_SHELL_PROPS['theme-cp']
 
+  const toggleReqLifecycleBar = useCallback((barId: string) => {
+    setReqLifecycleBarIds((prev) =>
+      prev.includes(barId) ? prev.filter((id) => id !== barId) : [...prev, barId],
+    )
+  }, [])
+
+  const togglePoLifecycleBar = useCallback((barId: string) => {
+    setPoLifecycleBarIds((prev) =>
+      prev.includes(barId) ? prev.filter((id) => id !== barId) : [...prev, barId],
+    )
+  }, [])
+
   const filteredRequisitionRows = useMemo(() => {
-    if (reqLifecycleBarId == null) return REQUISITION_ROWS
-    const bar = REQUISITION_CHART_BARS.find((b) => b.id === reqLifecycleBarId)
-    if (bar == null) return REQUISITION_ROWS
-    return REQUISITION_ROWS.filter((r) => r.statusLabel === bar.label)
-  }, [reqLifecycleBarId])
+    if (reqLifecycleBarIds.length === 0) return REQUISITION_ROWS
+    const labels = new Set(
+      reqLifecycleBarIds
+        .map((id) => REQUISITION_CHART_BARS.find((b) => b.id === id)?.label)
+        .filter((l): l is string => l != null && l !== ''),
+    )
+    if (labels.size === 0) return REQUISITION_ROWS
+    return REQUISITION_ROWS.filter((r) => labels.has(r.statusLabel))
+  }, [reqLifecycleBarIds])
 
   const filteredPoRows = useMemo(() => {
-    if (poLifecycleBarId == null) return PO_TABLE_ROWS
-    const idx = PO_CHART_BARS.findIndex((b) => b.id === poLifecycleBarId)
-    if (idx < 0) return PO_TABLE_ROWS
-    return PO_TABLE_ROWS.filter((r) => r.stageIndices.includes(idx))
-  }, [poLifecycleBarId])
+    if (poLifecycleBarIds.length === 0) return PO_TABLE_ROWS
+    const indices = poLifecycleBarIds
+      .map((id) => PO_CHART_BARS.findIndex((b) => b.id === id))
+      .filter((i) => i >= 0)
+    if (indices.length === 0) return PO_TABLE_ROWS
+    const indexSet = new Set(indices)
+    return PO_TABLE_ROWS.filter((r) => r.stageIndices.some((si) => indexSet.has(si)))
+  }, [poLifecycleBarIds])
+
+  const reqLifecycleFilterStageIndices = useMemo(() => {
+    if (reqLifecycleBarIds.length === 0) return null
+    const indices = reqLifecycleBarIds
+      .map((id) => REQUISITION_CHART_BARS.findIndex((b) => b.id === id))
+      .filter((i) => i >= 0)
+    return indices.length === 0 ? null : [...new Set(indices)].sort((a, b) => a - b)
+  }, [reqLifecycleBarIds])
+
+  const poLifecycleFilterStageIndices = useMemo(() => {
+    if (poLifecycleBarIds.length === 0) return null
+    const indices = poLifecycleBarIds
+      .map((id) => PO_CHART_BARS.findIndex((b) => b.id === id))
+      .filter((i) => i >= 0)
+    return indices.length === 0 ? null : [...new Set(indices)].sort((a, b) => a - b)
+  }, [poLifecycleBarIds])
 
   const reqStatusTableHint = useMemo(() => {
-    if (reqLifecycleBarId == null) return null
-    const bar = REQUISITION_CHART_BARS.find((b) => b.id === reqLifecycleBarId)
-    if (bar == null) return null
-    return `Table shows "${bar.label}" only. Click the same bar again or Refresh to show all statuses.`
-  }, [reqLifecycleBarId])
+    if (reqLifecycleBarIds.length === 0) return null
+    const labels = reqLifecycleBarIds
+      .map((id) => REQUISITION_CHART_BARS.find((b) => b.id === id)?.label)
+      .filter((l): l is string => l != null && l !== '')
+    if (labels.length === 0) return null
+    const quoted = labels.map((l) => `"${l}"`).join(', ')
+    return `Table shows requisitions matching any of: ${quoted}. Click a selected bar to remove it, or Refresh to clear all.`
+  }, [reqLifecycleBarIds])
 
   const poStatusTableHint = useMemo(() => {
-    if (poLifecycleBarId == null) return null
-    const bar = PO_CHART_BARS.find((b) => b.id === poLifecycleBarId)
-    if (bar == null) return null
-    return `Table shows orders in "${bar.label}". Click the same bar again or Refresh to show all.`
-  }, [poLifecycleBarId])
+    if (poLifecycleBarIds.length === 0) return null
+    const labels = poLifecycleBarIds
+      .map((id) => PO_CHART_BARS.find((b) => b.id === id)?.label)
+      .filter((l): l is string => l != null && l !== '')
+    if (labels.length === 0) return null
+    const quoted = labels.map((l) => `"${l}"`).join(', ')
+    return `Table shows orders in any of: ${quoted}. Click a selected bar to remove it, or Refresh to clear all.`
+  }, [poLifecycleBarIds])
 
   const selectedRequisition = useMemo(
     () => REQUISITION_ROWS.find((r) => r.id === selectedRequisitionId) ?? null,
@@ -1245,10 +1315,10 @@ function HomeShell() {
   useEffect(() => {
     if (activeTabId !== 'requisitions') {
       setSelectedRequisitionId(null)
-      setReqLifecycleBarId(null)
+      setReqLifecycleBarIds([])
     }
     if (activeTabId !== 'purchase-orders') {
-      setPoLifecycleBarId(null)
+      setPoLifecycleBarIds([])
     }
   }, [activeTabId])
 
@@ -1321,8 +1391,8 @@ function HomeShell() {
               icon="arrow-path"
               ariaLabel="Refresh"
               onClick={() => {
-                setReqLifecycleBarId(null)
-                setPoLifecycleBarId(null)
+                setReqLifecycleBarIds([])
+                setPoLifecycleBarIds([])
                 setRefreshTick((t) => t + 1)
               }}
             />
@@ -1335,8 +1405,8 @@ function HomeShell() {
               bars={REQUISITION_CHART_BARS}
               yAxisMax={120}
               tableWrapperClassName="command-center-table-detail-anchor"
-              selectedBarId={reqLifecycleBarId}
-              onBarFilterChange={setReqLifecycleBarId}
+              selectedBarIds={reqLifecycleBarIds}
+              onBarToggle={toggleReqLifecycleBar}
               statusTableHint={reqStatusTableHint}
             >
               <>
@@ -1351,6 +1421,7 @@ function HomeShell() {
                         rows={filteredRequisitionRows}
                         selectedId={selectedRequisitionId}
                         onSelectRow={setSelectedRequisitionId}
+                        lifecycleChartFilterStageIndices={reqLifecycleFilterStageIndices}
                       />
                     }
                   />
@@ -1372,8 +1443,8 @@ function HomeShell() {
               title="PO lifecycle"
               bars={PO_CHART_BARS}
               yAxisMax={200}
-              selectedBarId={poLifecycleBarId}
-              onBarFilterChange={setPoLifecycleBarId}
+              selectedBarIds={poLifecycleBarIds}
+              onBarToggle={togglePoLifecycleBar}
               statusTableHint={poStatusTableHint}
             >
               <Table
@@ -1381,7 +1452,13 @@ function HomeShell() {
                 striped
                 className="command-center-data-table"
                 header={PO_TABLE_HEADER}
-                body={<PoPurchaseOrdersTableBody rows={filteredPoRows} onOpenOrder={openPoOrderDetailTab} />}
+                body={
+                  <PoPurchaseOrdersTableBody
+                    rows={filteredPoRows}
+                    onOpenOrder={openPoOrderDetailTab}
+                    lifecycleChartFilterStageIndices={poLifecycleFilterStageIndices}
+                  />
+                }
               />
             </LifecycleBarChart>
           )}

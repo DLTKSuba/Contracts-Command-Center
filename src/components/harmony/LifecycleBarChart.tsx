@@ -37,10 +37,10 @@ export interface LifecycleBarChartProps {
   /** Merged onto the table wrapper (e.g. `position: relative` for an inline detail panel). */
   tableWrapperClassName?: string
   className?: string
-  /** When set, highlights the matching lifecycle column (bar `id`). */
-  selectedBarId?: string | null
-  /** Click a bar to narrow the table; pass the same id again or `null` to clear. */
-  onBarFilterChange?: (barId: string | null) => void
+  /** Bar `id`s currently included in the lifecycle table filter (multi-select). */
+  selectedBarIds?: readonly string[]
+  /** Toggle a bar in/out of the filter; parent updates `selectedBarIds`. */
+  onBarToggle?: (barId: string) => void
   /** Shown under project scope when a bar filter is active (plain sentence). */
   statusTableHint?: string | null
 }
@@ -58,10 +58,11 @@ export function LifecycleBarChart({
   children,
   tableWrapperClassName,
   className = '',
-  selectedBarId = null,
-  onBarFilterChange,
+  selectedBarIds: selectedBarIdsProp,
+  onBarToggle,
   statusTableHint = null,
 }: LifecycleBarChartProps) {
+  const selectedBarIds = selectedBarIdsProp ?? []
   const projects = useMemo(
     () =>
       projectsProp != null && projectsProp.length > 0 ? projectsProp : DEFAULT_LIFECYCLE_PROJECTS,
@@ -97,6 +98,8 @@ export function LifecycleBarChart({
     return Math.round(yAxisMax - i * step)
   })
 
+  const barFilterActive = onBarToggle != null && selectedBarIds.length > 0
+
   const summary = `${title}: ${bars.map((b) => `${b.label} ${b.value}`).join(', ')}`
 
   const scopeSummary = useMemo(() => {
@@ -110,7 +113,10 @@ export function LifecycleBarChart({
   }, [selectedProjectIds, projects])
 
   return (
-    <section className={clsx('lifecycle-bar-chart', className)} aria-label={summary}>
+    <section
+      className={clsx('lifecycle-bar-chart', barFilterActive && 'lifecycle-bar-chart--status-filter-on', className)}
+      aria-label={summary}
+    >
       <div className="lifecycle-bar-chart__header">
         <h3 className="lifecycle-bar-chart__title">{title}</h3>
         <ProjectFilterControl
@@ -142,11 +148,11 @@ export function LifecycleBarChart({
           <div className="lifecycle-bar-chart__bars" role="list">
             {bars.map((bar) => {
               const pct = yAxisMax > 0 ? Math.min(100, (bar.value / yAxisMax) * 100) : 0
-              const interactive = onBarFilterChange != null
-              const selected = selectedBarId === bar.id
+              const interactive = onBarToggle != null
+              const selected = selectedBarIds.includes(bar.id)
+              const dimmed = barFilterActive && !selected
               const toggleBar = () => {
-                if (!onBarFilterChange) return
-                onBarFilterChange(selected ? null : bar.id)
+                onBarToggle?.(bar.id)
               }
               const track = (
                 <div className="lifecycle-bar-chart__track">
@@ -175,6 +181,7 @@ export function LifecycleBarChart({
                     'lifecycle-bar-chart__column',
                     interactive && 'lifecycle-bar-chart__column--interactive',
                     selected && 'lifecycle-bar-chart__column--selected',
+                    dimmed && 'lifecycle-bar-chart__column--dimmed',
                   )}
                   role="listitem"
                   title={bar.description ?? bar.label}
@@ -184,7 +191,7 @@ export function LifecycleBarChart({
                       type="button"
                       className="lifecycle-bar-chart__column-hit"
                       aria-pressed={selected}
-                      aria-label={`Filter table by ${bar.label}. ${selected ? 'Selected; press to clear.' : 'Press to show only this status.'}`}
+                      aria-label={`${bar.label}. ${selected ? 'Selected; press to remove from table filter.' : 'Press to add to table filter.'}`}
                       onClick={toggleBar}
                     >
                       {track}
@@ -202,11 +209,11 @@ export function LifecycleBarChart({
 
         <div className="lifecycle-bar-chart__x-labels" role="list">
           {bars.map((bar) => {
-            const interactive = onBarFilterChange != null
-            const selected = selectedBarId === bar.id
+            const interactive = onBarToggle != null
+            const selected = selectedBarIds.includes(bar.id)
+            const dimmed = barFilterActive && !selected
             const toggleBar = () => {
-              if (!onBarFilterChange) return
-              onBarFilterChange(selected ? null : bar.id)
+              onBarToggle?.(bar.id)
             }
             const inner = <span className="lifecycle-bar-chart__label-cell-inner">{bar.label}</span>
             return (
@@ -216,6 +223,7 @@ export function LifecycleBarChart({
                   'lifecycle-bar-chart__label-cell',
                   interactive && 'lifecycle-bar-chart__label-cell--interactive',
                   selected && 'lifecycle-bar-chart__label-cell--selected',
+                  dimmed && 'lifecycle-bar-chart__label-cell--dimmed',
                 )}
                 role="listitem"
                 title={bar.description ?? bar.label}
@@ -225,7 +233,7 @@ export function LifecycleBarChart({
                     type="button"
                     className="lifecycle-bar-chart__label-hit"
                     aria-pressed={selected}
-                    aria-label={`Filter table by ${bar.label}. ${selected ? 'Selected; press to clear.' : 'Press to show only this status.'}`}
+                    aria-label={`${bar.label}. ${selected ? 'Selected; press to remove from table filter.' : 'Press to add to table filter.'}`}
                     onClick={toggleBar}
                   >
                     {inner}
