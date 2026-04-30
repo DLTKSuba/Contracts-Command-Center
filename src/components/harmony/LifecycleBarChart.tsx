@@ -1,8 +1,11 @@
 import type { ReactNode } from 'react'
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import clsx from 'clsx'
-import { Dropdown } from './Dropdown'
-import type { Option } from './Dropdown'
+import {
+  DEFAULT_LIFECYCLE_PROJECTS,
+  ProjectFilterControl,
+} from './ProjectFilterControl'
+import type { ProjectRow } from './ProjectFilterControl'
 import './LifecycleBarChart.css'
 
 export interface LifecycleBarChartBar {
@@ -19,13 +22,13 @@ export interface LifecycleBarChartProps {
   bars: LifecycleBarChartBar[]
   /** Top of Y-axis (e.g. 200); bars scale to this max */
   yAxisMax: number
-  /** Label for the default “all” scope when `filterOptions` is not provided */
+  /** Label on the trigger when every project is selected */
   filterLabel?: string
-  /** Harmony Dropdown options (defaults: All Projects + common scopes) */
-  filterOptions?: Option[]
-  /** Controlled filter value (must match an option `value`) */
-  filterValue?: string
-  onFilterChange?: (value: string) => void
+  /** Projects shown in the selector (defaults to sample PRJ list) */
+  projects?: ProjectRow[]
+  /** Controlled: selected project IDs (omit for uncontrolled default: all projects) */
+  selectedProjectIds?: string[]
+  onSelectedProjectIdsChange?: (ids: string[]) => void
   /** Optional status definitions (e.g. requisition lifecycle copy) */
   legendItems?: string[]
   legendTitle?: string
@@ -36,39 +39,48 @@ export interface LifecycleBarChartProps {
   className?: string
 }
 
-const DEFAULT_FILTER_OPTIONS = (allLabel: string): Option[] => [
-  { value: 'all', label: allLabel },
-  { value: 'active', label: 'Active projects' },
-  { value: 'recent', label: 'Recently updated' },
-]
-
 export function LifecycleBarChart({
   title,
   bars,
   yAxisMax,
   filterLabel = 'All Projects',
-  filterOptions: filterOptionsProp,
-  filterValue: filterValueProp,
-  onFilterChange,
+  projects: projectsProp,
+  selectedProjectIds: selectedProjectIdsProp,
+  onSelectedProjectIdsChange,
   legendItems,
   legendTitle = 'Status definitions',
   children,
   tableWrapperClassName,
   className = '',
 }: LifecycleBarChartProps) {
-  const [internalFilter, setInternalFilter] = useState('all')
-  const controlled = filterValueProp !== undefined
-  const filterValue = controlled ? filterValueProp : internalFilter
+  const projects = useMemo(
+    () =>
+      projectsProp != null && projectsProp.length > 0 ? projectsProp : DEFAULT_LIFECYCLE_PROJECTS,
+    [projectsProp]
+  )
 
-  const filterOptions = useMemo(() => {
-    if (filterOptionsProp != null && filterOptionsProp.length > 0) return filterOptionsProp
-    return DEFAULT_FILTER_OPTIONS(filterLabel)
-  }, [filterOptionsProp, filterLabel])
+  const allIds = useMemo(() => projects.map((p) => p.id), [projects])
+  const idsKey = allIds.join('|')
 
-  const handleFilterChange = (value: string) => {
-    if (!controlled) setInternalFilter(value)
-    onFilterChange?.(value)
+  const [internalSelectedIds, setInternalSelectedIds] = useState<string[]>(() => allIds)
+
+  const selectionControlled = selectedProjectIdsProp !== undefined
+  const selectedProjectIds = selectionControlled ? selectedProjectIdsProp! : internalSelectedIds
+
+  const setSelectedProjectIds = (ids: string[]) => {
+    if (!selectionControlled) setInternalSelectedIds(ids)
+    onSelectedProjectIdsChange?.(ids)
   }
+
+  useEffect(() => {
+    if (selectionControlled || allIds.length === 0) return
+    setInternalSelectedIds((prev) => {
+      const allowed = new Set(allIds)
+      const next = prev.filter((id) => allowed.has(id))
+      if (next.length === 0) return [...allIds]
+      return next
+    })
+  }, [selectionControlled, idsKey, allIds])
 
   const ticks = 5
   const tickValues = Array.from({ length: ticks }, (_, i) => {
@@ -78,18 +90,31 @@ export function LifecycleBarChart({
 
   const summary = `${title}: ${bars.map((b) => `${b.label} ${b.value}`).join(', ')}`
 
+  const scopeSummary = useMemo(() => {
+    if (selectedProjectIds.length === projects.length) {
+      return `Includes all ${projects.length} projects.`
+    }
+    if (selectedProjectIds.length === 0) {
+      return 'No projects selected — choose projects and click Apply.'
+    }
+    return `Filtered to ${selectedProjectIds.length} of ${projects.length} projects.`
+  }, [selectedProjectIds, projects])
+
   return (
     <section className={clsx('lifecycle-bar-chart', className)} aria-label={summary}>
       <div className="lifecycle-bar-chart__header">
         <h3 className="lifecycle-bar-chart__title">{title}</h3>
-        <Dropdown
-          className="lifecycle-bar-chart__dropdown"
-          options={filterOptions}
-          value={filterValue}
-          onChange={handleFilterChange}
-          placeholder={filterLabel}
+        <ProjectFilterControl
+          className="lifecycle-bar-chart__project-filter"
+          projects={projects}
+          value={selectedProjectIds}
+          onChange={setSelectedProjectIds}
+          allLabel={filterLabel}
         />
       </div>
+      <p className="lifecycle-bar-chart__scope-line" aria-live="polite">
+        {scopeSummary}
+      </p>
 
       <div className="lifecycle-bar-chart__plot">
         <div className="lifecycle-bar-chart__y-axis" aria-hidden="true">

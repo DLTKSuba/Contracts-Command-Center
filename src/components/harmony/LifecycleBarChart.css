@@ -29,12 +29,16 @@
   color: var(--text-primary);
 }
 
-/* Harmony Dropdown in chart toolbar (trigger + menu use Dropdown.css tokens). */
-.lifecycle-bar-chart__dropdown.dropdown {
+.lifecycle-bar-chart__scope-line {
+  margin: 0 0 var(--space-3);
+  font-size: var(--text-xs);
+  line-height: 1.4;
+  color: var(--text-secondary);
+}
+
+/* Project filter (trigger uses ProjectFilterControl.css; width matches former dropdown). */
+.lifecycle-bar-chart__project-filter {
   flex-shrink: 0;
-  width: auto;
-  min-width: min(100%, var(--dropdown-min-width));
-  max-width: min(100%, 280px);
 }
 
 .lifecycle-bar-chart__plot {
