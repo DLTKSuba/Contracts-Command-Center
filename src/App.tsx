@@ -1338,6 +1338,39 @@ function HomeShell() {
   )
 }
 
+function shortBuildStampLabel(iso: string): string {
+  const m = /^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2})/.exec(iso)
+  if (!m) return iso.slice(0, 14)
+  return `${m[2]}-${m[3]} ${m[4]}:${m[5]}`
+}
+
+/** Tiny on-screen + console proof of which bundle loaded (`vite.config` `__APP_BUILD_ID__`). */
+function AppBuildStamp() {
+  useEffect(() => {
+    console.info('[Costpoint Command Center] bundle', {
+      buildId: __APP_BUILD_ID__,
+      mode: import.meta.env.MODE,
+    })
+  }, [])
+
+  const modeTag = import.meta.env.DEV ? 'dev' : 'prod'
+  const short = shortBuildStampLabel(__APP_BUILD_ID__)
+
+  return (
+    <div
+      className="app-build-stamp"
+      title={`Build: ${__APP_BUILD_ID__}\nMODE: ${import.meta.env.MODE}`}
+      aria-label={`Application bundle ${modeTag} ${short}`}
+    >
+      <span className="app-build-stamp__mode">{modeTag}</span>
+      <span className="app-build-stamp__sep" aria-hidden>
+        ·
+      </span>
+      <span className="app-build-stamp__time">{short}</span>
+    </div>
+  )
+}
+
 function App() {
   useEffect(() => {
     document.documentElement.classList.remove(
@@ -1351,12 +1384,15 @@ function App() {
   }, [])
 
   return (
-    <Routes>
-      <Route path="/" element={<HomeShell />} />
-      <Route path="/components" element={<ComponentGalleryPage />} />
-      <Route path="/components/:componentName" element={<ComponentDemoPage />} />
-      <Route path="/demos/right-sidebar-panels" element={<RightSidebarPanelDemosPage />} />
-    </Routes>
+    <>
+      <Routes>
+        <Route path="/" element={<HomeShell />} />
+        <Route path="/components" element={<ComponentGalleryPage />} />
+        <Route path="/components/:componentName" element={<ComponentDemoPage />} />
+        <Route path="/demos/right-sidebar-panels" element={<RightSidebarPanelDemosPage />} />
+      </Routes>
+      <AppBuildStamp />
+    </>
   )
 }
 

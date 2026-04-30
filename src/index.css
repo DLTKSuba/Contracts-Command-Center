@@ -12,6 +12,41 @@
   display: block;
 }
 
+/* Proof-of-bundle stamp (see vite.config `__APP_BUILD_ID__` + App.tsx `AppBuildStamp`) */
+.app-build-stamp {
+  position: fixed;
+  right: 10px;
+  bottom: 10px;
+  z-index: 99999;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 8px;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: 10px;
+  line-height: 1.2;
+  color: #64748b;
+  background: rgba(255, 255, 255, 0.92);
+  border: 1px solid #e2e8f0;
+  border-radius: 6px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+  pointer-events: none;
+  user-select: none;
+}
+
+.app-build-stamp__mode {
+  font-weight: 600;
+  color: #475569;
+}
+
+.app-build-stamp__sep {
+  opacity: 0.65;
+}
+
+.app-build-stamp__time {
+  font-variant-numeric: tabular-nums;
+}
+
 /* Command Center home card + body: white surface per design reference */
 .command-center-home.card {
   background-color: #ffffff;
