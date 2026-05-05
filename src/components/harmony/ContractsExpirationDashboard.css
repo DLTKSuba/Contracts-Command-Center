@@ -1,0 +1,268 @@
+.contracts-expiration-dashboard {
+  width: 100%;
+  margin-bottom: var(--space-4, 1rem);
+}
+
+.contracts-expiration-dashboard__grid {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  align-items: stretch;
+  gap: var(--space-4, 1rem);
+  width: 100%;
+  min-width: 0;
+}
+
+/* Theme tokens for burn bars */
+.contracts-expiration-dashboard {
+  --ced-burn-safe: #22c55e;
+  --ced-burn-mid: #f97316;
+  --ced-burn-danger: #dc2626;
+  --ced-burn-warning-tier: #ea580c;
+}
+
+.ced-card {
+  flex: 1 1 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4, 1rem);
+  padding: var(--space-4, 1rem);
+  border-radius: var(--radius-lg, 8px);
+  border: 1px solid #e0e4eb;
+  background: #ffffff;
+  min-width: 0;
+}
+
+@media (max-width: 640px) {
+  .contracts-expiration-dashboard__grid {
+    flex-direction: column;
+    flex-wrap: wrap;
+  }
+
+  .ced-card {
+    flex: 1 1 auto;
+  }
+}
+
+.ced-card__head {
+  text-align: center;
+}
+
+.ced-card__label {
+  margin: 0;
+  font-size: var(--text-xs, 12px);
+  font-weight: var(--font-semibold, 600);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.ced-card--critical .ced-card__label {
+  color: #dc2626;
+}
+
+.ced-card--warning .ced-card__label {
+  color: #ea580c;
+}
+
+.ced-card--upcoming .ced-card__label {
+  color: #2563eb;
+}
+
+.ced-card__count {
+  margin: var(--space-1, 0.25rem) 0 0;
+  font-size: 2.25rem;
+  font-weight: var(--font-semibold, 600);
+  line-height: 1.1;
+}
+
+.ced-card--critical .ced-card__count {
+  color: #dc2626;
+}
+
+.ced-card--warning .ced-card__count {
+  color: #ea580c;
+}
+
+.ced-card--upcoming .ced-card__count {
+  color: #2563eb;
+}
+
+.ced-card__subtitle {
+  margin: var(--space-2, 0.5rem) 0 0;
+  font-size: var(--text-sm, 14px);
+  color: var(--text-secondary, #64748b);
+}
+
+/* Expiry mini chart */
+.ced-expiry__title,
+.ced-budget__title {
+  margin: 0 0 var(--space-2, 0.5rem);
+  font-size: var(--text-xs, 12px);
+  font-weight: var(--font-semibold, 600);
+  color: var(--text-secondary, #64748b);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.ced-expiry__bars {
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  gap: var(--space-2, 0.5rem);
+  padding: 0 var(--space-1, 0.25rem);
+}
+
+.ced-expiry__col {
+  flex: 1 1 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-1, 0.25rem);
+  min-width: 0;
+}
+
+.ced-expiry__value {
+  font-size: var(--text-sm, 14px);
+  font-weight: var(--font-semibold, 600);
+  color: var(--text-primary, #0f172a);
+  min-height: 1.25rem;
+}
+
+.ced-expiry__track {
+  width: 100%;
+  height: 88px;
+  border-radius: var(--radius-sm, 4px);
+  background: transparent;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  align-items: center;
+}
+
+.ced-expiry__fill-area {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  align-items: center;
+}
+
+.ced-expiry__fill {
+  width: 72%;
+  max-width: 48px;
+  min-height: 4px;
+  border-radius: var(--radius-sm, 4px) var(--radius-sm, 4px) 0 0;
+  transition: height 0.2s ease;
+}
+
+.ced-expiry__fill--critical {
+  background: #dc2626;
+}
+
+.ced-expiry__fill--warning {
+  background: #ea580c;
+}
+
+.ced-expiry__fill--upcoming {
+  background: #2563eb;
+}
+
+.ced-expiry__fill--upcoming.ced-expiry__fill--empty {
+  min-height: 6px;
+  background: #bfdbfe;
+  opacity: 0.95;
+}
+
+.ced-expiry__meta {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+.ced-expiry__wk {
+  font-size: var(--text-xs, 12px);
+  font-weight: var(--font-medium, 500);
+  color: var(--text-primary, #0f172a);
+}
+
+/* Budget burn */
+.ced-budget__list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3, 0.75rem);
+}
+
+.ced-budget__row {
+  display: grid;
+  grid-template-columns: minmax(0, 120px) 1fr;
+  gap: var(--space-2, 0.5rem);
+  align-items: center;
+}
+
+@media (max-width: 420px) {
+  .ced-budget__row {
+    grid-template-columns: 1fr;
+  }
+}
+
+.ced-budget__id {
+  font-size: var(--text-xs, 12px);
+  font-weight: var(--font-medium, 500);
+  color: var(--text-primary, #0f172a);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.ced-budget__bar-wrap {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2, 0.5rem);
+  min-width: 0;
+}
+
+.ced-budget__bar-track {
+  position: relative;
+  flex: 1;
+  height: 10px;
+  border-radius: 999px;
+  background: transparent;
+  overflow: visible;
+}
+
+.ced-budget__bar-fill {
+  height: 100%;
+  border-radius: 999px;
+  min-width: 2px;
+}
+
+/* 65% threshold — dashed vertical marker inside track */
+.ced-budget__threshold {
+  position: absolute;
+  top: -3px;
+  bottom: -3px;
+  width: 0;
+  border-left: 1px dashed #ea580c;
+  transform: translateX(-50%);
+  pointer-events: none;
+}
+
+.ced-budget__pct {
+  flex-shrink: 0;
+  width: 2.5rem;
+  text-align: right;
+  font-size: var(--text-xs, 12px);
+  font-variant-numeric: tabular-nums;
+  color: var(--text-secondary, #64748b);
+}
+
+.ced-budget__list .ced-budget__empty {
+  margin: 0;
+  font-size: var(--text-xs, 12px);
+  color: var(--text-secondary, #64748b);
+}

@@ -58,20 +58,35 @@
   background-color: #ffffff;
 }
 
-/* Tabs + toolbar actions (e.g. refresh) on one row; action right-aligned with tab strip. */
+/*
+ * Tabs + refresh on one row: single bottom rule spans tabs + refresh (refresh sits above the line,
+ * not beside an inner tabstrip-only border).
+ */
 .command-center-tab-row {
   display: flex;
-  align-items: center;
+  align-items: flex-end;
   justify-content: space-between;
   gap: var(--space-3, 0.75rem);
   width: 100%;
   margin-bottom: var(--space-4, 1rem);
-  padding-bottom: var(--space-1, 0.25rem);
+  padding-bottom: 2px;
+  border-bottom: 1px solid var(--border-color);
 }
 
+.command-center-tab-row .tabstrip .tabstrip__container {
+  border-bottom: none;
+}
+
+/* Tab strip shares the row with refresh: avoid width:100% (TabStrip.css) stealing space and clipping the button */
 .command-center-tab-row .tabstrip {
-  flex-shrink: 0;
+  flex: 1 1 auto;
   min-width: 0;
+  width: auto;
+  max-width: 100%;
+}
+
+.command-center-tab-row__refresh {
+  flex-shrink: 0;
 }
 
 /* Command Center data tables: white header row + sort / filter chrome (reference UI). */

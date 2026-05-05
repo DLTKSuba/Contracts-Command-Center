@@ -10,6 +10,7 @@ import { TabStrip } from './components/harmony/TabStrip'
 import { Table } from './components/harmony/Table'
 import { LifecycleBarChart } from './components/harmony/LifecycleBarChart'
 import type { LifecycleBarChartBar } from './components/harmony/LifecycleBarChart'
+import { ContractsExpirationDashboard } from './components/harmony/ContractsExpirationDashboard'
 import { Link } from './components/harmony/Link'
 import { Icon } from './components/harmony/Icon'
 import { ComponentGalleryPage } from './pages/ComponentGalleryPage'
@@ -355,40 +356,6 @@ const REQ_LIFECYCLE_COLORS = {
   pendingPoCreation: '#1d4ed8',
 } as const
 
-const REQUISITION_CHART_BARS: LifecycleBarChartBar[] = [
-  {
-    id: 'pending-submittal',
-    label: 'Pending Submittal',
-    value: 100,
-    color: REQ_LIFECYCLE_COLORS.pendingSubmittal,
-    description:
-      'PR has been assigned to the Buyer and in Pending status',
-  },
-  {
-    id: 'rejected',
-    label: 'Rejected',
-    value: 20,
-    color: REQ_LIFECYCLE_COLORS.rejected,
-    description: 'PR has been assigned to the Buyer and in Rejected status',
-  },
-  {
-    id: 'pending-approval',
-    label: 'Pending Approval',
-    value: 45,
-    color: REQ_LIFECYCLE_COLORS.pendingApproval,
-    description:
-      'PR has been assigned to the Buyer and In-Approval',
-  },
-  {
-    id: 'pending-po-creation',
-    label: 'Pending PO Creation',
-    value: 60,
-    color: REQ_LIFECYCLE_COLORS.pendingPoCreation,
-    description:
-      'PR has been assigned to the Buyer and Approved',
-  },
-]
-
 const PO_CHART_BARS: LifecycleBarChartBar[] = [
   { id: 'po-pending-approval', label: 'Pending Approval', value: 168, color: '#f97316' },
   { id: 'po-pending-receipt', label: 'Pending Receipt', value: 166, color: '#dc2626' },
@@ -411,7 +378,7 @@ const STATUS_COLUMN_VISUAL_SPEC = {
   markerRadiusPx: 4,
 } as const
 
-/** Stage index order matches `REQUISITION_CHART_BARS` / bar chart left → right. */
+/** Stage index order matches status columns left → right (see REQ_STATUS_STAGE_LABELS). */
 const REQ_STATUS_DOT_COLORS = [
   REQ_LIFECYCLE_COLORS.pendingSubmittal,
   REQ_LIFECYCLE_COLORS.rejected,
@@ -1203,32 +1170,14 @@ function HomeShell() {
   const [poDetailOrderIds, setPoDetailOrderIds] = useState<string[]>([])
   const [refreshTick, setRefreshTick] = useState(0)
   const [selectedRequisitionId, setSelectedRequisitionId] = useState<string | null>(null)
-  const [reqLifecycleBarIds, setReqLifecycleBarIds] = useState<string[]>([])
   const [poLifecycleBarIds, setPoLifecycleBarIds] = useState<string[]>([])
   const themeProps = THEME_SHELL_PROPS[DEFAULT_THEME] ?? THEME_SHELL_PROPS['theme-cp']
-
-  const toggleReqLifecycleBar = useCallback((barId: string) => {
-    setReqLifecycleBarIds((prev) =>
-      prev.includes(barId) ? prev.filter((id) => id !== barId) : [...prev, barId],
-    )
-  }, [])
 
   const togglePoLifecycleBar = useCallback((barId: string) => {
     setPoLifecycleBarIds((prev) =>
       prev.includes(barId) ? prev.filter((id) => id !== barId) : [...prev, barId],
     )
   }, [])
-
-  const filteredRequisitionRows = useMemo(() => {
-    if (reqLifecycleBarIds.length === 0) return REQUISITION_ROWS
-    const labels = new Set(
-      reqLifecycleBarIds
-        .map((id) => REQUISITION_CHART_BARS.find((b) => b.id === id)?.label)
-        .filter((l): l is string => l != null && l !== ''),
-    )
-    if (labels.size === 0) return REQUISITION_ROWS
-    return REQUISITION_ROWS.filter((r) => labels.has(r.statusLabel))
-  }, [reqLifecycleBarIds])
 
   const filteredPoRows = useMemo(() => {
     if (poLifecycleBarIds.length === 0) return PO_TABLE_ROWS
@@ -1240,14 +1189,6 @@ function HomeShell() {
     return PO_TABLE_ROWS.filter((r) => r.stageIndices.some((si) => indexSet.has(si)))
   }, [poLifecycleBarIds])
 
-  const reqLifecycleFilterStageIndices = useMemo(() => {
-    if (reqLifecycleBarIds.length === 0) return null
-    const indices = reqLifecycleBarIds
-      .map((id) => REQUISITION_CHART_BARS.findIndex((b) => b.id === id))
-      .filter((i) => i >= 0)
-    return indices.length === 0 ? null : [...new Set(indices)].sort((a, b) => a - b)
-  }, [reqLifecycleBarIds])
-
   const poLifecycleFilterStageIndices = useMemo(() => {
     if (poLifecycleBarIds.length === 0) return null
     const indices = poLifecycleBarIds
@@ -1255,16 +1196,6 @@ function HomeShell() {
       .filter((i) => i >= 0)
     return indices.length === 0 ? null : [...new Set(indices)].sort((a, b) => a - b)
   }, [poLifecycleBarIds])
-
-  const reqStatusTableHint = useMemo(() => {
-    if (reqLifecycleBarIds.length === 0) return null
-    const labels = reqLifecycleBarIds
-      .map((id) => REQUISITION_CHART_BARS.find((b) => b.id === id)?.label)
-      .filter((l): l is string => l != null && l !== '')
-    if (labels.length === 0) return null
-    const quoted = labels.map((l) => `"${l}"`).join(', ')
-    return `Table shows requisitions matching any of: ${quoted}. Click a selected bar to remove it, or Refresh to clear all.`
-  }, [reqLifecycleBarIds])
 
   const poStatusTableHint = useMemo(() => {
     if (poLifecycleBarIds.length === 0) return null
@@ -1283,10 +1214,10 @@ function HomeShell() {
 
   useEffect(() => {
     if (selectedRequisitionId == null) return
-    if (!filteredRequisitionRows.some((r) => r.id === selectedRequisitionId)) {
+    if (!REQUISITION_ROWS.some((r) => r.id === selectedRequisitionId)) {
       setSelectedRequisitionId(null)
     }
-  }, [filteredRequisitionRows, selectedRequisitionId])
+  }, [selectedRequisitionId])
 
   const openPoOrderDetailTab = (poId: string) => {
     setPoDetailOrderIds((prev) => (prev.includes(poId) ? prev : [...prev, poId]))
@@ -1315,7 +1246,6 @@ function HomeShell() {
   useEffect(() => {
     if (activeTabId !== 'requisitions') {
       setSelectedRequisitionId(null)
-      setReqLifecycleBarIds([])
     }
     if (activeTabId !== 'purchase-orders') {
       setPoLifecycleBarIds([])
@@ -1334,7 +1264,8 @@ function HomeShell() {
   const commandCenterTabs = useMemo(() => {
     const base = REQ_MAIN_TAB_IDS.map((id) => ({
       id,
-      label: id === 'requisitions' ? 'Requisitions' : 'Purchase Orders',
+      label:
+        id === 'requisitions' ? 'Contracts Expiration Timeline' : 'Risk Analysis',
       active: activeTabId === id,
       showClose: false as const,
     }))
@@ -1390,8 +1321,8 @@ function HomeShell() {
               size="sm"
               icon="arrow-path"
               ariaLabel="Refresh"
+              className="command-center-tab-row__refresh"
               onClick={() => {
-                setReqLifecycleBarIds([])
                 setPoLifecycleBarIds([])
                 setRefreshTick((t) => t + 1)
               }}
@@ -1399,17 +1330,9 @@ function HomeShell() {
           </div>
 
           {activeTabId === 'requisitions' && (
-            <LifecycleBarChart
-              key={refreshTick}
-              title="Requisition lifecycle"
-              bars={REQUISITION_CHART_BARS}
-              yAxisMax={120}
-              tableWrapperClassName="command-center-table-detail-anchor"
-              selectedBarIds={reqLifecycleBarIds}
-              onBarToggle={toggleReqLifecycleBar}
-              statusTableHint={reqStatusTableHint}
-            >
-              <>
+            <>
+              <ContractsExpirationDashboard key={refreshTick} />
+              <div className="lifecycle-bar-chart__table command-center-table-detail-anchor">
                 <div className="command-center-table-detail-stack">
                   <Table
                     headerVariant="white"
@@ -1418,10 +1341,10 @@ function HomeShell() {
                     header={REQUISITION_TABLE_HEADER}
                     body={
                       <RequisitionTableBody
-                        rows={filteredRequisitionRows}
+                        rows={REQUISITION_ROWS}
                         selectedId={selectedRequisitionId}
                         onSelectRow={setSelectedRequisitionId}
-                        lifecycleChartFilterStageIndices={reqLifecycleFilterStageIndices}
+                        lifecycleChartFilterStageIndices={null}
                       />
                     }
                   />
@@ -1433,8 +1356,8 @@ function HomeShell() {
                     onOpenRequisitionReportTab={openPrRequisitionDetailTab}
                   />
                 )}
-              </>
-            </LifecycleBarChart>
+              </div>
+            </>
           )}
 
           {activeTabId === 'purchase-orders' && (
