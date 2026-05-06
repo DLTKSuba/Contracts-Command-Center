@@ -1,4 +1,6 @@
-/* Row + card chrome matches `.contracts-expiration-dashboard__grid` / `.ced-card` */
+/*
+ * Wide strip: lightest CC band token — see Harmony `--table-command-center-stripe-bg` (#FAFAFA light CP).
+ */
 
 .spend-kpi-strip {
   --spend-breakdown-accent: #e66f51;
@@ -6,31 +8,44 @@
   margin-bottom: var(--space-4, 1rem);
 }
 
-.spend-kpi-strip__row {
-  display: flex;
-  flex-direction: row;
-  flex-wrap: nowrap;
-  align-items: stretch;
-  gap: var(--space-4, 1rem);
+.spend-kpi-strip__wide {
+  box-sizing: border-box;
+  width: 100%;
+  min-width: 0;
+  padding: var(--space-4, 1rem);
+  border-radius: var(--radius-lg, 8px);
+  border: 1px solid #e0e4eb;
+  /* Lighter than table-header gray (#EDF0F6); pairs with Command Center table stripes */
+  background: var(--table-command-center-stripe-bg, #fafafa);
+}
+
+/* 1fr + 3fr keeps same width share as four equal columns; wider gutter before Funded Value cluster */
+.spend-kpi-strip__columns {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 3fr);
+  column-gap: var(--space-8, 2rem);
+  row-gap: 0;
+  align-items: start;
   width: 100%;
   min-width: 0;
 }
 
-/* Same surface as `.ced-card`: white tile under each tier column */
-.spend-kpi-strip__card {
-  flex: 1 1 0;
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-3, 0.75rem);
-  padding: var(--space-4, 1rem);
-  border-radius: var(--radius-lg, 8px);
-  border: 1px solid #e0e4eb;
-  background: #ffffff;
-  box-sizing: border-box;
+.spend-kpi-strip__metrics-cluster {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--space-4, 1rem);
   min-width: 0;
 }
 
-.spend-kpi-strip__card--breakdown {
+.spend-kpi-strip__col {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--space-3, 0.75rem);
+  min-width: 0;
+}
+
+.spend-kpi-strip__col--breakdown {
   gap: var(--space-2, 0.5rem);
 }
 
@@ -109,12 +124,28 @@
 }
 
 @media (max-width: 640px) {
-  .spend-kpi-strip__row {
-    flex-direction: column;
-    flex-wrap: wrap;
+  .spend-kpi-strip__columns {
+    grid-template-columns: 1fr;
+    row-gap: var(--space-4, 1rem);
   }
 
-  .spend-kpi-strip__card {
-    flex: 1 1 auto;
+  .spend-kpi-strip__metrics-cluster {
+    grid-template-columns: 1fr;
+    gap: var(--space-4, 1rem);
+  }
+
+  .spend-kpi-strip__col--breakdown {
+    padding-bottom: var(--space-4, 1rem);
+    border-bottom: 1px solid #e0e4eb;
+  }
+
+  .spend-kpi-strip__metrics-cluster .spend-kpi-strip__col:not(:last-child) {
+    padding-bottom: var(--space-4, 1rem);
+    border-bottom: 1px solid #e0e4eb;
+  }
+
+  .spend-kpi-strip__metrics-cluster .spend-kpi-strip__col:last-child {
+    padding-bottom: 0;
+    border-bottom: none;
   }
 }
