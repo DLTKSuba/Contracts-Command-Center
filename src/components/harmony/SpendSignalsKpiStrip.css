@@ -1,48 +1,37 @@
-/* Matches Command Center tier cards: same radius, border, padding rhythm as `.ced-card` */
+/* Row + card chrome matches `.contracts-expiration-dashboard__grid` / `.ced-card` */
 
 .spend-kpi-strip {
   --spend-breakdown-accent: #e66f51;
   width: 100%;
-  margin-bottom: var(--space-3, 0.75rem);
+  margin-bottom: var(--space-4, 1rem);
 }
 
-.spend-kpi-strip__grid {
-  display: grid;
-  grid-template-columns: minmax(12rem, 1.45fr) 1px minmax(9rem, 0.9fr) 1px minmax(10rem, 1fr);
-  align-items: start;
-  gap: 0;
+.spend-kpi-strip__row {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  align-items: stretch;
+  gap: var(--space-4, 1rem);
+  width: 100%;
   min-width: 0;
-  padding: var(--space-3, 0.75rem) var(--space-4, 1rem);
-  border-radius: var(--radius-lg, 8px);
-  border: 1px solid #e0e4eb;
-  background: transparent;
-  box-sizing: border-box;
 }
 
-.spend-kpi-strip__divider {
-  display: block;
-  width: 1px;
-  align-self: stretch;
-  background-color: #e0e4eb;
-  margin: 0;
-}
-
-.spend-kpi-strip__cell {
+/* Same surface as `.ced-card`: white tile under each tier column */
+.spend-kpi-strip__card {
+  flex: 1 1 0;
   display: flex;
   flex-direction: column;
-  align-items: flex-start;
-  justify-content: flex-start;
-  gap: var(--space-2, 0.5rem);
+  gap: var(--space-3, 0.75rem);
+  padding: var(--space-4, 1rem);
+  border-radius: var(--radius-lg, 8px);
+  border: 1px solid #e0e4eb;
+  background: #ffffff;
+  box-sizing: border-box;
   min-width: 0;
-  padding: 0 var(--space-3, 0.75rem);
 }
 
-.spend-kpi-strip__cell:first-child {
-  padding-left: 0;
-}
-
-.spend-kpi-strip__cell:last-child {
-  padding-right: 0;
+.spend-kpi-strip__card--breakdown {
+  gap: var(--space-2, 0.5rem);
 }
 
 /* Mirror `.ced-card__label`; `--text-primary` = Harmony text header token */
@@ -53,10 +42,6 @@
   letter-spacing: 0.06em;
   text-transform: uppercase;
   color: var(--text-primary);
-}
-
-.spend-kpi-strip__cell--breakdown {
-  gap: var(--space-2, 0.5rem);
 }
 
 /* Bar + % on metric row; ≥ 65% sub row aligns with other cells */
@@ -123,27 +108,13 @@
   line-height: 1.35;
 }
 
-@media (max-width: 960px) {
-  .spend-kpi-strip__grid {
-    grid-template-columns: 1fr;
-    gap: var(--space-4, 1rem);
-    align-items: stretch;
+@media (max-width: 640px) {
+  .spend-kpi-strip__row {
+    flex-direction: column;
+    flex-wrap: wrap;
   }
 
-  .spend-kpi-strip__divider {
-    display: none;
+  .spend-kpi-strip__card {
+    flex: 1 1 auto;
   }
-
-  .spend-kpi-strip__cell {
-    padding: 0;
-    border-bottom: 1px solid #e0e4eb;
-    padding-bottom: var(--space-4, 1rem);
-  }
-
-  .spend-kpi-strip__cell:last-child {
-    border-bottom: none;
-    padding-bottom: 0;
-  }
-
 }
-

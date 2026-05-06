@@ -6,15 +6,15 @@ import './SpendSignalsKpiStrip.css'
  */
 const HIGH_SPEND_GE65_PCT = 40
 
-/** Wide KPI strip aligned with Command Center tier cards (`.ced-card` chrome). */
+/** Three columns aligned with ContractsExpirationDashboard tier cards (same flex + card chrome). */
 export function SpendSignalsKpiStrip() {
   const pct = HIGH_SPEND_GE65_PCT
   const barLabel = `${pct}% of portfolio at greater than or equal to 65 percent spend`
 
   return (
     <section className="spend-kpi-strip" aria-label="Spend breakdown and funding summary">
-      <div className="spend-kpi-strip__grid">
-        <div className="spend-kpi-strip__cell spend-kpi-strip__cell--breakdown">
+      <div className="spend-kpi-strip__row">
+        <div className="spend-kpi-strip__card spend-kpi-strip__card--breakdown">
           <p className="spend-kpi-strip__label" id="spend-kpi-breakdown-heading">
             Spend breakdown
           </p>
@@ -32,9 +32,7 @@ export function SpendSignalsKpiStrip() {
           </div>
         </div>
 
-        <span className="spend-kpi-strip__divider" aria-hidden />
-
-        <div className="spend-kpi-strip__cell">
+        <div className="spend-kpi-strip__card">
           <p className="spend-kpi-strip__label" id="spend-kpi-gap-heading">
             Funding gap
           </p>
@@ -44,9 +42,7 @@ export function SpendSignalsKpiStrip() {
           <p className="spend-kpi-strip__sub">50 contracts unfunded</p>
         </div>
 
-        <span className="spend-kpi-strip__divider" aria-hidden />
-
-        <div className="spend-kpi-strip__cell">
+        <div className="spend-kpi-strip__card">
           <p className="spend-kpi-strip__label" id="spend-kpi-balance-heading">
             Unspent balance
           </p>
