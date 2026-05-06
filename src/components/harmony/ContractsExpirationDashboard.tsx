@@ -47,10 +47,12 @@ const WARNING_CARD: TierCardModel = {
   tier: 'warning',
   title: 'WARNING',
   count: 3,
-  subtitle: '31–60 days · $331K at risk',
+  subtitle: '31–58 days · 4 weeks · $331K at risk',
   expiryBars: [
-    { label: 'Wk5–6', value: 2 },
-    { label: 'Wk7–8', value: 1 },
+    { label: 'Wk1', value: 1 },
+    { label: 'Wk2', value: 1 },
+    { label: 'Wk3', value: 2 },
+    { label: 'Wk4', value: 1 },
   ],
   budgetRows: [
     { id: 'CTR-2025-014', pct: 71 },
@@ -63,11 +65,12 @@ const UPCOMING_CARD: TierCardModel = {
   tier: 'upcoming',
   title: 'UPCOMING',
   count: 3,
-  subtitle: '61–90 days · $257K at risk',
+  subtitle: '61–88 days · 4 weeks · $257K at risk',
   expiryBars: [
-    { label: 'Wk9–10', value: 1 },
-    { label: 'Wk11–12', value: 2 },
-    { label: 'Wk13+', value: 0 },
+    { label: 'Wk1', value: 1 },
+    { label: 'Wk2', value: 2 },
+    { label: 'Wk3', value: 0 },
+    { label: 'Wk4', value: 1 },
   ],
   budgetRows: [
     { id: 'CTR-2025-020', pct: 55 },

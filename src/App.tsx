@@ -1425,7 +1425,9 @@ function HomeShell() {
                       type="button"
                       variant="outline"
                       size="sm"
+                      buttonType="theme"
                       disabled={selectedRequisition == null}
+                      className="command-center-contracts-table-toolbar__btn"
                       onClick={() => {
                         setReqPanelSummaryOpen(false)
                         setReqPanelLateItemsOpen(false)
@@ -1437,7 +1439,9 @@ function HomeShell() {
                       type="button"
                       variant="outline"
                       size="sm"
+                      buttonType="theme"
                       disabled={selectedRequisition == null}
+                      className="command-center-contracts-table-toolbar__btn"
                       onClick={() => {
                         setReqPanelSummaryOpen(true)
                         setReqPanelLateItemsOpen(true)

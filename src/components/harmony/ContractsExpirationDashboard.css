@@ -46,25 +46,17 @@
   font-weight: var(--font-semibold, 600);
   letter-spacing: 0.06em;
   text-transform: uppercase;
-}
-
-.ced-card--critical .ced-card__label {
-  color: #dc2626;
-}
-
-.ced-card--warning .ced-card__label {
-  color: #ea580c;
-}
-
-.ced-card--upcoming .ced-card__label {
-  color: #2563eb;
+  /* Harmony page header title token (`.page-header__title` uses --text-primary) */
+  color: var(--text-primary);
 }
 
 .ced-card__count {
   margin: var(--space-1, 0.25rem) 0 0;
-  font-size: 2.25rem;
-  font-weight: var(--font-semibold, 600);
+  font-family: var(--font-display);
+  font-size: var(--heading-m);
+  font-weight: var(--font-semibold);
   line-height: 1.1;
+  font-variant-numeric: tabular-nums;
 }
 
 .ced-card--critical .ced-card__count {
