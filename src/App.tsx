@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState, type MouseEvent } from 'react'
+import { useEffect, useMemo, useState, type MouseEvent } from 'react'
 import { createPortal } from 'react-dom'
 import clsx from 'clsx'
 import { Routes, Route } from 'react-router-dom'
@@ -8,9 +8,8 @@ import { Card } from './components/harmony/Card'
 import { Button } from './components/harmony/Button'
 import { TabStrip } from './components/harmony/TabStrip'
 import { Table } from './components/harmony/Table'
-import { LifecycleBarChart } from './components/harmony/LifecycleBarChart'
-import type { LifecycleBarChartBar } from './components/harmony/LifecycleBarChart'
 import { ContractsExpirationDashboard } from './components/harmony/ContractsExpirationDashboard'
+import { SpendSignalsKpiStrip } from './components/harmony/SpendSignalsKpiStrip'
 import { Link } from './components/harmony/Link'
 import { Icon } from './components/harmony/Icon'
 import { ComponentGalleryPage } from './pages/ComponentGalleryPage'
@@ -406,28 +405,6 @@ const REQ_LIFECYCLE_COLORS = {
   pendingPoCreation: '#1d4ed8',
 } as const
 
-const PO_CHART_BARS: LifecycleBarChartBar[] = [
-  { id: 'po-pending-approval', label: 'Pending Approval', value: 168, color: '#f97316' },
-  { id: 'po-pending-receipt', label: 'Pending Receipt', value: 166, color: '#dc2626' },
-  { id: 'po-pending-inspection', label: 'Pending Inspection', value: 40, color: '#ec4899' },
-  { id: 'po-awaiting-inv', label: 'Awaiting Invoice', value: 29, color: '#1d4ed8' },
-  { id: 'po-pending-inv-approval', label: 'Pending Inv Approval', value: 54, color: '#38bdf8' },
-  { id: 'po-awaiting-payment', label: 'Awaiting Payment', value: 39, color: '#9ca3af' },
-]
-
-/**
- * Command Center status column (reference: PO / PR lifecycle table).
- * — Solid rounded rectangles (14×14px, 4px radius), not circles.
- * — 6px gap between markers; left-aligned in cell.
- * — Only the relevant lifecycle stages for that row (multi-status = several markers).
- * — Colors match the lifecycle bar chart order (left → right).
- */
-const STATUS_COLUMN_VISUAL_SPEC = {
-  markerSizePx: 14,
-  markerGapPx: 6,
-  markerRadiusPx: 4,
-} as const
-
 /** Stage index order matches status columns left → right (see REQ_STATUS_STAGE_LABELS). */
 const REQ_STATUS_DOT_COLORS = [
   REQ_LIFECYCLE_COLORS.pendingSubmittal,
@@ -442,70 +419,6 @@ const REQ_STATUS_STAGE_LABELS = [
   'Pending Approval',
   'Pending PO Creation',
 ] as const
-
-const PO_LIFECYCLE_STAGE_COLORS = PO_CHART_BARS.map((b) => b.color) as readonly string[]
-const PO_LIFECYCLE_STAGE_LABELS = PO_CHART_BARS.map((b) => b.label) as readonly string[]
-
-function commandCenterLifecycleStatusCell(
-  entity: 'PR' | 'PO',
-  summaryLabel: string,
-  colors: readonly string[],
-  stageLabels: readonly string[],
-  /** Stage indices to render, left → right (subset of lifecycle; order preserved). */
-  stageIndicesInDisplayOrder: readonly number[],
-) {
-  const described = stageIndicesInDisplayOrder.map((i) => stageLabels[i] ?? `Stage ${i}`)
-  const { markerSizePx, markerGapPx, markerRadiusPx } = STATUS_COLUMN_VISUAL_SPEC
-  return (
-    <td className="text-left">
-      <span
-        role="img"
-        aria-label={`${entity} status: ${summaryLabel}. Lifecycle indicators (left to right): ${described.join(', ')}.`}
-        style={{
-          display: 'inline-flex',
-          alignItems: 'center',
-          justifyContent: 'flex-start',
-          gap: `${markerGapPx}px`,
-        }}
-      >
-        {stageIndicesInDisplayOrder.map((i, slot) => (
-          <span
-            key={`${i}-${slot}`}
-            style={{
-              width: `${markerSizePx}px`,
-              height: `${markerSizePx}px`,
-              borderRadius: `${markerRadiusPx}px`,
-              flexShrink: 0,
-              backgroundColor: colors[i],
-            }}
-          />
-        ))}
-      </span>
-    </td>
-  )
-}
-
-function poLifecycleStatusCell(
-  summaryLabel: string,
-  stageIndicesInDisplayOrder: readonly number[],
-  lifecycleChartFilterStageIndices: readonly number[] | null,
-) {
-  const useChartFilter =
-    lifecycleChartFilterStageIndices != null && lifecycleChartFilterStageIndices.length > 0
-  const displayIndices = useChartFilter
-    ? [...new Set(lifecycleChartFilterStageIndices)].sort((a, b) => a - b)
-    : stageIndicesInDisplayOrder
-  const label = useChartFilter
-    ? displayIndices.map((i) => PO_LIFECYCLE_STAGE_LABELS[i] ?? `Stage ${i}`).join(', ')
-    : summaryLabel
-  return commandCenterLifecycleStatusCell(
-    'PO',
-    label,
-    PO_LIFECYCLE_STAGE_COLORS,
-    PO_LIFECYCLE_STAGE_LABELS,
-    displayIndices,
-  )
-}
 
 function contractInfoCell(row: RequisitionRow) {
   return (
@@ -999,111 +912,6 @@ const PO_ORDER_SUMMARY_BY_ID: Record<string, PoOrderSummaryFields> = {
   },
 }
 
-type PoTableRowData = {
-  id: string
-  release: string
-  type: string
-  vendor: string
-  amount: string
-  statusLabel: string
-  stageIndices: readonly number[]
-  overdueLines: string
-  overdueUrgent?: boolean
-}
-
-const PO_TABLE_ROWS: PoTableRowData[] = [
-  {
-    id: 'PO-1039',
-    release: 'REL-2024-001',
-    type: 'Standard PO',
-    vendor: 'Acme Office Co.',
-    amount: '$12,400.00',
-    statusLabel: 'Awaiting invoice, receipt, pending approval',
-    stageIndices: [3, 1, 0],
-    overdueLines: '5/7',
-    overdueUrgent: true,
-  },
-  {
-    id: 'PO-1040',
-    release: 'REL-2024-014',
-    type: 'Blanket PO',
-    vendor: 'Northwind Logistics',
-    amount: '$3,210.50',
-    statusLabel: 'Awaiting invoice and receipt',
-    stageIndices: [3, 1],
-    overdueLines: '2/4',
-    overdueUrgent: true,
-  },
-  {
-    id: 'PO-1041',
-    release: 'REL-2024-022',
-    type: 'Sub Contract',
-    vendor: 'Contoso Services',
-    amount: '$18,990.00',
-    statusLabel: 'Inspection, receipt, pending approval',
-    stageIndices: [2, 1, 0],
-    overdueLines: '0/3',
-  },
-]
-
-const PO_TABLE_HEADER = (
-  <thead>
-    <tr>
-      {commandCenterHeaderTh('PO ID')}
-      {commandCenterHeaderTh('Release')}
-      {commandCenterHeaderTh('Type')}
-      {commandCenterHeaderTh('Vendor Name')}
-      {commandCenterHeaderTh('Total Amt', 'right')}
-      {commandCenterHeaderTh('Status')}
-      {commandCenterHeaderTh('Overdue Lines', 'right')}
-    </tr>
-  </thead>
-)
-
-function PoPurchaseOrdersTableBody({
-  rows,
-  onOpenOrder,
-  lifecycleChartFilterStageIndices = null,
-}: {
-  rows: PoTableRowData[]
-  onOpenOrder: (poId: string) => void
-  lifecycleChartFilterStageIndices?: readonly number[] | null
-}) {
-  return (
-    <tbody>
-      {rows.map((row) => (
-        <tr key={row.id}>
-          <td>
-            <Link
-              href="#"
-              size="small"
-              title={`Open order details for ${row.id}`}
-              aria-label={`Open order details for ${row.id}`}
-              onClick={(e: MouseEvent<HTMLAnchorElement>) => {
-                e.preventDefault()
-                onOpenOrder(row.id)
-              }}
-            >
-              {row.id}
-            </Link>
-          </td>
-          <td>{row.release}</td>
-          <td>{row.type}</td>
-          <td>{row.vendor}</td>
-          <td className="text-right">{row.amount}</td>
-          {poLifecycleStatusCell(row.statusLabel, row.stageIndices, lifecycleChartFilterStageIndices ?? null)}
-          <td
-            className="text-right"
-            style={row.overdueUrgent ? { color: 'var(--color-error)' } : undefined}
-          >
-            {row.overdueLines}
-          </td>
-        </tr>
-      ))}
-    </tbody>
-  )
-}
-
 function PoOrderPrSummaryAccordion({ poId }: { poId: string }) {
   const summary = PO_ORDER_SUMMARY_BY_ID[poId] ?? PO_ORDER_SUMMARY_BY_ID['PO-1039']
   const [open, setOpen] = useState(true)
@@ -1245,42 +1053,7 @@ function HomeShell() {
   const [selectedRequisitionId, setSelectedRequisitionId] = useState<string | null>(null)
   const [reqPanelSummaryOpen, setReqPanelSummaryOpen] = useState(true)
   const [reqPanelLateItemsOpen, setReqPanelLateItemsOpen] = useState(true)
-  const [poLifecycleBarIds, setPoLifecycleBarIds] = useState<string[]>([])
   const themeProps = THEME_SHELL_PROPS[DEFAULT_THEME] ?? THEME_SHELL_PROPS['theme-cp']
-
-  const togglePoLifecycleBar = useCallback((barId: string) => {
-    setPoLifecycleBarIds((prev) =>
-      prev.includes(barId) ? prev.filter((id) => id !== barId) : [...prev, barId],
-    )
-  }, [])
-
-  const filteredPoRows = useMemo(() => {
-    if (poLifecycleBarIds.length === 0) return PO_TABLE_ROWS
-    const indices = poLifecycleBarIds
-      .map((id) => PO_CHART_BARS.findIndex((b) => b.id === id))
-      .filter((i) => i >= 0)
-    if (indices.length === 0) return PO_TABLE_ROWS
-    const indexSet = new Set(indices)
-    return PO_TABLE_ROWS.filter((r) => r.stageIndices.some((si) => indexSet.has(si)))
-  }, [poLifecycleBarIds])
-
-  const poLifecycleFilterStageIndices = useMemo(() => {
-    if (poLifecycleBarIds.length === 0) return null
-    const indices = poLifecycleBarIds
-      .map((id) => PO_CHART_BARS.findIndex((b) => b.id === id))
-      .filter((i) => i >= 0)
-    return indices.length === 0 ? null : [...new Set(indices)].sort((a, b) => a - b)
-  }, [poLifecycleBarIds])
-
-  const poStatusTableHint = useMemo(() => {
-    if (poLifecycleBarIds.length === 0) return null
-    const labels = poLifecycleBarIds
-      .map((id) => PO_CHART_BARS.find((b) => b.id === id)?.label)
-      .filter((l): l is string => l != null && l !== '')
-    if (labels.length === 0) return null
-    const quoted = labels.map((l) => `"${l}"`).join(', ')
-    return `Table shows orders in any of: ${quoted}. Click a selected bar to remove it, or Refresh to clear all.`
-  }, [poLifecycleBarIds])
 
   const selectedRequisition = useMemo(
     () => REQUISITION_ROWS.find((r) => r.id === selectedRequisitionId) ?? null,
@@ -1299,11 +1072,6 @@ function HomeShell() {
     }
   }, [selectedRequisitionId])
 
-  const openPoOrderDetailTab = (poId: string) => {
-    setPoDetailOrderIds((prev) => (prev.includes(poId) ? prev : [...prev, poId]))
-    setActiveTabId(poDetailTabId(poId))
-  }
-
   const openPrRequisitionDetailTab = (prId: string) => {
     setPrDetailRequisitionIds((prev) => (prev.includes(prId) ? prev : [...prev, prId]))
     setActiveTabId(prDetailTabId(prId))
@@ -1313,7 +1081,7 @@ function HomeShell() {
     const poId = poIdFromDetailTabId(tabId)
     if (poId != null) {
       setPoDetailOrderIds((prev) => prev.filter((id) => id !== poId))
-      setActiveTabId((current) => (current !== tabId ? current : 'purchase-orders'))
+      setActiveTabId((current) => (current !== tabId ? current : 'requisitions'))
       return
     }
     const prId = prIdFromDetailTabId(tabId)
@@ -1324,11 +1092,8 @@ function HomeShell() {
   }
 
   useEffect(() => {
-    if (activeTabId !== 'requisitions') {
+    if (activeTabId !== 'requisitions' && activeTabId !== 'purchase-orders') {
       setSelectedRequisitionId(null)
-    }
-    if (activeTabId !== 'purchase-orders') {
-      setPoLifecycleBarIds([])
     }
   }, [activeTabId])
 
@@ -1347,8 +1112,9 @@ function HomeShell() {
       label:
         id === 'requisitions'
           ? 'Contracts Expiration Timeline'
-          : 'Contract Expiration Timeline (ver2)',
+          : 'Risk Analysis',
       active: activeTabId === id,
+      disabled: id === 'purchase-orders',
       showClose: false as const,
     }))
     const prDetailTabs = prDetailRequisitionIds.map((prId) => {
@@ -1405,15 +1171,15 @@ function HomeShell() {
               ariaLabel="Refresh"
               className="command-center-tab-row__refresh"
               onClick={() => {
-                setPoLifecycleBarIds([])
                 setRefreshTick((t) => t + 1)
               }}
             />
           </div>
 
-          {activeTabId === 'requisitions' && (
+          {(activeTabId === 'requisitions' || activeTabId === 'purchase-orders') && (
             <>
               <ContractsExpirationDashboard key={refreshTick} />
+              <SpendSignalsKpiStrip />
               <div className="lifecycle-bar-chart__table command-center-table-detail-anchor">
                 <div className="command-center-table-detail-stack">
                   <div
@@ -1477,32 +1243,6 @@ function HomeShell() {
                 )}
               </div>
             </>
-          )}
-
-          {activeTabId === 'purchase-orders' && (
-            <LifecycleBarChart
-              key={refreshTick}
-              title="PO lifecycle"
-              bars={PO_CHART_BARS}
-              yAxisMax={200}
-              selectedBarIds={poLifecycleBarIds}
-              onBarToggle={togglePoLifecycleBar}
-              statusTableHint={poStatusTableHint}
-            >
-              <Table
-                headerVariant="white"
-                striped
-                className="command-center-data-table"
-                header={PO_TABLE_HEADER}
-                body={
-                  <PoPurchaseOrdersTableBody
-                    rows={filteredPoRows}
-                    onOpenOrder={openPoOrderDetailTab}
-                    lifecycleChartFilterStageIndices={poLifecycleFilterStageIndices}
-                  />
-                }
-              />
-            </LifecycleBarChart>
           )}
 
           {isPrDetailTabId(activeTabId) && (

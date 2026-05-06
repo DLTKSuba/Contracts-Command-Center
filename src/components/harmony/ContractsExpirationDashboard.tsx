@@ -1,167 +1,65 @@
 import clsx from 'clsx'
-import { Tooltip } from './Tooltip'
 import './ContractsExpirationDashboard.css'
-
-type ExpiryBarSeg = {
-  label: string
-  value: number
-}
-
-type BudgetRow = {
-  id: string
-  pct: number
-}
 
 type TierCardModel = {
   tier: 'critical' | 'warning' | 'upcoming'
   title: string
   count: number
-  subtitle: string
-  expiryBars: ExpiryBarSeg[]
-  budgetRows: BudgetRow[]
+  /** Expiry window for this tier only (no dollar amounts). */
+  daysWindow: string
+  earliestExpiryValue: string
 }
-
-const SPEND_PCT_MIN = 65
 
 const CRITICAL_CARD: TierCardModel = {
   tier: 'critical',
   title: 'CRITICAL',
   count: 5,
-  subtitle: '≤ 30 days · $530K at risk',
-  expiryBars: [
-    { label: 'Wk1', value: 1 },
-    { label: 'Wk2', value: 1 },
-    { label: 'Wk3', value: 1 },
-    { label: 'Wk4', value: 2 },
-  ],
-  budgetRows: [
-    { id: 'CTR-2025-002', pct: 35 },
-    { id: 'CTR-2025-003', pct: 82 },
-    { id: 'CTR-2025-001', pct: 88 },
-    { id: 'CTR-2025-006', pct: 45 },
-    { id: 'CTR-2025-004', pct: 82 },
-  ],
+  daysWindow: '≤ 30 days',
+  earliestExpiryValue: '5d left',
 }
 
 const WARNING_CARD: TierCardModel = {
   tier: 'warning',
   title: 'WARNING',
   count: 3,
-  subtitle: '31–58 days · 4 weeks · $331K at risk',
-  expiryBars: [
-    { label: 'Wk1', value: 1 },
-    { label: 'Wk2', value: 1 },
-    { label: 'Wk3', value: 2 },
-    { label: 'Wk4', value: 1 },
-  ],
-  budgetRows: [
-    { id: 'CTR-2025-014', pct: 71 },
-    { id: 'CTR-2025-015', pct: 82 },
-    { id: 'CTR-2025-018', pct: 28 },
-  ],
+  daysWindow: '31–58 days',
+  earliestExpiryValue: '12d left',
 }
 
 const UPCOMING_CARD: TierCardModel = {
   tier: 'upcoming',
   title: 'UPCOMING',
   count: 3,
-  subtitle: '61–88 days · 4 weeks · $257K at risk',
-  expiryBars: [
-    { label: 'Wk1', value: 1 },
-    { label: 'Wk2', value: 2 },
-    { label: 'Wk3', value: 0 },
-    { label: 'Wk4', value: 1 },
-  ],
-  budgetRows: [
-    { id: 'CTR-2025-020', pct: 55 },
-    { id: 'CTR-2025-021', pct: 92 },
-    { id: 'CTR-2025-022', pct: 40 },
-  ],
-}
-
-function countHighSpendContracts(rows: readonly BudgetRow[]): number {
-  return rows.filter((r) => r.pct >= SPEND_PCT_MIN).length
-}
-
-function BarTooltipBody({
-  seg,
-  highSpendCount,
-}: {
-  seg: ExpiryBarSeg
-  highSpendCount: number
-}) {
-  return (
-    <div className="ced-tooltip-kv">
-      <div className="ced-tooltip-kv__pair">
-        <span className="ced-tooltip-kv__label">Contracts expiring ({seg.label})</span>
-        <span className="ced-tooltip-kv__value">{seg.value}</span>
-      </div>
-      <div className="ced-tooltip-kv__pair">
-        <span className="ced-tooltip-kv__label">Spend ≥65% (tier total)</span>
-        <span className="ced-tooltip-kv__value">{highSpendCount}</span>
-      </div>
-    </div>
-  )
-}
-
-function ExpiryByWeek({ card }: { card: TierCardModel }) {
-  const max = Math.max(1, ...card.expiryBars.map((b) => b.value))
-  const highSpendCount = countHighSpendContracts(card.budgetRows)
-
-  return (
-    <div className="ced-expiry">
-      <hr className="ced-expiry__divider" />
-      <div className="ced-expiry__bars">
-        {card.expiryBars.map((seg) => {
-          const barPct = seg.value === 0 ? 0 : (seg.value / max) * 100
-          const showEmptyUpcoming = card.tier === 'upcoming' && seg.value === 0
-          return (
-            <Tooltip
-              key={seg.label}
-              content={<BarTooltipBody seg={seg} highSpendCount={highSpendCount} />}
-              position="top"
-              className="ced-expiry__bar-tooltip"
-            >
-              <div className="ced-expiry__col">
-                <div className="ced-expiry__track">
-                  <div className="ced-expiry__fill-area">
-                    <div
-                      className={clsx(
-                        'ced-expiry__fill',
-                        `ced-expiry__fill--${card.tier}`,
-                        showEmptyUpcoming && 'ced-expiry__fill--empty',
-                      )}
-                      style={{
-                        height: showEmptyUpcoming ? '6px' : `${barPct}%`,
-                      }}
-                    />
-                  </div>
-                </div>
-                <div className="ced-expiry__meta">
-                  <span className="ced-expiry__wk">{seg.label}</span>
-                </div>
-              </div>
-            </Tooltip>
-          )
-        })}
-      </div>
-    </div>
-  )
+  daysWindow: '61–88 days',
+  earliestExpiryValue: '45d left',
 }
 
 function TierCard({ card }: { card: TierCardModel }) {
+  const headingId = `ced-${card.tier}-title`
+
   return (
-    <article className={clsx('ced-card', `ced-card--${card.tier}`)} aria-labelledby={`ced-${card.tier}-title`}>
+    <article
+      className={clsx('ced-card', `ced-card--${card.tier}`)}
+      aria-labelledby={headingId}
+    >
       <header className="ced-card__head">
-        <p className="ced-card__label" id={`ced-${card.tier}-title`}>
+        <p className="ced-card__label" id={headingId}>
           {card.title}
         </p>
         <p className="ced-card__count" aria-label={`${card.count} contracts`}>
           {card.count}
         </p>
-        <p className="ced-card__subtitle">{card.subtitle}</p>
+        <p className="ced-card__subtitle">{card.daysWindow}</p>
       </header>
-      <ExpiryByWeek card={card} />
+
+      <hr className="ced-card__divider" aria-hidden />
+
+      <footer className="ced-card__footer">
+        <span className="ced-card__footer-label">Earliest expiry</span>
+        <span className="ced-card__footer-value" aria-label={`Earliest expiry ${card.earliestExpiryValue}`}>
+          {card.earliestExpiryValue}
+        </span>
+      </footer>
     </article>
   )
 }

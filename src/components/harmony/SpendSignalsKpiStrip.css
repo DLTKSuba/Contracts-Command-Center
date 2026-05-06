@@ -1,0 +1,149 @@
+/* Matches Command Center tier cards: same radius, border, padding rhythm as `.ced-card` */
+
+.spend-kpi-strip {
+  --spend-breakdown-accent: #e66f51;
+  width: 100%;
+  margin-bottom: var(--space-3, 0.75rem);
+}
+
+.spend-kpi-strip__grid {
+  display: grid;
+  grid-template-columns: minmax(12rem, 1.45fr) 1px minmax(9rem, 0.9fr) 1px minmax(10rem, 1fr);
+  align-items: start;
+  gap: 0;
+  min-width: 0;
+  padding: var(--space-3, 0.75rem) var(--space-4, 1rem);
+  border-radius: var(--radius-lg, 8px);
+  border: 1px solid #e0e4eb;
+  background: transparent;
+  box-sizing: border-box;
+}
+
+.spend-kpi-strip__divider {
+  display: block;
+  width: 1px;
+  align-self: stretch;
+  background-color: #e0e4eb;
+  margin: 0;
+}
+
+.spend-kpi-strip__cell {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: flex-start;
+  gap: var(--space-2, 0.5rem);
+  min-width: 0;
+  padding: 0 var(--space-3, 0.75rem);
+}
+
+.spend-kpi-strip__cell:first-child {
+  padding-left: 0;
+}
+
+.spend-kpi-strip__cell:last-child {
+  padding-right: 0;
+}
+
+/* Mirror `.ced-card__label`; `--text-primary` = Harmony text header token */
+.spend-kpi-strip__label {
+  margin: 0;
+  font-size: var(--text-xs, 12px);
+  font-weight: var(--font-semibold, 600);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--text-primary);
+}
+
+.spend-kpi-strip__cell--breakdown {
+  gap: var(--space-2, 0.5rem);
+}
+
+/* Bar + % on metric row; ≥ 65% sub row aligns with other cells */
+.spend-kpi-strip__breakdown-hbar {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2, 0.5rem);
+  width: 100%;
+  min-width: 0;
+}
+
+.spend-kpi-strip__hbar-metric-row {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: var(--space-3, 0.75rem);
+  width: 100%;
+  min-width: 0;
+  min-height: calc(var(--heading-m, 1.5rem) * 1.1);
+}
+
+.spend-kpi-strip__metric--primary-pct {
+  margin: 0;
+  flex-shrink: 0;
+  color: var(--spend-breakdown-accent);
+}
+
+.spend-kpi-strip__hbar-track {
+  width: 100%;
+  height: 0.625rem;
+  border-radius: var(--radius-md, 6px);
+  background-color: #e8eaef;
+  border: 1px solid #e0e4eb;
+  box-sizing: border-box;
+  overflow: hidden;
+}
+
+.spend-kpi-strip__hbar-fill {
+  height: 100%;
+  min-width: 0;
+  border-radius: calc(var(--radius-md, 6px) - 1px);
+  background-color: var(--spend-breakdown-accent);
+  transition: width 0.2s ease;
+}
+
+.spend-kpi-strip__metric {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: var(--heading-m);
+  font-weight: var(--font-semibold);
+  line-height: 1.1;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Funding gap & Unspent balance numerals: same header text token as labels */
+.spend-kpi-strip__metric--header {
+  color: var(--text-primary);
+}
+
+.spend-kpi-strip__sub {
+  margin: 0;
+  font-size: var(--text-sm, 14px);
+  color: var(--text-primary);
+  line-height: 1.35;
+}
+
+@media (max-width: 960px) {
+  .spend-kpi-strip__grid {
+    grid-template-columns: 1fr;
+    gap: var(--space-4, 1rem);
+    align-items: stretch;
+  }
+
+  .spend-kpi-strip__divider {
+    display: none;
+  }
+
+  .spend-kpi-strip__cell {
+    padding: 0;
+    border-bottom: 1px solid #e0e4eb;
+    padding-bottom: var(--space-4, 1rem);
+  }
+
+  .spend-kpi-strip__cell:last-child {
+    border-bottom: none;
+    padding-bottom: 0;
+  }
+
+}
+

@@ -436,6 +436,11 @@ html.theme-cp {
   --color-error: #D83148;
   --color-info: #3366FF;
 
+  /* Data visualization — categorical accents (not mapped to --color-warning / --color-info) */
+  --data-viz-critical: var(--color-error);
+  --data-viz-warning: #ffab00;
+  --data-viz-upcoming: #285f8c;
+
   /* Semantic Color Opacity Variants */
   --color-info-light: rgba(51, 102, 255, 0.1);
   --color-info-border: rgba(51, 102, 255, 0.3);
@@ -584,6 +589,11 @@ html.theme-cp.dark {
   --color-error: #F46286;
   --color-info: #00ADFD;
 
+  /* Data visualization — categorical accents (not mapped to --color-warning / --color-info) */
+  --data-viz-critical: var(--color-error);
+  --data-viz-warning: #ffab00;
+  --data-viz-upcoming: #285f8c;
+
   /* Semantic Color Opacity Variants */
   --color-info-light: rgba(0, 173, 253, 0.1);
   --color-info-border: rgba(0, 173, 253, 0.3);
@@ -715,6 +725,11 @@ html.theme-vp {
   --color-error: #D83148;
   --color-info: #3366FF;
 
+  /* Data visualization — categorical accents (not mapped to --color-warning / --color-info) */
+  --data-viz-critical: var(--color-error);
+  --data-viz-warning: #ffab00;
+  --data-viz-upcoming: #285f8c;
+
   /* Semantic Color Opacity Variants */
   --color-info-light: rgba(51, 102, 255, 0.1);
   --color-info-border: rgba(51, 102, 255, 0.3);
@@ -823,6 +838,11 @@ html.theme-vp.dark {
   --color-warning: #F9AF00;
   --color-error: #F46286;
   --color-info: #00ADFD;
+
+  /* Data visualization — categorical accents (not mapped to --color-warning / --color-info) */
+  --data-viz-critical: var(--color-error);
+  --data-viz-warning: #ffab00;
+  --data-viz-upcoming: #285f8c;
 
   /* Semantic Color Opacity Variants */
   --color-info-light: rgba(0, 173, 253, 0.1);
@@ -955,6 +975,11 @@ html.theme-ppm {
   --color-error: #D83148;
   --color-info: #3366FF;
 
+  /* Data visualization — categorical accents (not mapped to --color-warning / --color-info) */
+  --data-viz-critical: var(--color-error);
+  --data-viz-warning: #ffab00;
+  --data-viz-upcoming: #285f8c;
+
   /* Semantic Color Opacity Variants */
   --color-info-light: rgba(51, 102, 255, 0.1);
   --color-info-border: rgba(51, 102, 255, 0.3);
@@ -1063,6 +1088,11 @@ html.theme-ppm.dark {
   --color-warning: #F9AF00;
   --color-error: #F46286;
   --color-info: #00ADFD;
+
+  /* Data visualization — categorical accents (not mapped to --color-warning / --color-info) */
+  --data-viz-critical: var(--color-error);
+  --data-viz-warning: #ffab00;
+  --data-viz-upcoming: #285f8c;
 
   /* Semantic Color Opacity Variants */
   --color-info-light: rgba(0, 173, 253, 0.1);
@@ -1195,6 +1225,11 @@ html.theme-maconomy {
   --color-error: #D83148;
   --color-info: #3366FF;
 
+  /* Data visualization — categorical accents (not mapped to --color-warning / --color-info) */
+  --data-viz-critical: var(--color-error);
+  --data-viz-warning: #ffab00;
+  --data-viz-upcoming: #285f8c;
+
   /* Semantic Color Opacity Variants */
   --color-info-light: rgba(51, 102, 255, 0.1);
   --color-info-border: rgba(51, 102, 255, 0.3);
@@ -1303,6 +1338,11 @@ html.theme-maconomy.dark {
   --color-warning: #F9AF00;
   --color-error: #F46286;
   --color-info: #00ADFD;
+
+  /* Data visualization — categorical accents (not mapped to --color-warning / --color-info) */
+  --data-viz-critical: var(--color-error);
+  --data-viz-warning: #ffab00;
+  --data-viz-upcoming: #285f8c;
 
   /* Semantic Color Opacity Variants */
   --color-info-light: rgba(0, 173, 253, 0.1);

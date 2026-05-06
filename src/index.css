@@ -294,78 +294,70 @@
 }
 
 .command-center-contracts-table-toolbar {
-  /* Match reference: ~18px corner radius (not full pill); taller control + gap ~16–20px */
-  --cc-toolbar-outline: #4c92d9;
-  --cc-toolbar-radius: 18px;
-  --cc-toolbar-min-height: 44px;
+  /* Small outline control: --theme-primary (brand main) on both label and stroke by default */
   display: flex;
   flex-wrap: wrap;
   align-items: center;
   justify-content: flex-start;
-  gap: var(--space-5);
+  gap: var(--space-3);
   padding: 0 0 var(--space-3);
 }
 
-/*
- * Harmony `.btn--sm` fixes height to 32px — override for reference proportions.
- * Radius: soft rounded rect (~18px), not 9999px pill.
- */
 .command-center-contracts-table-toolbar button.command-center-contracts-table-toolbar__btn.btn--outline:not(:disabled):not(.btn--disabled) {
   box-sizing: border-box;
-  color: var(--cc-toolbar-outline);
-  border: 2px solid var(--cc-toolbar-outline);
-  background-color: #ffffff;
-  border-radius: var(--cc-toolbar-radius) !important;
-  height: auto !important;
-  min-height: var(--cc-toolbar-min-height);
-  padding: 11px var(--space-6);
+  height: var(--button-height-sm);
+  min-height: var(--button-height-sm);
+  padding: 0 var(--space-2);
+  border-radius: var(--radius-lg);
+  border: var(--border-width-thin) solid var(--theme-primary);
+  background-color: transparent;
+  color: var(--theme-primary);
+  font-weight: var(--font-semibold);
+  font-size: var(--text-sm);
   filter: none;
-  font-weight: var(--font-medium);
-  -webkit-font-smoothing: antialiased;
-  opacity: 1 !important;
+  opacity: 1;
 }
 
 .command-center-contracts-table-toolbar
   button.command-center-contracts-table-toolbar__btn.btn--outline:hover:not(:disabled):not(.btn--disabled) {
-  background-color: #ffffff;
-  border: 2px solid var(--cc-toolbar-outline);
-  color: var(--cc-toolbar-outline);
-  border-radius: var(--cc-toolbar-radius) !important;
-  opacity: 1 !important;
+  background-color: var(--theme-btn-secondary-hover-bg);
+  border: var(--border-width-thin) solid var(--theme-primary);
+  color: var(--theme-primary);
+  opacity: 1;
 }
 
 .command-center-contracts-table-toolbar
   button.command-center-contracts-table-toolbar__btn.btn--outline:active:not(:disabled):not(.btn--disabled) {
-  background-color: #ffffff;
-  border-radius: var(--cc-toolbar-radius) !important;
+  background-color: var(--theme-btn-secondary-hover-bg);
+  border: var(--border-width-thin) solid var(--theme-primary);
+  color: var(--theme-primary);
   box-shadow: var(--shadow-inset-sm);
-  opacity: 1 !important;
+  opacity: 1;
 }
 
 .command-center-contracts-table-toolbar
   button.command-center-contracts-table-toolbar__btn.btn--outline:focus-visible:not(:disabled):not(.btn--disabled) {
-  background-color: #ffffff;
-  border-radius: var(--cc-toolbar-radius) !important;
   outline: 1px solid var(--card-bg);
   outline-offset: 0;
-  box-shadow: 0 0 0 3px rgba(76, 146, 217, 0.55);
-  opacity: 1 !important;
+  box-shadow: var(--focus-ring-primary);
+  opacity: 1;
 }
 
+/* Disabled while no row selected: same brand main + full opacity as enabled; interaction blocked via disabled */
 .command-center-contracts-table-toolbar button.command-center-contracts-table-toolbar__btn.btn--outline:disabled,
 .command-center-contracts-table-toolbar
   button.command-center-contracts-table-toolbar__btn.btn--outline.btn--disabled {
   box-sizing: border-box;
-  color: #7eb4e6;
-  border: 2px solid #9dc6ec;
-  background-color: #ffffff;
-  border-radius: var(--cc-toolbar-radius) !important;
-  height: auto !important;
-  min-height: var(--cc-toolbar-min-height);
-  padding: 11px var(--space-6);
-  font-weight: var(--font-medium);
-  -webkit-font-smoothing: antialiased;
-  opacity: 1 !important;
+  height: var(--button-height-sm);
+  min-height: var(--button-height-sm);
+  padding: 0 var(--space-2);
+  border-radius: var(--radius-lg);
+  border: var(--border-width-thin) solid var(--theme-primary);
+  background-color: transparent;
+  color: var(--theme-primary);
+  font-weight: var(--font-semibold);
+  font-size: var(--text-sm);
+  opacity: 1;
 }
 
 .command-center-requisition-panel__overdue-strip {

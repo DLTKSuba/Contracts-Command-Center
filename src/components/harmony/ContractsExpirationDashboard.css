@@ -13,11 +13,12 @@
   min-width: 0;
 }
 
+/* Large counts: Harmony data-viz categorical tokens (see tokens.css --data-viz-*) */
 .ced-card {
   flex: 1 1 0;
   display: flex;
   flex-direction: column;
-  gap: var(--space-4, 1rem);
+  gap: var(--space-3, 0.75rem);
   padding: var(--space-4, 1rem);
   border-radius: var(--radius-lg, 8px);
   border: 1px solid #e0e4eb;
@@ -36,8 +37,12 @@
   }
 }
 
+/* Reference layout: label → count → days window; divider; earliest expiry row */
 .ced-card__head {
-  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  text-align: left;
 }
 
 .ced-card__label {
@@ -46,7 +51,6 @@
   font-weight: var(--font-semibold, 600);
   letter-spacing: 0.06em;
   text-transform: uppercase;
-  /* Harmony page header title token (`.page-header__title` uses --text-primary) */
   color: var(--text-primary);
 }
 
@@ -57,36 +61,29 @@
   font-weight: var(--font-semibold);
   line-height: 1.1;
   font-variant-numeric: tabular-nums;
+  color: var(--text-primary);
 }
 
 .ced-card--critical .ced-card__count {
-  color: #dc2626;
+  color: var(--data-viz-critical);
 }
 
 .ced-card--warning .ced-card__count {
-  color: #ea580c;
+  color: var(--data-viz-warning);
 }
 
 .ced-card--upcoming .ced-card__count {
-  color: #2563eb;
+  color: var(--data-viz-upcoming);
 }
 
 .ced-card__subtitle {
   margin: var(--space-2, 0.5rem) 0 0;
   font-size: var(--text-sm, 14px);
-  color: var(--text-secondary, #64748b);
+  font-weight: var(--font-medium, 500);
+  color: var(--text-secondary);
 }
 
-/* Expiry mini chart — horizontal rule above bars (no heading / counts) */
-.ced-expiry {
-  display: flex;
-  flex-direction: column;
-  align-items: stretch;
-  gap: var(--space-3, 0.75rem);
-  width: 100%;
-}
-
-.ced-expiry__divider {
+.ced-card__divider {
   flex-shrink: 0;
   height: 1px;
   width: 100%;
@@ -95,139 +92,29 @@
   background-color: #e0e4eb;
 }
 
-.ced-expiry__bars {
-  flex: 1 1 auto;
-  display: flex;
-  align-items: flex-start;
-  justify-content: center;
-  gap: var(--space-4, 1rem);
-  padding: 0 var(--space-1, 0.25rem);
-  min-width: 0;
-}
-
-.ced-expiry__col {
-  flex: 1 1 auto;
-  width: 100%;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: var(--space-2, 0.5rem);
-  min-width: 2.25rem;
-  cursor: default;
-}
-
-.ced-expiry__track {
-  width: 100%;
-  height: 88px;
-  border-radius: var(--radius-sm, 4px);
-  background: transparent;
-  display: flex;
-  flex-direction: column;
-  justify-content: flex-end;
-  align-items: center;
-}
-
-.ced-expiry__fill-area {
-  width: 100%;
-  height: 100%;
-  display: flex;
-  flex-direction: column;
-  justify-content: flex-end;
-  align-items: center;
-}
-
-.ced-expiry__fill {
-  width: 72%;
-  max-width: 48px;
-  min-height: 4px;
-  border-radius: var(--radius-sm, 4px) var(--radius-sm, 4px) 0 0;
-  transition: height 0.2s ease;
-}
-
-.ced-expiry__fill--critical {
-  background: #dc2626;
-}
-
-.ced-expiry__fill--warning {
-  background: #ea580c;
-}
-
-.ced-expiry__fill--upcoming {
-  background: #2563eb;
-}
-
-.ced-expiry__fill--upcoming.ced-expiry__fill--empty {
-  min-height: 6px;
-  background: #bfdbfe;
-  opacity: 0.95;
-}
-
-.ced-expiry__meta {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  text-align: center;
-}
-
-.ced-expiry__wk {
-  font-size: var(--text-xs, 12px);
-  font-weight: var(--font-medium, 500);
-  color: var(--text-primary, #0f172a);
-}
-
-/* Harmony Tooltip wraps each bar column (multi-line body overrides Tooltip.css nowrap) */
-.ced-expiry__bar-tooltip.tooltip {
-  flex: 1 1 0;
-  min-width: 0;
-  display: flex;
-  flex-direction: column;
-  align-items: stretch;
-}
-
-/* Wide tooltip + horizontal label / value pairs */
-.ced-expiry__bar-tooltip .tooltip__content {
-  white-space: normal;
-  min-width: 26rem;
-  max-width: min(36rem, 92vw);
-  width: max-content;
-  padding: var(--space-3) var(--space-4);
-  text-align: left;
-  line-height: 1.35;
-}
-
-.ced-tooltip-kv {
-  display: flex;
-  flex-direction: column;
-  align-items: stretch;
-  justify-content: flex-start;
-  gap: var(--space-3, 0.75rem);
-}
-
-.ced-tooltip-kv__pair {
+.ced-card__footer {
   display: flex;
   flex-direction: row;
-  flex-wrap: nowrap;
   align-items: baseline;
   justify-content: space-between;
-  gap: var(--space-4, 1rem);
-  flex: 0 1 auto;
+  gap: var(--space-3, 0.75rem);
+  width: 100%;
+  min-width: 0;
 }
 
-.ced-tooltip-kv__label {
+.ced-card__footer-label {
   font-size: var(--text-xs, 12px);
-  font-weight: var(--font-medium, 500);
-  color: rgba(255, 255, 255, 0.82);
+  font-weight: var(--font-semibold, 600);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--text-muted, #6b7280);
 }
 
-.ced-tooltip-kv__value {
+.ced-card__footer-value {
+  margin: 0;
+  font-family: var(--font-display);
   font-size: var(--text-sm, 14px);
   font-weight: var(--font-semibold, 600);
   font-variant-numeric: tabular-nums;
-  color: var(--text-inverse);
-}
-
-@media (max-width: 420px) {
-  .ced-expiry__bar-tooltip .tooltip__content {
-    min-width: min(92vw, 22rem);
-  }
+  color: var(--text-primary);
 }
