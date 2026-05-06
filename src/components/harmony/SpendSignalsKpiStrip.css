@@ -19,18 +19,22 @@
   background: var(--table-command-center-stripe-bg, #fafafa);
 }
 
-/* 1fr + 3fr keeps same width share as four equal columns; wider gutter before Funded Value cluster */
+/*
+ * Same 3 tracks as `.contracts-expiration-dashboard__grid` (Critical | Warning | Upcoming).
+ * Breakdown = col 1; Funded / Gap / Balance span cols 2–3 so Funded lines up with Warning.
+ */
 .spend-kpi-strip__columns {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(0, 3fr);
-  column-gap: var(--space-8, 2rem);
-  row-gap: 0;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  /* Match `.contracts-expiration-dashboard__grid` gap so tracks align with Critical | Warning | Upcoming */
+  gap: var(--space-4, 1rem);
   align-items: start;
   width: 100%;
   min-width: 0;
 }
 
 .spend-kpi-strip__metrics-cluster {
+  grid-column: 2 / span 2;
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: var(--space-4, 1rem);
@@ -46,7 +50,10 @@
 }
 
 .spend-kpi-strip__col--breakdown {
+  grid-column: 1;
   gap: var(--space-2, 0.5rem);
+  /* Extra air before Funded Value cluster (still column-aligned with Warning above) */
+  padding-inline-end: var(--space-8, 2rem);
 }
 
 /* Mirror `.ced-card__label`; `--text-primary` = Harmony text header token */
@@ -130,11 +137,14 @@
   }
 
   .spend-kpi-strip__metrics-cluster {
+    grid-column: auto;
     grid-template-columns: 1fr;
     gap: var(--space-4, 1rem);
   }
 
   .spend-kpi-strip__col--breakdown {
+    grid-column: auto;
+    padding-inline-end: 0;
     padding-bottom: var(--space-4, 1rem);
     border-bottom: 1px solid #e0e4eb;
   }
