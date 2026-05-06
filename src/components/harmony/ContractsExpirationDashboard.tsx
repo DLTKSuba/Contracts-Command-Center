@@ -1,4 +1,5 @@
 import clsx from 'clsx'
+import { Tooltip } from './Tooltip'
 import './ContractsExpirationDashboard.css'
 
 type ExpiryBarSeg = {
@@ -19,6 +20,8 @@ type TierCardModel = {
   expiryBars: ExpiryBarSeg[]
   budgetRows: BudgetRow[]
 }
+
+const SPEND_PCT_MIN = 65
 
 const CRITICAL_CARD: TierCardModel = {
   tier: 'critical',
@@ -73,91 +76,72 @@ const UPCOMING_CARD: TierCardModel = {
   ],
 }
 
-const THRESHOLD_WARN = 65
-const THRESHOLD_DANGER = 80
-
-function burnColor(pct: number, tier: TierCardModel['tier']): string {
-  if (pct >= THRESHOLD_DANGER) return 'var(--ced-burn-danger)'
-  if (pct >= THRESHOLD_WARN) {
-    return tier === 'warning'
-      ? 'var(--ced-burn-warning-tier)'
-      : 'var(--ced-burn-mid)'
-  }
-  return 'var(--ced-burn-safe)'
+function countHighSpendContracts(rows: readonly BudgetRow[]): number {
+  return rows.filter((r) => r.pct >= SPEND_PCT_MIN).length
 }
 
-function ExpiryByWeek({ card }: { card: TierCardModel }) {
-  const max = Math.max(1, ...card.expiryBars.map((b) => b.value))
-
+function BarTooltipBody({
+  seg,
+  highSpendCount,
+}: {
+  seg: ExpiryBarSeg
+  highSpendCount: number
+}) {
   return (
-    <div className="ced-expiry">
-      <h4 className="ced-expiry__title">Expiry by week</h4>
-      <div className="ced-expiry__bars" role="img" aria-label={`Expiry counts by week for ${card.title}`}>
-        {card.expiryBars.map((seg) => {
-          const barPct = seg.value === 0 ? 0 : (seg.value / max) * 100
-          const showEmptyUpcoming = card.tier === 'upcoming' && seg.value === 0
-          return (
-            <div key={seg.label} className="ced-expiry__col">
-              <span className="ced-expiry__value">{seg.value}</span>
-              <div className="ced-expiry__track">
-                <div className="ced-expiry__fill-area">
-                  <div
-                    className={clsx(
-                      'ced-expiry__fill',
-                      `ced-expiry__fill--${card.tier}`,
-                      showEmptyUpcoming && 'ced-expiry__fill--empty',
-                    )}
-                    style={{
-                      height: showEmptyUpcoming ? '6px' : `${barPct}%`,
-                    }}
-                  />
-                </div>
-              </div>
-              <div className="ced-expiry__meta">
-                <span className="ced-expiry__wk">{seg.label}</span>
-              </div>
-            </div>
-          )
-        })}
+    <div className="ced-tooltip-kv">
+      <div className="ced-tooltip-kv__pair">
+        <span className="ced-tooltip-kv__label">Contracts expiring ({seg.label})</span>
+        <span className="ced-tooltip-kv__value">{seg.value}</span>
+      </div>
+      <div className="ced-tooltip-kv__pair">
+        <span className="ced-tooltip-kv__label">Spend ≥65% (tier total)</span>
+        <span className="ced-tooltip-kv__value">{highSpendCount}</span>
       </div>
     </div>
   )
 }
 
-function BudgetBurn({ card }: { card: TierCardModel }) {
-  const spendRows = card.budgetRows.filter((row) => row.pct >= THRESHOLD_WARN)
+function ExpiryByWeek({ card }: { card: TierCardModel }) {
+  const max = Math.max(1, ...card.expiryBars.map((b) => b.value))
+  const highSpendCount = countHighSpendContracts(card.budgetRows)
 
   return (
-    <div className="ced-budget">
-      <h4 className="ced-budget__title">{`Spend >= 65%`}</h4>
-      <ul className="ced-budget__list">
-        {spendRows.length === 0 ? (
-          <li className="ced-budget__empty">No contracts at or above 65%.</li>
-        ) : (
-          spendRows.map((row) => (
-            <li key={row.id} className="ced-budget__row">
-              <span className="ced-budget__id">{row.id}</span>
-              <div className="ced-budget__bar-wrap" aria-label={`${row.id} at ${row.pct}% spend`}>
-                <div className="ced-budget__bar-track">
-                  <div
-                    className="ced-budget__bar-fill"
-                    style={{
-                      width: `${Math.min(100, row.pct)}%`,
-                      backgroundColor: burnColor(row.pct, card.tier),
-                    }}
-                  />
-                  <div
-                    className="ced-budget__threshold"
-                    style={{ left: `${THRESHOLD_WARN}%` }}
-                    aria-hidden
-                  />
+    <div className="ced-expiry">
+      <hr className="ced-expiry__divider" />
+      <div className="ced-expiry__bars">
+        {card.expiryBars.map((seg) => {
+          const barPct = seg.value === 0 ? 0 : (seg.value / max) * 100
+          const showEmptyUpcoming = card.tier === 'upcoming' && seg.value === 0
+          return (
+            <Tooltip
+              key={seg.label}
+              content={<BarTooltipBody seg={seg} highSpendCount={highSpendCount} />}
+              position="top"
+              className="ced-expiry__bar-tooltip"
+            >
+              <div className="ced-expiry__col">
+                <div className="ced-expiry__track">
+                  <div className="ced-expiry__fill-area">
+                    <div
+                      className={clsx(
+                        'ced-expiry__fill',
+                        `ced-expiry__fill--${card.tier}`,
+                        showEmptyUpcoming && 'ced-expiry__fill--empty',
+                      )}
+                      style={{
+                        height: showEmptyUpcoming ? '6px' : `${barPct}%`,
+                      }}
+                    />
+                  </div>
                 </div>
-                <span className="ced-budget__pct">{row.pct}%</span>
+                <div className="ced-expiry__meta">
+                  <span className="ced-expiry__wk">{seg.label}</span>
+                </div>
               </div>
-            </li>
-          ))
-        )}
-      </ul>
+            </Tooltip>
+          )
+        })}
+      </div>
     </div>
   )
 }
@@ -175,7 +159,6 @@ function TierCard({ card }: { card: TierCardModel }) {
         <p className="ced-card__subtitle">{card.subtitle}</p>
       </header>
       <ExpiryByWeek card={card} />
-      <BudgetBurn card={card} />
     </article>
   )
 }

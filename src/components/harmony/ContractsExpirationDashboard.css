@@ -13,14 +13,6 @@
   min-width: 0;
 }
 
-/* Theme tokens for burn bars */
-.contracts-expiration-dashboard {
-  --ced-burn-safe: #22c55e;
-  --ced-burn-mid: #f97316;
-  --ced-burn-danger: #dc2626;
-  --ced-burn-warning-tier: #ea580c;
-}
-
 .ced-card {
   flex: 1 1 0;
   display: flex;
@@ -93,39 +85,43 @@
   color: var(--text-secondary, #64748b);
 }
 
-/* Expiry mini chart */
-.ced-expiry__title,
-.ced-budget__title {
-  margin: 0 0 var(--space-2, 0.5rem);
-  font-size: var(--text-xs, 12px);
-  font-weight: var(--font-semibold, 600);
-  color: var(--text-secondary, #64748b);
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
+/* Expiry mini chart — horizontal rule above bars (no heading / counts) */
+.ced-expiry {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: var(--space-3, 0.75rem);
+  width: 100%;
+}
+
+.ced-expiry__divider {
+  flex-shrink: 0;
+  height: 1px;
+  width: 100%;
+  margin: 0;
+  border: none;
+  background-color: #e0e4eb;
 }
 
 .ced-expiry__bars {
+  flex: 1 1 auto;
   display: flex;
   align-items: flex-start;
   justify-content: center;
-  gap: var(--space-2, 0.5rem);
+  gap: var(--space-4, 1rem);
   padding: 0 var(--space-1, 0.25rem);
-}
-
-.ced-expiry__col {
-  flex: 1 1 0;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: var(--space-1, 0.25rem);
   min-width: 0;
 }
 
-.ced-expiry__value {
-  font-size: var(--text-sm, 14px);
-  font-weight: var(--font-semibold, 600);
-  color: var(--text-primary, #0f172a);
-  min-height: 1.25rem;
+.ced-expiry__col {
+  flex: 1 1 auto;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-2, 0.5rem);
+  min-width: 2.25rem;
+  cursor: default;
 }
 
 .ced-expiry__track {
@@ -187,82 +183,59 @@
   color: var(--text-primary, #0f172a);
 }
 
-/* Budget burn */
-.ced-budget__list {
-  list-style: none;
-  margin: 0;
-  padding: 0;
+/* Harmony Tooltip wraps each bar column (multi-line body overrides Tooltip.css nowrap) */
+.ced-expiry__bar-tooltip.tooltip {
+  flex: 1 1 0;
+  min-width: 0;
   display: flex;
   flex-direction: column;
+  align-items: stretch;
+}
+
+/* Wide tooltip + horizontal label / value pairs */
+.ced-expiry__bar-tooltip .tooltip__content {
+  white-space: normal;
+  min-width: 26rem;
+  max-width: min(36rem, 92vw);
+  width: max-content;
+  padding: var(--space-3) var(--space-4);
+  text-align: left;
+  line-height: 1.35;
+}
+
+.ced-tooltip-kv {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  justify-content: flex-start;
   gap: var(--space-3, 0.75rem);
 }
 
-.ced-budget__row {
-  display: grid;
-  grid-template-columns: minmax(0, 120px) 1fr;
-  gap: var(--space-2, 0.5rem);
-  align-items: center;
+.ced-tooltip-kv__pair {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-4, 1rem);
+  flex: 0 1 auto;
+}
+
+.ced-tooltip-kv__label {
+  font-size: var(--text-xs, 12px);
+  font-weight: var(--font-medium, 500);
+  color: rgba(255, 255, 255, 0.82);
+}
+
+.ced-tooltip-kv__value {
+  font-size: var(--text-sm, 14px);
+  font-weight: var(--font-semibold, 600);
+  font-variant-numeric: tabular-nums;
+  color: var(--text-inverse);
 }
 
 @media (max-width: 420px) {
-  .ced-budget__row {
-    grid-template-columns: 1fr;
+  .ced-expiry__bar-tooltip .tooltip__content {
+    min-width: min(92vw, 22rem);
   }
-}
-
-.ced-budget__id {
-  font-size: var(--text-xs, 12px);
-  font-weight: var(--font-medium, 500);
-  color: var(--text-primary, #0f172a);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.ced-budget__bar-wrap {
-  display: flex;
-  align-items: center;
-  gap: var(--space-2, 0.5rem);
-  min-width: 0;
-}
-
-.ced-budget__bar-track {
-  position: relative;
-  flex: 1;
-  height: 10px;
-  border-radius: 999px;
-  background: transparent;
-  overflow: visible;
-}
-
-.ced-budget__bar-fill {
-  height: 100%;
-  border-radius: 999px;
-  min-width: 2px;
-}
-
-/* 65% threshold — dashed vertical marker inside track */
-.ced-budget__threshold {
-  position: absolute;
-  top: -3px;
-  bottom: -3px;
-  width: 0;
-  border-left: 1px dashed #ea580c;
-  transform: translateX(-50%);
-  pointer-events: none;
-}
-
-.ced-budget__pct {
-  flex-shrink: 0;
-  width: 2.5rem;
-  text-align: right;
-  font-size: var(--text-xs, 12px);
-  font-variant-numeric: tabular-nums;
-  color: var(--text-secondary, #64748b);
-}
-
-.ced-budget__list .ced-budget__empty {
-  margin: 0;
-  font-size: var(--text-xs, 12px);
-  color: var(--text-secondary, #64748b);
 }

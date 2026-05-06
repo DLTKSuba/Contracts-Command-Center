@@ -3,7 +3,10 @@ import clsx from 'clsx'
 import './Tooltip.css'
 
 export interface TooltipProps {
-  text: string
+  /** Plain-text tooltip (default Harmony behavior). Ignored when `content` is set. */
+  text?: string
+  /** Rich tooltip body; takes precedence over `text`. Use for structured layouts. */
+  content?: ReactNode
   position?: 'top' | 'bottom' | 'left' | 'right'
   cornerVariant?: 'top' | 'bottom' | 'left' | 'right'
   className?: string
@@ -11,7 +14,8 @@ export interface TooltipProps {
 }
 
 export function Tooltip({
-  text,
+  text = '',
+  content,
   position = 'top',
   cornerVariant,
   className = '',
@@ -30,10 +34,12 @@ export function Tooltip({
 
   const classes = clsx('tooltip', className)
 
+  const body = content != null ? content : text
+
   return (
-    <span className={classes}>
+    <div className={classes}>
       {children}
-      <span className={contentClasses}>{text}</span>
-    </span>
+      <div className={contentClasses}>{body}</div>
+    </div>
   )
 }

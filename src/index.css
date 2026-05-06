@@ -159,6 +159,36 @@
   color: var(--text-secondary, #6b7280);
 }
 
+.command-center-contract-info {
+  vertical-align: top;
+}
+
+.command-center-contract-info__id {
+  display: block;
+  font-weight: 600;
+  color: var(--text-primary, #111827);
+}
+
+.command-center-contract-info__vendor {
+  display: block;
+  margin-top: 2px;
+  font-size: var(--font-size-sm, 0.8125rem);
+  color: var(--text-secondary, #6b7280);
+  line-height: 1.35;
+}
+
+.command-center-actions-cell {
+  vertical-align: middle;
+  white-space: nowrap;
+}
+
+.command-center-actions-cell__inner {
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: var(--space-1, 0.25rem);
+}
+
 /* Requisitions table: row opens non-modal split detail pane */
 .command-center-data-table tbody tr.command-center-table-row--selectable {
   cursor: pointer;
@@ -261,6 +291,46 @@
   font-size: var(--text-base);
   font-weight: var(--font-semibold);
   color: var(--text-primary);
+}
+
+.command-center-contracts-table-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-start;
+  gap: var(--space-2);
+  padding: 0 0 var(--space-3);
+}
+
+/* Outline actions: brand main (--theme-primary) stroke + label */
+.command-center-contracts-table-toolbar .btn.btn--outline {
+  color: var(--theme-primary);
+  border-color: var(--theme-primary);
+  background-color: transparent;
+}
+
+.command-center-contracts-table-toolbar .btn.btn--outline:hover:not(:disabled) {
+  background-color: var(--theme-primary-light);
+  border-color: var(--theme-primary-hover, var(--theme-primary));
+  color: var(--theme-primary-hover, var(--theme-primary));
+}
+
+.command-center-contracts-table-toolbar .btn.btn--outline:active:not(:disabled) {
+  box-shadow: var(--shadow-inset-sm);
+}
+
+.command-center-contracts-table-toolbar .btn.btn--outline:focus-visible {
+  outline: 1px solid var(--card-bg);
+  outline-offset: 0;
+  box-shadow: var(--focus-ring-primary);
+}
+
+.command-center-contracts-table-toolbar .btn.btn--outline:disabled,
+.command-center-contracts-table-toolbar .btn.btn--outline.btn--disabled {
+  color: var(--theme-primary);
+  border-color: var(--theme-primary);
+  opacity: 0.45;
+  background-color: transparent;
 }
 
 .command-center-requisition-panel__overdue-strip {

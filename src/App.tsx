@@ -94,6 +94,16 @@ type RequisitionRow = {
   vendorId: string
   vendor: string
   amount: string
+  /** Next milestone / review date (Command Center grid). */
+  nextImportantDate: string
+  /** Contract effective start. */
+  startDate: string
+  /** Funded (commitment) value. */
+  fundedValue: string
+  /** Incurred to date cost. */
+  itdCost: string
+  /** ITD as % of funded (0–100+). */
+  fundingPercent: number
   statusLabel: string
   stageIndices: readonly number[]
   overdue: string
@@ -140,6 +150,11 @@ const REQUISITION_ROWS: RequisitionRow[] = [
     vendorId: 'VND-900101',
     vendor: 'Acme Office Supplies',
     amount: '$1,250.00',
+    nextImportantDate: 'Apr 12, 2025',
+    startDate: 'Apr 2, 2025',
+    fundedValue: '$5,000.00',
+    itdCost: '$1,900.00',
+    fundingPercent: 38,
     statusLabel: 'Pending Approval',
     stageIndices: [0, 2],
     overdue: '2/5',
@@ -159,6 +174,11 @@ const REQUISITION_ROWS: RequisitionRow[] = [
     vendorId: 'VND-900205',
     vendor: 'Litware Medical Devices',
     amount: '$3,890.25',
+    nextImportantDate: 'Apr 16, 2025',
+    startDate: 'Mar 28, 2025',
+    fundedValue: '$12,000.00',
+    itdCost: '$8,520.00',
+    fundingPercent: 71,
     statusLabel: 'Pending Approval',
     stageIndices: [0, 2],
     overdue: '1/6',
@@ -178,6 +198,11 @@ const REQUISITION_ROWS: RequisitionRow[] = [
     vendorId: 'VND-900302',
     vendor: 'Northwind Logistics LLC',
     amount: '$8,420.50',
+    nextImportantDate: 'Apr 8, 2025',
+    startDate: 'Mar 15, 2025',
+    fundedValue: '$25,000.00',
+    itdCost: '$22,000.00',
+    fundingPercent: 88,
     statusLabel: 'Pending PO Creation',
     stageIndices: [0, 2, 3],
     overdue: '1/4',
@@ -197,6 +222,11 @@ const REQUISITION_ROWS: RequisitionRow[] = [
     vendorId: 'VND-900448',
     vendor: 'Wide World Importers',
     amount: '$22,150.00',
+    nextImportantDate: 'Apr 3, 2025',
+    startDate: 'Mar 20, 2025',
+    fundedValue: '$48,000.00',
+    itdCost: '$39,360.00',
+    fundingPercent: 82,
     statusLabel: 'Pending PO Creation',
     stageIndices: [0, 2, 3],
     overdue: '4/9',
@@ -216,6 +246,11 @@ const REQUISITION_ROWS: RequisitionRow[] = [
     vendorId: 'VND-900503',
     vendor: 'Contoso Training Group',
     amount: '$2,100.00',
+    nextImportantDate: 'Apr 18, 2025',
+    startDate: 'Apr 8, 2025',
+    fundedValue: '$8,000.00',
+    itdCost: '$3,600.00',
+    fundingPercent: 45,
     statusLabel: 'Pending Submittal',
     stageIndices: [0],
     overdue: '1/3',
@@ -235,6 +270,11 @@ const REQUISITION_ROWS: RequisitionRow[] = [
     vendorId: 'VND-900606',
     vendor: 'Adventure Works IT',
     amount: '$475.90',
+    nextImportantDate: 'Apr 22, 2025',
+    startDate: 'Apr 1, 2025',
+    fundedValue: '$3,500.00',
+    itdCost: '$980.00',
+    fundingPercent: 28,
     statusLabel: 'Pending Submittal',
     stageIndices: [0],
     overdue: '0/2',
@@ -253,6 +293,11 @@ const REQUISITION_ROWS: RequisitionRow[] = [
     vendorId: 'VND-900704',
     vendor: 'Fabrikam Facilities Inc.',
     amount: '$640.00',
+    nextImportantDate: 'Feb 28, 2025',
+    startDate: 'Feb 10, 2025',
+    fundedValue: '$4,200.00',
+    itdCost: '$2,310.00',
+    fundingPercent: 55,
     statusLabel: 'Rejected',
     stageIndices: [0, 1],
     overdue: '1/2',
@@ -272,6 +317,11 @@ const REQUISITION_ROWS: RequisitionRow[] = [
     vendorId: 'VND-900807',
     vendor: 'Blue Yonder Analytics',
     amount: '$9,999.00',
+    nextImportantDate: 'Feb 15, 2025',
+    startDate: 'Jan 22, 2025',
+    fundedValue: '$35,000.00',
+    itdCost: '$32,200.00',
+    fundingPercent: 92,
     statusLabel: 'Rejected',
     stageIndices: [0, 2, 1],
     overdue: '3/3',
@@ -435,28 +485,6 @@ function commandCenterLifecycleStatusCell(
   )
 }
 
-function reqStatusTrailCell(
-  statusLabel: string,
-  stageIndicesInDisplayOrder: readonly number[],
-  lifecycleChartFilterStageIndices: readonly number[] | null,
-) {
-  const useChartFilter =
-    lifecycleChartFilterStageIndices != null && lifecycleChartFilterStageIndices.length > 0
-  const displayIndices = useChartFilter
-    ? [...new Set(lifecycleChartFilterStageIndices)].sort((a, b) => a - b)
-    : stageIndicesInDisplayOrder
-  const summaryLabel = useChartFilter
-    ? displayIndices.map((i) => REQ_STATUS_STAGE_LABELS[i] ?? `Stage ${i}`).join(', ')
-    : statusLabel
-  return commandCenterLifecycleStatusCell(
-    'PR',
-    summaryLabel,
-    REQ_STATUS_DOT_COLORS,
-    REQ_STATUS_STAGE_LABELS,
-    displayIndices,
-  )
-}
-
 function poLifecycleStatusCell(
   summaryLabel: string,
   stageIndicesInDisplayOrder: readonly number[],
@@ -479,20 +507,30 @@ function poLifecycleStatusCell(
   )
 }
 
-function prIdCell(id: string) {
+function contractInfoCell(row: RequisitionRow) {
   return (
-    <td>
-      <Link
-        href="#"
-        size="small"
-        title="Apply PO Info to Purchase Requisitions"
-        aria-label={`${id}: Apply PO Info to Purchase Requisitions`}
-        onClick={(e) => {
-          e.preventDefault()
-        }}
-      >
-        {id}
-      </Link>
+    <td className="command-center-contract-info">
+      <span className="command-center-contract-info__id">{row.id}</span>
+      <span className="command-center-contract-info__vendor">{row.vendor}</span>
+    </td>
+  )
+}
+
+function contractActionsCell(row: RequisitionRow) {
+  return (
+    <td
+      className="command-center-actions-cell text-right"
+      onClick={(e) => e.stopPropagation()}
+    >
+      <div className="command-center-actions-cell__inner">
+        <Button
+          type="button"
+          variant="ghost"
+          size="sm"
+          icon="ellipsis-horizontal"
+          ariaLabel={`More actions for ${row.id}`}
+        />
+      </div>
     </td>
   )
 }
@@ -501,14 +539,15 @@ function commandCenterHeaderTh(
   label: string,
   align: 'left' | 'right' = 'left',
   title?: string,
+  showChrome = true,
 ) {
   const alignClass = align === 'right' ? 'text-right' : 'text-left'
-  const icons = (
+  const icons = showChrome ? (
     <span className="command-center-th__actions" aria-hidden>
       <Icon name="chevron-up-down" size="xs" />
       <Icon name="funnel" size="xs" />
     </span>
-  )
+  ) : null
   return (
     <th className={alignClass} scope="col" title={title}>
       <span
@@ -528,15 +567,15 @@ function commandCenterHeaderTh(
 const REQUISITION_TABLE_HEADER = (
   <thead>
     <tr>
-      {commandCenterHeaderTh(
-        'PR ID',
-        'left',
-        'PR ID — link to Apply PO Info to Purchase Requisitions',
-      )}
-      {commandCenterHeaderTh('Preferred Vendor Name')}
-      {commandCenterHeaderTh('Total Amount', 'right')}
-      {commandCenterHeaderTh('Status')}
-      {commandCenterHeaderTh('Overdue')}
+      {commandCenterHeaderTh('Contract Info')}
+      {commandCenterHeaderTh('Next Important Date')}
+      {commandCenterHeaderTh('Start Date')}
+      {commandCenterHeaderTh('End Date')}
+      {commandCenterHeaderTh('Contract Value', 'right')}
+      {commandCenterHeaderTh('Funded Value', 'right')}
+      {commandCenterHeaderTh('ITD Cost', 'right')}
+      {commandCenterHeaderTh('Funding %', 'right')}
+      {commandCenterHeaderTh('Actions', 'right', undefined, false)}
     </tr>
   </thead>
 )
@@ -607,13 +646,10 @@ function RequisitionTableBody({
   rows,
   selectedId,
   onSelectRow,
-  lifecycleChartFilterStageIndices = null,
 }: {
   rows: RequisitionRow[]
   selectedId: string | null
   onSelectRow: (id: string) => void
-  /** When non-empty (bar chart filter), status column shows one marker per selected stage. */
-  lifecycleChartFilterStageIndices?: readonly number[] | null
 }) {
   return (
     <tbody>
@@ -634,11 +670,27 @@ function RequisitionTableBody({
             }
           }}
         >
-          {prIdCell(row.id)}
-          <td>{row.vendor}</td>
+          {contractInfoCell(row)}
+          <td>{row.nextImportantDate}</td>
+          <td>{row.startDate}</td>
+          <td>{row.needBy}</td>
           <td className="text-right">{row.amount}</td>
-          {reqStatusTrailCell(row.statusLabel, row.stageIndices, lifecycleChartFilterStageIndices ?? null)}
-          <td style={row.overdueUrgent ? { color: 'var(--color-error)' } : undefined}>{row.overdue}</td>
+          <td className="text-right">{row.fundedValue}</td>
+          <td className="text-right">{row.itdCost}</td>
+          <td
+            className="text-right"
+            style={{
+              color:
+                row.fundingPercent >= 90
+                  ? 'var(--color-error)'
+                  : row.fundingPercent >= 75
+                    ? '#d97706'
+                    : undefined,
+            }}
+          >
+            {row.fundingPercent}%
+          </td>
+          {contractActionsCell(row)}
         </tr>
       ))}
     </tbody>
@@ -649,10 +701,18 @@ function RequisitionSidePanel({
   row,
   onClose,
   onOpenRequisitionReportTab,
+  summaryAccordionOpen,
+  onSummaryAccordionOpenChange,
+  lateItemsAccordionOpen,
+  onLateItemsAccordionOpenChange,
 }: {
   row: RequisitionRow
   onClose: () => void
   onOpenRequisitionReportTab: (prId: string) => void
+  summaryAccordionOpen: boolean
+  onSummaryAccordionOpenChange: (open: boolean) => void
+  lateItemsAccordionOpen: boolean
+  onLateItemsAccordionOpenChange: (open: boolean) => void
 }) {
   const reportHref = requisitionReportHref(row.id)
   const frac = parseOverdueFraction(row.overdue)
@@ -714,8 +774,16 @@ function RequisitionSidePanel({
         </div>
       </div>
       <div className="command-center-requisition-panel__body">
-        <RequisitionDetailSummary row={row} />
-        <RequisitionLateItemsSection row={row} />
+        <RequisitionDetailSummary
+          row={row}
+          open={summaryAccordionOpen}
+          onOpenChange={onSummaryAccordionOpenChange}
+        />
+        <RequisitionLateItemsSection
+          row={row}
+          open={lateItemsAccordionOpen}
+          onOpenChange={onLateItemsAccordionOpenChange}
+        />
       </div>
     </aside>
   )
@@ -724,19 +792,22 @@ function RequisitionSidePanel({
 const SUMMARY_LINES_LABEL_TITLE =
   'Only lines assigned to the logged in Buyer' as const
 
-function RequisitionDetailSummary({ row }: { row: RequisitionRow }) {
+function RequisitionDetailSummary({
+  row,
+  open,
+  onOpenChange,
+}: {
+  row: RequisitionRow
+  open: boolean
+  onOpenChange: (next: boolean) => void
+}) {
   const mailtoHref = `mailto:${row.requisitionerEmail}`
-  const [summaryOpen, setSummaryOpen] = useState(true)
-
-  useEffect(() => {
-    setSummaryOpen(true)
-  }, [row.id])
 
   return (
     <details
       className="command-center-requisition-accordion"
-      open={summaryOpen}
-      onToggle={(event) => setSummaryOpen(event.currentTarget.open)}
+      open={open}
+      onToggle={(event) => onOpenChange(event.currentTarget.open)}
     >
       <summary className="command-center-requisition-accordion__summary">
         <span className="command-center-requisition-accordion__summary-main">
@@ -782,13 +853,15 @@ function RequisitionDetailSummary({ row }: { row: RequisitionRow }) {
   )
 }
 
-function RequisitionLateItemsSection({ row }: { row: RequisitionRow }) {
-  const [lateOpen, setLateOpen] = useState(true)
-
-  useEffect(() => {
-    setLateOpen(true)
-  }, [row.id])
-
+function RequisitionLateItemsSection({
+  row,
+  open,
+  onOpenChange,
+}: {
+  row: RequisitionRow
+  open: boolean
+  onOpenChange: (next: boolean) => void
+}) {
   const frac = parseOverdueFraction(row.overdue)
   const lateStatusEntries = row.lateItemsStageCounts
     .map((count, stageIndex) => ({ count, stageIndex }))
@@ -797,8 +870,8 @@ function RequisitionLateItemsSection({ row }: { row: RequisitionRow }) {
   return (
     <details
       className="command-center-requisition-accordion"
-      open={lateOpen}
-      onToggle={(event) => setLateOpen(event.currentTarget.open)}
+      open={open}
+      onToggle={(event) => onOpenChange(event.currentTarget.open)}
     >
       <summary className="command-center-requisition-accordion__summary">
         <span className="command-center-requisition-accordion__summary-main">
@@ -1170,6 +1243,8 @@ function HomeShell() {
   const [poDetailOrderIds, setPoDetailOrderIds] = useState<string[]>([])
   const [refreshTick, setRefreshTick] = useState(0)
   const [selectedRequisitionId, setSelectedRequisitionId] = useState<string | null>(null)
+  const [reqPanelSummaryOpen, setReqPanelSummaryOpen] = useState(true)
+  const [reqPanelLateItemsOpen, setReqPanelLateItemsOpen] = useState(true)
   const [poLifecycleBarIds, setPoLifecycleBarIds] = useState<string[]>([])
   const themeProps = THEME_SHELL_PROPS[DEFAULT_THEME] ?? THEME_SHELL_PROPS['theme-cp']
 
@@ -1211,6 +1286,11 @@ function HomeShell() {
     () => REQUISITION_ROWS.find((r) => r.id === selectedRequisitionId) ?? null,
     [selectedRequisitionId],
   )
+
+  useEffect(() => {
+    setReqPanelSummaryOpen(true)
+    setReqPanelLateItemsOpen(true)
+  }, [selectedRequisitionId])
 
   useEffect(() => {
     if (selectedRequisitionId == null) return
@@ -1265,7 +1345,9 @@ function HomeShell() {
     const base = REQ_MAIN_TAB_IDS.map((id) => ({
       id,
       label:
-        id === 'requisitions' ? 'Contracts Expiration Timeline' : 'Risk Analysis',
+        id === 'requisitions'
+          ? 'Contracts Expiration Timeline'
+          : 'Contract Expiration Timeline (ver2)',
       active: activeTabId === id,
       showClose: false as const,
     }))
@@ -1334,6 +1416,36 @@ function HomeShell() {
               <ContractsExpirationDashboard key={refreshTick} />
               <div className="lifecycle-bar-chart__table command-center-table-detail-anchor">
                 <div className="command-center-table-detail-stack">
+                  <div
+                    className="command-center-contracts-table-toolbar"
+                    role="toolbar"
+                    aria-label="Detail panel sections"
+                  >
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      disabled={selectedRequisition == null}
+                      onClick={() => {
+                        setReqPanelSummaryOpen(false)
+                        setReqPanelLateItemsOpen(false)
+                      }}
+                    >
+                      Collapse All
+                    </Button>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      disabled={selectedRequisition == null}
+                      onClick={() => {
+                        setReqPanelSummaryOpen(true)
+                        setReqPanelLateItemsOpen(true)
+                      }}
+                    >
+                      Expand All
+                    </Button>
+                  </div>
                   <Table
                     headerVariant="white"
                     striped
@@ -1344,7 +1456,6 @@ function HomeShell() {
                         rows={REQUISITION_ROWS}
                         selectedId={selectedRequisitionId}
                         onSelectRow={setSelectedRequisitionId}
-                        lifecycleChartFilterStageIndices={null}
                       />
                     }
                   />
@@ -1354,6 +1465,10 @@ function HomeShell() {
                     row={selectedRequisition}
                     onClose={() => setSelectedRequisitionId(null)}
                     onOpenRequisitionReportTab={openPrRequisitionDetailTab}
+                    summaryAccordionOpen={reqPanelSummaryOpen}
+                    onSummaryAccordionOpenChange={setReqPanelSummaryOpen}
+                    lateItemsAccordionOpen={reqPanelLateItemsOpen}
+                    onLateItemsAccordionOpenChange={setReqPanelLateItemsOpen}
                   />
                 )}
               </div>
