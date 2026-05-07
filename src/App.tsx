@@ -115,6 +115,15 @@ type RequisitionRow = {
   id: string
   /** Contract reference in Contract Info column (e.g. CTR-2025-002). */
   contractNumber: string
+  /** Contract Details summary — mirrors Command Center contract metadata. */
+  contractType: string
+  taskOrderNo: string
+  projectType: string
+  contractVehicle: string
+  primeContractNo: string
+  managerName: string
+  /** Display string for Contract End (e.g. Jan 15, 2027). */
+  contractEnd: string
   vendorId: string
   vendor: string
   amount: string
@@ -176,6 +185,13 @@ const REQUISITION_ROWS: RequisitionRow[] = [
   {
     id: 'PR-2041',
     contractNumber: 'CTR-2025-002',
+    contractType: 'Firm Fixed Price',
+    taskOrderNo: 'TO-104',
+    projectType: 'Operations',
+    contractVehicle: 'IDIQ',
+    primeContractNo: 'PRIME-2024-0112',
+    managerName: 'Alex Rivera',
+    contractEnd: 'Apr 18, 2025',
     vendorId: 'VND-900101',
     vendor: 'Acme Office Supplies',
     amount: '$1,250.00',
@@ -224,6 +240,13 @@ const REQUISITION_ROWS: RequisitionRow[] = [
   {
     id: 'PR-2045',
     contractNumber: 'CTR-2025-003',
+    contractType: 'Cost Plus Fixed Fee',
+    taskOrderNo: 'TO-205',
+    projectType: 'Development',
+    contractVehicle: 'GSA MAS',
+    primeContractNo: 'PRIME-2023-0801',
+    managerName: 'Sam Lee',
+    contractEnd: 'Apr 22, 2025',
     vendorId: 'VND-900205',
     vendor: 'Litware Medical Devices',
     amount: '$3,890.25',
@@ -262,6 +285,13 @@ const REQUISITION_ROWS: RequisitionRow[] = [
   {
     id: 'PR-2042',
     contractNumber: 'CTR-2025-004',
+    contractType: 'Time & Materials',
+    taskOrderNo: 'TO-312',
+    projectType: 'Logistics',
+    contractVehicle: 'GWAC',
+    primeContractNo: 'PRIME-2024-0042',
+    managerName: 'Jordan Smith',
+    contractEnd: 'Apr 10, 2025',
     vendorId: 'VND-900302',
     vendor: 'Northwind Logistics LLC',
     amount: '$8,420.50',
@@ -310,6 +340,13 @@ const REQUISITION_ROWS: RequisitionRow[] = [
   {
     id: 'PR-2048',
     contractNumber: 'CTR-2025-005',
+    contractType: 'Fixed Price Incentive',
+    taskOrderNo: 'TO-448',
+    projectType: 'Supply Chain',
+    contractVehicle: 'BPA',
+    primeContractNo: 'PRIME-2022-1204',
+    managerName: 'Priya Nair',
+    contractEnd: 'Apr 5, 2025',
     vendorId: 'VND-900448',
     vendor: 'Wide World Importers',
     amount: '$22,150.00',
@@ -348,6 +385,13 @@ const REQUISITION_ROWS: RequisitionRow[] = [
   {
     id: 'PR-2043',
     contractNumber: 'CTR-2025-006',
+    contractType: 'Cost Reimbursable',
+    taskOrderNo: 'TO-503',
+    projectType: 'Training',
+    contractVehicle: 'GWAC',
+    primeContractNo: 'PRIME-2024-0199',
+    managerName: 'Morgan Chen',
+    contractEnd: 'Apr 25, 2025',
     vendorId: 'VND-900503',
     vendor: 'Contoso Training Group',
     amount: '$2,100.00',
@@ -406,6 +450,13 @@ const REQUISITION_ROWS: RequisitionRow[] = [
   {
     id: 'PR-2046',
     contractNumber: 'CTR-2025-007',
+    contractType: 'Indefinite Delivery',
+    taskOrderNo: 'TO-606',
+    projectType: 'IT Services',
+    contractVehicle: 'GSA MAS',
+    primeContractNo: 'PRIME-2024-0330',
+    managerName: 'Casey Brooks',
+    contractEnd: 'Apr 30, 2025',
     vendorId: 'VND-900606',
     vendor: 'Adventure Works IT',
     amount: '$475.90',
@@ -443,6 +494,13 @@ const REQUISITION_ROWS: RequisitionRow[] = [
   {
     id: 'PR-2044',
     contractNumber: 'CTR-2025-008',
+    contractType: 'Firm Fixed Price',
+    taskOrderNo: 'TO-704',
+    projectType: 'Facilities',
+    contractVehicle: 'IDIQ',
+    primeContractNo: 'PRIME-2023-0518',
+    managerName: 'Riley Ortiz',
+    contractEnd: 'Mar 1, 2025',
     vendorId: 'VND-900704',
     vendor: 'Fabrikam Facilities Inc.',
     amount: '$640.00',
@@ -481,8 +539,15 @@ const REQUISITION_ROWS: RequisitionRow[] = [
   {
     id: 'PR-2047',
     contractNumber: 'CTR-2025-009',
+    contractType: 'Cost Plus Fixed Fee',
+    taskOrderNo: 'TO-001',
+    projectType: 'Development',
+    contractVehicle: 'GSA MAS',
+    primeContractNo: 'PRIME-2024-0042',
+    managerName: 'Sarah Johnson',
+    contractEnd: 'Jan 15, 2027',
     vendorId: 'VND-900807',
-    vendor: 'Blue Yonder Analytics',
+    vendor: 'Armstrong Labs',
     amount: '$9,999.00',
     nextImportantDate: 'Feb 15, 2025',
     startDate: 'Jan 22, 2025',
@@ -652,13 +717,6 @@ function parseOverdueFraction(overdue: string): { late: number; total: number } 
   const total = Number(m[2])
   if (!Number.isFinite(late) || !Number.isFinite(total) || total <= 0) return null
   return { late, total }
-}
-
-/** Parses table overdue cell like `2/5` → 40% for the side panel. */
-function overdueLinesPercent(overdue: string): number | null {
-  const p = parseOverdueFraction(overdue)
-  if (!p) return null
-  return Math.round((p.late / p.total) * 100)
 }
 
 /** Bar colors aligned with PO Command Center reference; requisitions use the first four tones. */
@@ -971,29 +1029,24 @@ function RequisitionSidePanel({
   onOpenRequisitionReportTab,
   summaryAccordionOpen,
   onSummaryAccordionOpenChange,
-  lateItemsAccordionOpen,
-  onLateItemsAccordionOpenChange,
 }: {
   row: RequisitionRow
   onClose: () => void
   onOpenRequisitionReportTab: (prId: string) => void
   summaryAccordionOpen: boolean
   onSummaryAccordionOpenChange: (open: boolean) => void
-  lateItemsAccordionOpen: boolean
-  onLateItemsAccordionOpenChange: (open: boolean) => void
 }) {
   const reportHref = requisitionReportHref(row.id)
-  const frac = parseOverdueFraction(row.overdue)
-  const overduePct = overdueLinesPercent(row.overdue)
+  const fundingUsedHigh = row.fundingPercent > 65
   return (
     <aside
       className="command-center-requisition-panel"
-      aria-label={`Requisition details for ${row.id}`}
+      aria-label={`Contract details for ${row.contractNumber}`}
       aria-labelledby="cc-req-panel-title"
     >
       <header className="command-center-requisition-panel__header">
         <h2 className="command-center-requisition-panel__title" id="cc-req-panel-title">
-          Purchase Requisitions
+          Contract Details
         </h2>
         <button
           type="button"
@@ -1006,39 +1059,34 @@ function RequisitionSidePanel({
       </header>
       <div className="command-center-requisition-panel__intro">
         <div className="command-center-requisition-panel__pr-row">
-          <span className="command-center-requisition-panel__pr-id">{row.id}</span>
+          <span className="command-center-requisition-panel__pr-id">{row.contractNumber}</span>
           <Link
             href={reportHref}
             size="small"
-            title="Open Purchase Requisition Report in a Command Center tab"
+            title="Open Contract Details Report in a Command Center tab"
             onClick={(e) => {
               e.preventDefault()
               onOpenRequisitionReportTab(row.id)
             }}
           >
-            Purchase Requisition Report
+            Contract Details Report
           </Link>
         </div>
       </div>
-      <div className="command-center-requisition-panel__overdue-strip">
+      <div
+        className={clsx(
+          'command-center-requisition-panel__funding-strip',
+          fundingUsedHigh
+            ? 'command-center-requisition-panel__funding-strip--warn'
+            : 'command-center-requisition-panel__funding-strip--neutral',
+        )}
+      >
         <div
           className="command-center-requisition-panel__stat-callout"
-          aria-label={(() => {
-            const base =
-              frac != null && overduePct != null
-                ? `Overdue lines ${frac.late} of ${frac.total}, ${overduePct} percent`
-                : `Overdue lines ${row.overdue}`
-            const extra = row.bannerMessage.trim()
-            return extra !== '' ? `${base}. ${extra}` : base
-          })()}
+          aria-label={`Funding used ${row.fundingPercent} percent`}
         >
-          <p className="command-center-requisition-panel__stat-callout-pct">
-            {overduePct != null ? `${overduePct}%` : row.overdue}
-          </p>
-          <p className="command-center-requisition-panel__stat-callout-label">Overdue lines</p>
-          {row.bannerMessage.trim() !== '' && (
-            <p className="command-center-requisition-panel__stat-callout-desc">{row.bannerMessage}</p>
-          )}
+          <p className="command-center-requisition-panel__stat-callout-pct">{row.fundingPercent}%</p>
+          <p className="command-center-requisition-panel__stat-callout-label">Funding used</p>
         </div>
       </div>
       <div className="command-center-requisition-panel__body">
@@ -1047,18 +1095,20 @@ function RequisitionSidePanel({
           open={summaryAccordionOpen}
           onOpenChange={onSummaryAccordionOpenChange}
         />
-        <RequisitionLateItemsSection
-          row={row}
-          open={lateItemsAccordionOpen}
-          onOpenChange={onLateItemsAccordionOpenChange}
-        />
+        <RequisitionRiskStatusSection row={row} />
       </div>
     </aside>
   )
 }
 
-const SUMMARY_LINES_LABEL_TITLE =
-  'Only lines assigned to the logged in Buyer' as const
+function ContractSummaryField({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="command-center-requisition-summary__field">
+      <div className="command-center-requisition-summary__label">{label}</div>
+      <div className="command-center-requisition-summary__value">{value}</div>
+    </div>
+  )
+}
 
 function RequisitionDetailSummary({
   row,
@@ -1069,8 +1119,6 @@ function RequisitionDetailSummary({
   open: boolean
   onOpenChange: (next: boolean) => void
 }) {
-  const mailtoHref = `mailto:${row.requisitionerEmail}`
-
   return (
     <details
       className="command-center-requisition-accordion"
@@ -1090,58 +1138,39 @@ function RequisitionDetailSummary({
       </summary>
       <div className="command-center-requisition-accordion__content">
         <div className="command-center-requisition-summary__grid">
-          <div className="command-center-requisition-summary__field">
-            <div className="command-center-requisition-summary__label">PR ID</div>
-            <div className="command-center-requisition-summary__value">{row.id}</div>
-          </div>
-          <div className="command-center-requisition-summary__field">
-            <div className="command-center-requisition-summary__label">Preferred Vendor Name</div>
-            <div className="command-center-requisition-summary__value">{row.vendor}</div>
-          </div>
-          <div className="command-center-requisition-summary__field" title={SUMMARY_LINES_LABEL_TITLE}>
-            <div className="command-center-requisition-summary__label">No. of Lines</div>
-            <div className="command-center-requisition-summary__value">{row.buyerAssignedLineCount}</div>
-          </div>
-          <div className="command-center-requisition-summary__field">
-            <div className="command-center-requisition-summary__label">Requisitioner Name</div>
-            <div className="command-center-requisition-summary__value">
-              <Link
-                href={mailtoHref}
-                size="medium"
-                title={row.requisitionerEmail}
-                aria-label={`Email ${row.requisitionerName} at ${row.requisitionerEmail}`}
-              >
-                {row.requisitionerName}
-              </Link>
-            </div>
-          </div>
+          <ContractSummaryField label="Contract ID" value={row.contractNumber} />
+          <ContractSummaryField label="Vendor" value={row.vendor} />
+          <ContractSummaryField label="Manager" value={row.managerName} />
+          <ContractSummaryField label="Contract Type" value={row.contractType} />
+          <ContractSummaryField label="Project Type" value={row.projectType} />
+          <ContractSummaryField label="Prime Contract No." value={row.primeContractNo} />
+          <ContractSummaryField label="Task Order No." value={row.taskOrderNo} />
+          <ContractSummaryField label="Contract Vehicle" value={row.contractVehicle} />
+          <ContractSummaryField label="Contract End" value={row.contractEnd} />
+          <ContractSummaryField label="Contract Value" value={row.amount} />
+          <ContractSummaryField label="Funded Value" value={row.fundedValue} />
+          <ContractSummaryField label="ITD Cost" value={row.itdCost} />
         </div>
       </div>
     </details>
   )
 }
 
-function RequisitionLateItemsSection({
-  row,
-  open,
-  onOpenChange,
-}: {
-  row: RequisitionRow
-  open: boolean
-  onOpenChange: (next: boolean) => void
-}) {
+function RequisitionRiskStatusSection({ row }: { row: RequisitionRow }) {
   const frac = parseOverdueFraction(row.overdue)
   const lateStatusEntries = row.lateItemsStageCounts
     .map((count, stageIndex) => ({ count, stageIndex }))
     .filter(({ count }) => count > 0)
 
   return (
-    <details
-      className="command-center-requisition-accordion"
-      open={open}
-      onToggle={(event) => onOpenChange(event.currentTarget.open)}
+    <section
+      className="command-center-requisition-accordion command-center-requisition-accordion--risk-collapsed"
+      aria-label="Risk Status"
     >
-      <summary className="command-center-requisition-accordion__summary">
+      <div
+        className="command-center-requisition-accordion__summary command-center-requisition-accordion__summary--noninteractive"
+        aria-expanded="false"
+      >
         <span className="command-center-requisition-accordion__summary-main">
           <Icon
             name="chevron-right"
@@ -1149,10 +1178,10 @@ function RequisitionLateItemsSection({
             className="command-center-requisition-accordion__expand-icon"
             aria-hidden
           />
-          <span className="command-center-requisition-accordion__summary-text">Late Items</span>
+          <span className="command-center-requisition-accordion__summary-text">Risk Status</span>
         </span>
-      </summary>
-      <div className="command-center-requisition-accordion__content">
+      </div>
+      <div className="command-center-requisition-accordion__content" hidden>
         <div className="command-center-requisition-late-items">
           <div
             className="command-center-requisition-late-items__vs-value"
@@ -1222,7 +1251,7 @@ function RequisitionLateItemsSection({
           )}
         </div>
       </div>
-    </details>
+    </section>
   )
 }
 
@@ -1407,7 +1436,6 @@ function HomeShell() {
   const [refreshTick, setRefreshTick] = useState(0)
   const [selectedRequisitionId, setSelectedRequisitionId] = useState<string | null>(null)
   const [reqPanelSummaryOpen, setReqPanelSummaryOpen] = useState(true)
-  const [reqPanelLateItemsOpen, setReqPanelLateItemsOpen] = useState(true)
   const [expirationTierFilter, setExpirationTierFilter] = useState<ExpirationTierKey | null>(null)
   const [expandedContractIds, setExpandedContractIds] = useState<string[]>([])
   const expirationDashRef = useRef<HTMLDivElement>(null)
@@ -1445,7 +1473,6 @@ function HomeShell() {
 
   useEffect(() => {
     setReqPanelSummaryOpen(true)
-    setReqPanelLateItemsOpen(true)
   }, [selectedRequisitionId])
 
   useEffect(() => {
@@ -1588,70 +1615,68 @@ function HomeShell() {
                 unspentBalanceLabel={spendKpiMetrics.unspentBalanceLabel}
               />
               <div className="lifecycle-bar-chart__table command-center-table-detail-anchor">
-                <div className="command-center-table-detail-stack">
-                  <div
-                    className="command-center-contracts-table-toolbar"
-                    role="toolbar"
-                    aria-label="Detail panel sections"
+                <div
+                  className="command-center-contracts-table-toolbar"
+                  role="toolbar"
+                  aria-label="Detail panel sections"
+                >
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    buttonType="theme"
+                    disabled={selectedRequisition == null}
+                    className="command-center-contracts-table-toolbar__btn"
+                    onClick={() => {
+                      setReqPanelSummaryOpen(false)
+                    }}
                   >
-                    <Button
-                      type="button"
-                      variant="outline"
-                      size="sm"
-                      buttonType="theme"
-                      disabled={selectedRequisition == null}
-                      className="command-center-contracts-table-toolbar__btn"
-                      onClick={() => {
-                        setReqPanelSummaryOpen(false)
-                        setReqPanelLateItemsOpen(false)
-                      }}
-                    >
-                      Collapse All
-                    </Button>
-                    <Button
-                      type="button"
-                      variant="outline"
-                      size="sm"
-                      buttonType="theme"
-                      disabled={selectedRequisition == null}
-                      className="command-center-contracts-table-toolbar__btn"
-                      onClick={() => {
-                        setReqPanelSummaryOpen(true)
-                        setReqPanelLateItemsOpen(true)
-                      }}
-                    >
-                      Expand All
-                    </Button>
-                  </div>
-                  <div className="command-center-contracts-table-wrap">
-                    <Table
-                      headerVariant="white"
-                      striped
-                      className="command-center-data-table"
-                      header={REQUISITION_TABLE_HEADER}
-                      body={
-                        <RequisitionTableBody
-                          rows={sortedFilteredRequisitionRows}
-                          selectedId={selectedRequisitionId}
-                          onSelectRow={setSelectedRequisitionId}
-                          expandedContractIds={expandedContractIds}
-                          onToggleContractExpanded={toggleContractExpanded}
-                        />
-                      }
-                    />
-                  </div>
+                    Collapse All
+                  </Button>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    buttonType="theme"
+                    disabled={selectedRequisition == null}
+                    className="command-center-contracts-table-toolbar__btn"
+                    onClick={() => {
+                      setReqPanelSummaryOpen(true)
+                    }}
+                  >
+                    Expand All
+                  </Button>
                 </div>
-                {selectedRequisition != null && (
-                  <RequisitionSidePanel
-                    row={selectedRequisition}
-                    onClose={() => setSelectedRequisitionId(null)}
-                    onOpenRequisitionReportTab={openPrRequisitionDetailTab}
-                    summaryAccordionOpen={reqPanelSummaryOpen}
-                    onSummaryAccordionOpenChange={setReqPanelSummaryOpen}
-                    lateItemsAccordionOpen={reqPanelLateItemsOpen}
-                    onLateItemsAccordionOpenChange={setReqPanelLateItemsOpen}
-                  />
-                )}
+                <div className="command-center-table-split">
+                  <div className="command-center-table-detail-stack">
+                    <div className="command-center-contracts-table-wrap">
+                      <Table
+                        headerVariant="white"
+                        striped
+                        className="command-center-data-table"
+                        header={REQUISITION_TABLE_HEADER}
+                        body={
+                          <RequisitionTableBody
+                            rows={sortedFilteredRequisitionRows}
+                            selectedId={selectedRequisitionId}
+                            onSelectRow={setSelectedRequisitionId}
+                            expandedContractIds={expandedContractIds}
+                            onToggleContractExpanded={toggleContractExpanded}
+                          />
+                        }
+                      />
+                    </div>
+                  </div>
+                  {selectedRequisition != null && (
+                    <RequisitionSidePanel
+                      row={selectedRequisition}
+                      onClose={() => setSelectedRequisitionId(null)}
+                      onOpenRequisitionReportTab={openPrRequisitionDetailTab}
+                      summaryAccordionOpen={reqPanelSummaryOpen}
+                      onSummaryAccordionOpenChange={setReqPanelSummaryOpen}
+                    />
+                  )}
+                </div>
               </div>
             </>
           )}

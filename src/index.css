@@ -314,17 +314,29 @@
 }
 
 /*
- * Split layout at table level (not modal): table + detail sit side-by-side so users
- * can still read and interact with the grid while details are open.
+ * Split layout (not modal): toolbar spans full width; table + detail pane share one row
+ * so the sidebar header aligns with the table header.
  */
 /* Overrides LifecycleBarChart.css overflow-x on .lifecycle-bar-chart__table — avoid nested horizontal scroll when the split pane opens */
 .lifecycle-bar-chart__table.command-center-table-detail-anchor {
   display: flex;
-  flex-direction: row;
+  flex-direction: column;
   align-items: stretch;
   gap: 0;
   width: 100%;
   max-width: 100%;
+  min-width: 0;
+  overflow-x: hidden;
+}
+
+/* Toolbar spans full width; table + sidebar align on one row so panel header lines up with thead */
+.command-center-table-split {
+  display: flex;
+  flex-direction: row;
+  align-items: stretch;
+  flex: 1 1 auto;
+  gap: 0;
+  width: 100%;
   min-width: 0;
   overflow-x: hidden;
 }
@@ -376,7 +388,7 @@
 }
 
 @media (max-width: 720px) {
-  .lifecycle-bar-chart__table.command-center-table-detail-anchor {
+  .command-center-table-split {
     flex-direction: column;
   }
 
@@ -436,6 +448,7 @@
 
 .command-center-contracts-table-toolbar {
   /* Small outline control: --theme-primary (brand main) on both label and stroke by default */
+  flex-shrink: 0;
   display: flex;
   flex-wrap: wrap;
   align-items: center;
@@ -501,14 +514,27 @@
   opacity: 1;
 }
 
-.command-center-requisition-panel__overdue-strip {
+.command-center-requisition-panel__funding-strip {
   flex-shrink: 0;
   box-sizing: border-box;
   padding: var(--space-3) 0;
   text-align: left;
+  border-bottom: 1px solid var(--border-light);
+}
+
+.command-center-requisition-panel__funding-strip--warn {
   background-color: #edc46c;
   color: #1f1a0d;
-  border-bottom: 1px solid var(--border-light);
+}
+
+.command-center-requisition-panel__funding-strip--neutral {
+  background-color: #fff;
+  color: var(--text-primary);
+}
+
+.command-center-requisition-panel__funding-strip--neutral .command-center-requisition-panel__stat-callout-pct,
+.command-center-requisition-panel__funding-strip--neutral .command-center-requisition-panel__stat-callout-label {
+  color: var(--text-primary);
 }
 
 .command-center-requisition-panel__stat-callout {
@@ -609,6 +635,11 @@
   background-color: #ffffff;
 }
 
+.command-center-requisition-accordion__summary--noninteractive {
+  cursor: default;
+  user-select: none;
+}
+
 .command-center-requisition-accordion__summary-main {
   display: inline-flex;
   align-items: center;
@@ -635,7 +666,7 @@
 }
 
 /*
- * Summary: two columns; each cell stacks label (top) then value (bottom).
+ * Summary: two columns; label muted, value emphasized.
  */
 .command-center-requisition-summary__grid {
   display: grid;
@@ -659,21 +690,24 @@
 .command-center-requisition-summary__label {
   font-family: var(--font-display);
   font-size: var(--label);
-  font-weight: var(--font-medium);
-  color: var(--text-primary);
+  font-weight: var(--font-normal);
+  color: var(--text-secondary);
   line-height: var(--leading-normal);
 }
 
 .command-center-requisition-summary__value {
   font-family: var(--font-display);
   font-size: var(--label);
-  font-weight: var(--font-normal);
-  color: var(--text-secondary);
+  font-weight: var(--font-semibold);
+  color: var(--text-primary);
   line-height: var(--leading-normal);
   word-break: break-word;
 }
 
-html.theme-cp:not(.dark) .command-center-requisition-summary__value,
+html.theme-cp:not(.dark) .command-center-requisition-summary__label {
+  color: #6b7280;
+}
+
 html.theme-cp:not(.dark) .command-center-pr-summary-panel__value {
   color: #646d82;
 }
