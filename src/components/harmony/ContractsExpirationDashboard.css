@@ -13,17 +13,157 @@
   min-width: 0;
 }
 
-/* Large counts: Harmony data-viz categorical tokens (see tokens.css --data-viz-*) */
+/* KPI card: left tier accent + body (rounded shell + accent stripe follows prominent left radius) */
 .ced-card {
   flex: 1 1 0;
   display: flex;
+  flex-direction: row;
+  align-items: stretch;
+  min-width: 0;
+  padding: 0;
+  border-radius: var(--radius-xl, 0.75rem);
+  border: 1px solid var(--border-color);
+  background: var(--surface-bg);
+  overflow: hidden;
+  cursor: pointer;
+  transition:
+    border-color var(--transition-fast, 0.15s ease),
+    box-shadow var(--transition-fast, 0.15s ease);
+}
+
+.ced-card:focus-visible {
+  outline: 2px solid var(--border-focus, var(--theme-primary));
+  outline-offset: 2px;
+}
+
+/* Selection: primary on top / right / bottom only — no blue on the left (tier token stays visible). */
+.ced-card--selected {
+  box-shadow: none;
+  border-left-color: var(--border-color);
+  border-top-color: var(--theme-primary);
+  border-right-color: var(--theme-primary);
+  border-bottom-color: var(--theme-primary);
+}
+
+.ced-card__accent {
+  flex: 0 0 6px;
+  min-height: 100%;
+  align-self: stretch;
+  border-top-left-radius: var(--radius-xl, 0.75rem);
+  border-bottom-left-radius: var(--radius-xl, 0.75rem);
+}
+
+.ced-card--critical .ced-card__accent {
+  background-color: var(--data-viz-critical);
+}
+
+/* 31–60 tier: CP --dusty-orange (terracotta); spend strip uses gold --data-viz-warning */
+.ced-card--warning .ced-card__accent {
+  background-color: var(--dusty-orange, var(--color-warning));
+}
+
+.ced-card--upcoming .ced-card__accent {
+  background-color: var(--data-viz-upcoming);
+}
+
+.ced-card__body {
+  flex: 1;
+  min-width: 0;
+  display: flex;
   flex-direction: column;
+  align-items: stretch;
   gap: var(--space-3, 0.75rem);
   padding: var(--space-4, 1rem);
-  border-radius: var(--radius-lg, 8px);
-  border: 1px solid #e0e4eb;
-  background: #ffffff;
+  text-align: left;
+  font-family: var(--font-display);
+}
+
+/* Count left-aligned, first-expiry line stacked directly below */
+.ced-card__value-stack {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--space-2, 0.5rem);
+  width: 100%;
   min-width: 0;
+  margin-top: auto;
+}
+
+/* Window copy — tier headline (14px / medium) */
+.ced-card__window-label {
+  margin: 0;
+  font-size: var(--text-sm, 0.875rem);
+  font-weight: var(--font-medium, 500);
+  line-height: 1.35;
+  color: var(--text-primary);
+}
+
+/* Large metric — 24px semibold; tier accent overrides color */
+.ced-card__count {
+  margin: 0;
+  font-size: var(--heading-l, 1.5rem);
+  font-weight: var(--font-semibold, 600);
+  line-height: 1.1;
+  font-variant-numeric: tabular-nums;
+  color: var(--text-primary);
+}
+
+.ced-card--critical .ced-card__count {
+  color: var(--data-viz-critical);
+}
+
+.ced-card--warning .ced-card__count {
+  color: var(--dusty-orange, var(--color-warning));
+}
+
+.ced-card--upcoming .ced-card__count {
+  color: var(--data-viz-upcoming);
+}
+
+/* First expiry + date + (Xd); below count */
+.ced-card__expires-line {
+  margin: 0;
+  max-width: 100%;
+  font-size: var(--text-sm, 0.875rem);
+  font-weight: var(--font-medium, 500);
+  line-height: 1.35;
+}
+
+/* Same type scale as critical for 31–60 & 61–90 tiers (colors use --warning / --upcoming rules below) */
+.ced-card--warning .ced-card__window-label,
+.ced-card--upcoming .ced-card__window-label {
+  font-size: var(--text-sm, 0.875rem);
+  font-weight: var(--font-medium, 500);
+}
+
+.ced-card--warning .ced-card__count,
+.ced-card--upcoming .ced-card__count {
+  font-size: var(--heading-l, 1.5rem);
+  font-weight: var(--font-semibold, 600);
+}
+
+.ced-card--warning .ced-card__expires-line,
+.ced-card--upcoming .ced-card__expires-line {
+  font-size: var(--text-sm, 0.875rem);
+  font-weight: var(--font-medium, 500);
+}
+
+/* “First expiry” + date (all tiers) */
+.ced-card__first-expiry-prefix,
+.ced-card__expires-date {
+  color: var(--text-secondary);
+}
+
+.ced-card--critical .ced-card__expires-paren {
+  color: var(--data-viz-critical);
+}
+
+.ced-card--warning .ced-card__expires-paren {
+  color: var(--dusty-orange, var(--color-warning));
+}
+
+.ced-card--upcoming .ced-card__expires-paren {
+  color: var(--data-viz-upcoming);
 }
 
 @media (max-width: 640px) {
@@ -35,86 +175,4 @@
   .ced-card {
     flex: 1 1 auto;
   }
-}
-
-/* Reference layout: label → count → days window; divider; earliest expiry row */
-.ced-card__head {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  text-align: left;
-}
-
-.ced-card__label {
-  margin: 0;
-  font-size: var(--text-xs, 12px);
-  font-weight: var(--font-semibold, 600);
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-  color: var(--text-primary);
-}
-
-.ced-card__count {
-  margin: var(--space-1, 0.25rem) 0 0;
-  font-family: var(--font-display);
-  font-size: var(--heading-m);
-  font-weight: var(--font-semibold);
-  line-height: 1.1;
-  font-variant-numeric: tabular-nums;
-  color: var(--text-primary);
-}
-
-.ced-card--critical .ced-card__count {
-  color: var(--data-viz-critical);
-}
-
-.ced-card--warning .ced-card__count {
-  color: var(--data-viz-warning);
-}
-
-.ced-card--upcoming .ced-card__count {
-  color: var(--data-viz-upcoming);
-}
-
-.ced-card__subtitle {
-  margin: var(--space-2, 0.5rem) 0 0;
-  font-size: var(--text-sm, 14px);
-  font-weight: var(--font-medium, 500);
-  color: var(--text-secondary);
-}
-
-.ced-card__divider {
-  flex-shrink: 0;
-  height: 1px;
-  width: 100%;
-  margin: 0;
-  border: none;
-  background-color: #e0e4eb;
-}
-
-.ced-card__footer {
-  display: flex;
-  flex-direction: row;
-  align-items: baseline;
-  justify-content: space-between;
-  gap: var(--space-3, 0.75rem);
-  width: 100%;
-  min-width: 0;
-}
-
-.ced-card__footer-label {
-  font-size: var(--text-xs, 12px);
-  font-weight: var(--font-semibold, 600);
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-  color: var(--text-muted, #6b7280);
-}
-
-.ced-card__footer-value {
-  margin: 0;
-  font-family: var(--font-display);
-  font-size: var(--text-sm, 14px);
-  font-weight: var(--font-semibold, 600);
-  font-variant-numeric: tabular-nums;
-  color: var(--text-primary);
 }

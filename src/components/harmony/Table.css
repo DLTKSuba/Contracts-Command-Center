@@ -13,7 +13,7 @@
 .table thead th {
   padding: var(--space-3) var(--space-4);
   text-align: left;
-  font-weight: var(--font-medium);
+  font-weight: var(--font-semibold);
   color: var(--text-secondary);
   border-bottom: 1px solid var(--border-color);
   background-color: var(--surface-bg); /* Default, will be overridden by variants */
@@ -369,7 +369,7 @@
   background: none;
   font: inherit;
   color: inherit;
-  font-weight: var(--font-medium);
+  font-weight: var(--font-semibold);
   cursor: pointer;
   text-align: inherit;
 }

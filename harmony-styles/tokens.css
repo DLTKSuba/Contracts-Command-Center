@@ -440,6 +440,7 @@ html.theme-cp {
   --data-viz-critical: var(--color-error);
   --data-viz-warning: #ffab00;
   --data-viz-upcoming: #285f8c;
+  --dusty-orange: #c48060;
 
   /* Semantic Color Opacity Variants */
   --color-info-light: rgba(51, 102, 255, 0.1);
@@ -593,6 +594,7 @@ html.theme-cp.dark {
   --data-viz-critical: var(--color-error);
   --data-viz-warning: #ffab00;
   --data-viz-upcoming: #285f8c;
+  --dusty-orange: #de9a7a;
 
   /* Semantic Color Opacity Variants */
   --color-info-light: rgba(0, 173, 253, 0.1);

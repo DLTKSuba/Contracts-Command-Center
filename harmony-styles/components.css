@@ -3117,11 +3117,11 @@ html.theme-vp .tabstrip--pill .tab {
   margin-bottom: 0;
   border-radius: var(--radius-08);
   padding: var(--space-2) var(--space-3);
-  color: var(--theme-primary);
+  color: var(--text-secondary);
 }
 
 html.theme-vp .tabstrip--pill .tab:hover:not(:disabled):not(.tab--disabled):not(.is-active) {
-  color: var(--theme-primary-hover);
+  color: var(--text-primary);
 }
 
 html.theme-vp .tabstrip--pill .tab.is-active {
@@ -3142,7 +3142,7 @@ html.theme-vp .tabstrip--pill .tab:disabled {
 }
 
 html.theme-vp.dark .tabstrip--pill .tab:hover:not(:disabled):not(.tab--disabled):not(.is-active) {
-  color: var(--theme-primary-hover);
+  color: var(--text-primary);
 }
 
 html.theme-vp.dark .tabstrip--pill .tab.is-active:hover:not(:disabled):not(.tab--disabled) {
@@ -6150,7 +6150,7 @@ html.theme-maconomy.dark .left-sidebar__variant--maconomy {
 .table thead th {
   padding: var(--space-3) var(--space-4);
   text-align: left;
-  font-weight: var(--font-medium);
+  font-weight: var(--font-semibold);
   color: var(--text-secondary);
   border-bottom: 1px solid var(--border-color);
   background-color: var(--surface-bg); /* Default, will be overridden by variants */
@@ -6506,7 +6506,7 @@ html.theme-maconomy.dark .left-sidebar__variant--maconomy {
   background: none;
   font: inherit;
   color: inherit;
-  font-weight: var(--font-medium);
+  font-weight: var(--font-semibold);
   cursor: pointer;
   text-align: inherit;
 }

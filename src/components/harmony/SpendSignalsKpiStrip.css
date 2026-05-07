@@ -2,8 +2,9 @@
  * Wide strip: lightest CC band token — see Harmony `--table-command-center-stripe-bg` (#FAFAFA light CP).
  */
 
+/* Bar + %: Harmony `--data-viz-warning` (gold #ffab00 in CP light). Override via --spend-breakdown-accent if needed. */
 .spend-kpi-strip {
-  --spend-breakdown-accent: #e66f51;
+  --spend-breakdown-accent: var(--data-viz-warning);
   width: 100%;
   margin-bottom: var(--space-4, 1rem);
 }
@@ -14,63 +15,78 @@
   min-width: 0;
   padding: var(--space-4, 1rem);
   border-radius: var(--radius-lg, 8px);
-  border: 1px solid #e0e4eb;
-  /* Lighter than table-header gray (#EDF0F6); pairs with Command Center table stripes */
+  border: 1px solid var(--border-color);
+  /* Lighter than table-header gray; pairs with Command Center table stripes */
   background: var(--table-command-center-stripe-bg, #fafafa);
+  font-family: var(--font-display);
 }
 
 /*
- * Same 3 tracks as `.contracts-expiration-dashboard__grid` (Critical | Warning | Upcoming).
- * Breakdown = col 1; Funded / Gap / Balance span cols 2–3 so Funded lines up with Warning.
+ * Same width proportions as the old 3-col layout (breakdown ⅓ | three KPIs ⅔÷3).
+ * One grid row for labels and one for values so numerals share the same baseline row as 40%.
  */
-.spend-kpi-strip__columns {
+.spend-kpi-strip__grid {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  /* Match `.contracts-expiration-dashboard__grid` gap so tracks align with Critical | Warning | Upcoming */
-  gap: var(--space-4, 1rem);
+  grid-template-columns: 3fr 2fr 2fr 2fr;
+  column-gap: var(--space-4, 1rem);
+  row-gap: var(--space-3, 0.75rem);
+  grid-template-areas:
+    'bd-label fv-label fg-label ub-label'
+    'bd-value fv-value fg-value ub-value';
   align-items: start;
   width: 100%;
   min-width: 0;
 }
 
-.spend-kpi-strip__metrics-cluster {
-  grid-column: 2 / span 2;
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: var(--space-4, 1rem);
-  min-width: 0;
+.spend-kpi-strip__area-bd-label {
+  grid-area: bd-label;
+}
+.spend-kpi-strip__area-fv-label {
+  grid-area: fv-label;
+}
+.spend-kpi-strip__area-fg-label {
+  grid-area: fg-label;
+}
+.spend-kpi-strip__area-ub-label {
+  grid-area: ub-label;
+}
+.spend-kpi-strip__area-bd-value {
+  grid-area: bd-value;
+}
+.spend-kpi-strip__area-fv-value {
+  grid-area: fv-value;
+}
+.spend-kpi-strip__area-fg-value {
+  grid-area: fg-value;
+}
+.spend-kpi-strip__area-ub-value {
+  grid-area: ub-value;
 }
 
-.spend-kpi-strip__col {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  gap: var(--space-3, 0.75rem);
-  min-width: 0;
-}
-
-.spend-kpi-strip__col--breakdown {
-  grid-column: 1;
-  gap: var(--space-2, 0.5rem);
+.spend-kpi-strip__area-bd-label,
+.spend-kpi-strip__area-bd-value {
   /* Extra air before Funded Value cluster (still column-aligned with Warning above) */
   padding-inline-end: var(--space-8, 2rem);
 }
 
-/* Mirror `.ced-card__label`; `--text-primary` = Harmony text header token */
+/* Spend breakdown, Funded Value, Funding gap, Unspent balance — 14px medium */
 .spend-kpi-strip__label {
   margin: 0;
-  font-size: var(--text-xs, 12px);
-  font-weight: var(--font-semibold, 600);
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
+  font-size: var(--text-sm, 0.875rem);
+  font-weight: var(--font-medium, 500);
+  line-height: 1.35;
   color: var(--text-primary);
 }
 
-/* Bar + % on metric row; ≥ 65% sub row aligns with other cells */
+.spend-kpi-strip__label-paren {
+  color: var(--text-secondary);
+  font-weight: var(--font-medium, 500);
+}
+
+/* Bar + % (value row cell — shares row with funded / gap / balance amounts) */
 .spend-kpi-strip__breakdown-hbar {
   display: flex;
   flex-direction: column;
-  gap: var(--space-2, 0.5rem);
   width: 100%;
   min-width: 0;
 }
@@ -82,7 +98,6 @@
   gap: var(--space-3, 0.75rem);
   width: 100%;
   min-width: 0;
-  min-height: calc(var(--heading-m, 1.5rem) * 1.1);
 }
 
 .spend-kpi-strip__metric--primary-pct {
@@ -95,8 +110,8 @@
   width: 100%;
   height: 0.625rem;
   border-radius: var(--radius-md, 6px);
-  background-color: #e8eaef;
-  border: 1px solid #e0e4eb;
+  background-color: var(--border-light);
+  border: 1px solid var(--border-color);
   box-sizing: border-box;
   overflow: hidden;
 }
@@ -111,10 +126,9 @@
 
 .spend-kpi-strip__metric {
   margin: 0;
-  font-family: var(--font-display);
-  font-size: var(--heading-m);
+  font-size: var(--text-base, 1rem);
   font-weight: var(--font-semibold);
-  line-height: 1.1;
+  line-height: 1.25;
   font-variant-numeric: tabular-nums;
 }
 
@@ -123,39 +137,38 @@
   color: var(--text-primary);
 }
 
-.spend-kpi-strip__sub {
-  margin: 0;
-  font-size: var(--text-sm, 14px);
-  color: var(--text-primary);
-  line-height: 1.35;
-}
-
 @media (max-width: 640px) {
-  .spend-kpi-strip__columns {
+  .spend-kpi-strip__grid {
     grid-template-columns: 1fr;
-    row-gap: var(--space-4, 1rem);
+    row-gap: var(--space-3, 0.75rem);
+    grid-template-areas:
+      'bd-label'
+      'bd-value'
+      'fv-label'
+      'fv-value'
+      'fg-label'
+      'fg-value'
+      'ub-label'
+      'ub-value';
   }
 
-  .spend-kpi-strip__metrics-cluster {
-    grid-column: auto;
-    grid-template-columns: 1fr;
-    gap: var(--space-4, 1rem);
-  }
-
-  .spend-kpi-strip__col--breakdown {
-    grid-column: auto;
+  .spend-kpi-strip__area-bd-label,
+  .spend-kpi-strip__area-bd-value {
     padding-inline-end: 0;
-    padding-bottom: var(--space-4, 1rem);
-    border-bottom: 1px solid #e0e4eb;
   }
 
-  .spend-kpi-strip__metrics-cluster .spend-kpi-strip__col:not(:last-child) {
+  .spend-kpi-strip__area-bd-value {
     padding-bottom: var(--space-4, 1rem);
-    border-bottom: 1px solid #e0e4eb;
+    border-bottom: 1px solid var(--border-color);
   }
 
-  .spend-kpi-strip__metrics-cluster .spend-kpi-strip__col:last-child {
-    padding-bottom: 0;
-    border-bottom: none;
+  .spend-kpi-strip__area-fv-value {
+    padding-bottom: var(--space-4, 1rem);
+    border-bottom: 1px solid var(--border-color);
+  }
+
+  .spend-kpi-strip__area-fg-value {
+    padding-bottom: var(--space-4, 1rem);
+    border-bottom: 1px solid var(--border-color);
   }
 }

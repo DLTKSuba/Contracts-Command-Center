@@ -9,7 +9,7 @@
 
 .tabstrip__container {
   display: flex;
-  align-items: center;
+  align-items: flex-end;
   width: 100%;
   position: relative;
   border-bottom: 1px solid var(--border-color);
@@ -23,20 +23,20 @@
   min-width: 0;
   overflow-x: clip;
   overflow-y: visible;
-  align-items: stretch;
+  align-items: flex-end;
 }
 
 .tabstrip__tab-cell {
   display: flex;
   flex-direction: row;
-  align-items: stretch;
+  align-items: flex-end;
   flex-shrink: 0;
   min-width: 0;
   max-width: 100%;
 }
 
 .tabstrip__tab-cell .tab {
-  flex: 1;
+  flex: 0 1 auto;
   min-width: 0;
 }
 
@@ -233,27 +233,47 @@
 }
 
 .tab {
+  display: inline-flex;
+  align-items: flex-end;
+  justify-content: center;
   padding: var(--space-3) var(--space-4);
   font-size: var(--text-sm);
   font-weight: var(--font-medium);
   color: var(--text-secondary);
   border: none;
-  border-bottom: var(--border-width-standard) solid transparent;
   margin-bottom: -1px;
   cursor: pointer;
   transition: all var(--transition-fast);
   background: transparent;
   text-decoration: none;
-  font-family: var(--font-sans);
+  font-family: var(--font-display);
 }
 
-.tab:hover {
+.tab:hover:not(.is-active) {
   color: var(--text-primary);
 }
 
 .tab.is-active {
-  color: var(--theme-primary);
-  border-bottom: var(--border-width-thick) solid var(--theme-primary);
+  color: var(--text-primary);
+}
+
+/* Selected indicator: only as wide as the label text; flush with container rule */
+.tab.is-active .tab__label {
+  position: relative;
+  display: inline-block;
+  width: max-content;
+  max-width: 100%;
+  box-sizing: border-box;
+}
+
+.tab.is-active .tab__label::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: calc(-1 * var(--space-3) - 1px);
+  height: var(--border-width-thick);
+  background-color: var(--theme-primary);
 }
 
 .tab:disabled,
@@ -263,7 +283,15 @@
   opacity: 0.6;
 }
 
-.tab--icon-top {
+.tab__inner {
+  display: inline-flex;
+  align-items: flex-end;
+  width: max-content;
+  max-width: 100%;
+  min-width: 0;
+}
+
+.tab--icon-top .tab__inner {
   flex-direction: column;
   align-items: center;
   gap: var(--space-1);
@@ -275,15 +303,14 @@
   justify-content: center;
 }
 
-.tab--icon-left,
-.tab--icon-right {
-  display: flex;
-  align-items: center;
+.tab--icon-left .tab__inner {
+  flex-direction: row;
   gap: var(--space-2);
 }
 
-.tab--icon-right {
+.tab--icon-right .tab__inner {
   flex-direction: row-reverse;
+  gap: var(--space-2);
 }
 
 .tab__icon {
@@ -298,12 +325,20 @@
 
 .tab__label {
   white-space: nowrap;
+  flex: 0 0 auto;
+  width: max-content;
+  max-width: 100%;
 }
 
 .tabstrip--compact .tab,
 .tabstrip[data-variant="compact"] .tab {
   padding: var(--space-2) var(--space-3);
   font-size: var(--text-13);
+}
+
+.tabstrip--compact .tab.is-active .tab__label::after,
+.tabstrip[data-variant="compact"] .tab.is-active .tab__label::after {
+  bottom: calc(-1 * var(--space-2) - 1px);
 }
 
 .tabstrip--compact .tabstrip__dropdown-item,
@@ -327,11 +362,11 @@ html.theme-vp .tabstrip--pill .tab {
   margin-bottom: 0;
   border-radius: var(--radius-08);
   padding: var(--space-2) var(--space-3);
-  color: var(--theme-primary);
+  color: var(--text-secondary);
 }
 
 html.theme-vp .tabstrip--pill .tab:hover:not(:disabled):not(.tab--disabled):not(.is-active) {
-  color: var(--theme-primary-hover);
+  color: var(--text-primary);
 }
 
 html.theme-vp .tabstrip--pill .tab.is-active {
@@ -339,6 +374,10 @@ html.theme-vp .tabstrip--pill .tab.is-active {
   background-color: var(--theme-primary);
   border-bottom: none;
   font-weight: var(--font-semibold);
+}
+
+html.theme-vp .tabstrip--pill .tab.is-active .tab__label::after {
+  display: none;
 }
 
 html.theme-vp .tabstrip--pill .tab.is-active:hover:not(:disabled):not(.tab--disabled) {
@@ -352,7 +391,7 @@ html.theme-vp .tabstrip--pill .tab:disabled {
 }
 
 html.theme-vp.dark .tabstrip--pill .tab:hover:not(:disabled):not(.tab--disabled):not(.is-active) {
-  color: var(--theme-primary-hover);
+  color: var(--text-primary);
 }
 
 html.theme-vp.dark .tabstrip--pill .tab.is-active:hover:not(:disabled):not(.tab--disabled) {
@@ -385,6 +424,10 @@ html.theme-vp.dark .tabstrip--pill .tab.is-active:hover:not(:disabled):not(.tab-
     min-width: max-content;
     padding: var(--space-2) var(--space-3);
     font-size: var(--text-sm);
+  }
+
+  .tab.is-active .tab__label::after {
+    bottom: calc(-1 * var(--space-2) - 1px);
   }
 
   .tabstrip__add,

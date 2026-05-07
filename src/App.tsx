@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState, type MouseEvent } from 'react'
+import { useEffect, useMemo, useRef, useState, type MouseEvent } from 'react'
 import { createPortal } from 'react-dom'
 import clsx from 'clsx'
 import { Routes, Route } from 'react-router-dom'
@@ -8,7 +8,10 @@ import { Card } from './components/harmony/Card'
 import { Button } from './components/harmony/Button'
 import { TabStrip } from './components/harmony/TabStrip'
 import { Table } from './components/harmony/Table'
-import { ContractsExpirationDashboard } from './components/harmony/ContractsExpirationDashboard'
+import {
+  ContractsExpirationDashboard,
+  type ExpirationTierKey,
+} from './components/harmony/ContractsExpirationDashboard'
 import { SpendSignalsKpiStrip } from './components/harmony/SpendSignalsKpiStrip'
 import { Link } from './components/harmony/Link'
 import { Icon } from './components/harmony/Icon'
@@ -119,6 +122,8 @@ type RequisitionRow = {
   lateItemsStageCounts: readonly [number, number, number, number]
   requisitionerName: string
   requisitionerEmail: string
+  /** Days until contract end (Command Center expiry tiers & filters). */
+  daysUntilContractExpiry: number
 }
 
 type RequisitionLineRow = {
@@ -167,6 +172,7 @@ const REQUISITION_ROWS: RequisitionRow[] = [
     lateItemsStageCounts: [1, 0, 1, 0],
     requisitionerName: 'Jamie Chen',
     requisitionerEmail: 'jamie.chen@contoso.com',
+    daysUntilContractExpiry: 48,
   },
   {
     id: 'PR-2045',
@@ -191,6 +197,7 @@ const REQUISITION_ROWS: RequisitionRow[] = [
     lateItemsStageCounts: [0, 0, 1, 0],
     requisitionerName: 'Sam Lee',
     requisitionerEmail: 'sam.lee@contoso.com',
+    daysUntilContractExpiry: 18,
   },
   {
     id: 'PR-2042',
@@ -215,6 +222,7 @@ const REQUISITION_ROWS: RequisitionRow[] = [
     lateItemsStageCounts: [0, 0, 0, 1],
     requisitionerName: 'Jordan Smith',
     requisitionerEmail: 'jordan.smith@contoso.com',
+    daysUntilContractExpiry: 52,
   },
   {
     id: 'PR-2048',
@@ -239,6 +247,7 @@ const REQUISITION_ROWS: RequisitionRow[] = [
     lateItemsStageCounts: [1, 0, 2, 1],
     requisitionerName: 'Priya Nair',
     requisitionerEmail: 'priya.nair@contoso.com',
+    daysUntilContractExpiry: 12,
   },
   {
     id: 'PR-2043',
@@ -263,6 +272,7 @@ const REQUISITION_ROWS: RequisitionRow[] = [
     lateItemsStageCounts: [1, 0, 0, 0],
     requisitionerName: 'Morgan Chen',
     requisitionerEmail: 'morgan.chen@contoso.com',
+    daysUntilContractExpiry: 44,
   },
   {
     id: 'PR-2046',
@@ -286,6 +296,7 @@ const REQUISITION_ROWS: RequisitionRow[] = [
     lateItemsStageCounts: [0, 0, 0, 0],
     requisitionerName: 'Casey Brooks',
     requisitionerEmail: 'casey.brooks@contoso.com',
+    daysUntilContractExpiry: 75,
   },
   {
     id: 'PR-2044',
@@ -310,6 +321,7 @@ const REQUISITION_ROWS: RequisitionRow[] = [
     lateItemsStageCounts: [0, 1, 0, 0],
     requisitionerName: 'Riley Ortiz',
     requisitionerEmail: 'riley.ortiz@contoso.com',
+    daysUntilContractExpiry: 85,
   },
   {
     id: 'PR-2047',
@@ -334,8 +346,82 @@ const REQUISITION_ROWS: RequisitionRow[] = [
     lateItemsStageCounts: [0, 1, 1, 1],
     requisitionerName: 'Taylor Kim',
     requisitionerEmail: 'taylor.kim@contoso.com',
+    daysUntilContractExpiry: 8,
   },
 ]
+
+const DEFAULT_EXPIRY_MAX_DAYS = 90
+
+function parseUsd(value: string): number {
+  const n = Number(value.replace(/[$,\s]/g, ''))
+  return Number.isFinite(n) ? n : 0
+}
+
+function formatCurrencyCompact(amount: number): string {
+  const abs = Math.abs(amount)
+  if (abs >= 1_000_000) return `$${(amount / 1_000_000).toFixed(2)}M`
+  if (abs >= 1_000) return `$${(amount / 1_000).toFixed(2)}K`
+  return `$${amount.toLocaleString('en-US', {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  })}`
+}
+
+function matchesExpiryTier(row: RequisitionRow, tier: ExpirationTierKey): boolean {
+  const d = row.daysUntilContractExpiry
+  if (tier === 'critical') return d <= 30
+  if (tier === 'warning') return d >= 31 && d <= 60
+  return d >= 61 && d <= 90
+}
+
+function filterRowsByExpirySelection(
+  rows: RequisitionRow[],
+  selectedTier: ExpirationTierKey | null,
+): RequisitionRow[] {
+  const withinDefault = rows.filter((r) => r.daysUntilContractExpiry <= DEFAULT_EXPIRY_MAX_DAYS)
+  if (selectedTier == null) return withinDefault
+  return withinDefault.filter((r) => matchesExpiryTier(r, selectedTier))
+}
+
+function summarizeExpirationTierCounts(rows: RequisitionRow[]): {
+  critical: number
+  warning: number
+  upcoming: number
+} {
+  const base = rows.filter((r) => r.daysUntilContractExpiry <= DEFAULT_EXPIRY_MAX_DAYS)
+  return {
+    critical: base.filter((r) => r.daysUntilContractExpiry <= 30).length,
+    warning: base.filter((r) => r.daysUntilContractExpiry >= 31 && r.daysUntilContractExpiry <= 60).length,
+    upcoming: base.filter((r) => r.daysUntilContractExpiry >= 61 && r.daysUntilContractExpiry <= 90).length,
+  }
+}
+
+function computeSpendMetricsFromRows(rows: RequisitionRow[]) {
+  if (rows.length === 0) {
+    return {
+      highSpendGe65Pct: 0,
+      fundedValueLabel: '$0.00',
+      fundingGapLabel: '$0.00',
+      unspentBalanceLabel: '$0.00',
+    }
+  }
+  const highSpend = rows.filter((r) => r.fundingPercent >= 65).length
+  const pct = Math.round((highSpend / rows.length) * 1000) / 10
+  let fundedSum = 0
+  let itdSum = 0
+  for (const r of rows) {
+    fundedSum += parseUsd(r.fundedValue)
+    itdSum += parseUsd(r.itdCost)
+  }
+  const unspent = Math.max(0, fundedSum - itdSum)
+  const gapDemo = Math.max(0, fundedSum * 0.052)
+  return {
+    highSpendGe65Pct: pct,
+    fundedValueLabel: formatCurrencyCompact(fundedSum),
+    fundingGapLabel: formatCurrencyCompact(gapDemo),
+    unspentBalanceLabel: formatCurrencyCompact(unspent),
+  }
+}
 
 function requisitionLineRowsForPr(row: RequisitionRow): RequisitionLineRow[] {
   const preferredVendor = `${row.vendorId} — ${row.vendor}`
@@ -1053,11 +1139,25 @@ function HomeShell() {
   const [selectedRequisitionId, setSelectedRequisitionId] = useState<string | null>(null)
   const [reqPanelSummaryOpen, setReqPanelSummaryOpen] = useState(true)
   const [reqPanelLateItemsOpen, setReqPanelLateItemsOpen] = useState(true)
+  const [expirationTierFilter, setExpirationTierFilter] = useState<ExpirationTierKey | null>(null)
+  const expirationDashRef = useRef<HTMLDivElement>(null)
   const themeProps = THEME_SHELL_PROPS[DEFAULT_THEME] ?? THEME_SHELL_PROPS['theme-cp']
 
+  const expirationTierCounts = useMemo(() => summarizeExpirationTierCounts(REQUISITION_ROWS), [])
+
+  const filteredRequisitionRows = useMemo(
+    () => filterRowsByExpirySelection(REQUISITION_ROWS, expirationTierFilter),
+    [expirationTierFilter],
+  )
+
+  const spendKpiMetrics = useMemo(
+    () => computeSpendMetricsFromRows(filteredRequisitionRows),
+    [filteredRequisitionRows],
+  )
+
   const selectedRequisition = useMemo(
-    () => REQUISITION_ROWS.find((r) => r.id === selectedRequisitionId) ?? null,
-    [selectedRequisitionId],
+    () => filteredRequisitionRows.find((r) => r.id === selectedRequisitionId) ?? null,
+    [filteredRequisitionRows, selectedRequisitionId],
   )
 
   useEffect(() => {
@@ -1067,10 +1167,22 @@ function HomeShell() {
 
   useEffect(() => {
     if (selectedRequisitionId == null) return
-    if (!REQUISITION_ROWS.some((r) => r.id === selectedRequisitionId)) {
+    if (!filteredRequisitionRows.some((r) => r.id === selectedRequisitionId)) {
       setSelectedRequisitionId(null)
     }
-  }, [selectedRequisitionId])
+  }, [filteredRequisitionRows, selectedRequisitionId])
+
+  useEffect(() => {
+    if (expirationTierFilter === null) return
+    const onDocMouseDown = (e: Event) => {
+      const el = expirationDashRef.current
+      if (el != null && !el.contains(e.target as Node)) {
+        setExpirationTierFilter(null)
+      }
+    }
+    document.addEventListener('mousedown', onDocMouseDown)
+    return () => document.removeEventListener('mousedown', onDocMouseDown)
+  }, [expirationTierFilter])
 
   const openPrRequisitionDetailTab = (prId: string) => {
     setPrDetailRequisitionIds((prev) => (prev.includes(prId) ? prev : [...prev, prId]))
@@ -1178,8 +1290,20 @@ function HomeShell() {
 
           {(activeTabId === 'requisitions' || activeTabId === 'purchase-orders') && (
             <>
-              <ContractsExpirationDashboard key={refreshTick} />
-              <SpendSignalsKpiStrip />
+              <div ref={expirationDashRef}>
+                <ContractsExpirationDashboard
+                  key={refreshTick}
+                  tierCounts={expirationTierCounts}
+                  selectedTier={expirationTierFilter}
+                  onSelectTier={setExpirationTierFilter}
+                />
+              </div>
+              <SpendSignalsKpiStrip
+                highSpendGe65Pct={spendKpiMetrics.highSpendGe65Pct}
+                fundedValueLabel={spendKpiMetrics.fundedValueLabel}
+                fundingGapLabel={spendKpiMetrics.fundingGapLabel}
+                unspentBalanceLabel={spendKpiMetrics.unspentBalanceLabel}
+              />
               <div className="lifecycle-bar-chart__table command-center-table-detail-anchor">
                 <div className="command-center-table-detail-stack">
                   <div
@@ -1223,7 +1347,7 @@ function HomeShell() {
                     header={REQUISITION_TABLE_HEADER}
                     body={
                       <RequisitionTableBody
-                        rows={REQUISITION_ROWS}
+                        rows={filteredRequisitionRows}
                         selectedId={selectedRequisitionId}
                         onSelectRow={setSelectedRequisitionId}
                       />

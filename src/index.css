@@ -48,10 +48,11 @@
   font-variant-numeric: tabular-nums;
 }
 
-/* Command Center home card + body: white surface per design reference */
+/* Command Center home card + body: white surface; rounded shell matches KPI strip (primary top bar clips to radius) */
 .command-center-home.card {
   background-color: #ffffff;
-  overflow: visible;
+  overflow: hidden;
+  border-radius: var(--radius-xl, 0.75rem);
 }
 
 .command-center-home .card__body {
@@ -59,8 +60,7 @@
 }
 
 /*
- * Tabs + refresh on one row: single bottom rule spans tabs + refresh (refresh sits above the line,
- * not beside an inner tabstrip-only border).
+ * Tabs + refresh: baseline rule sits under tab labels only (not full row width to the refresh button).
  */
 .command-center-tab-row {
   display: flex;
@@ -70,19 +70,32 @@
   width: 100%;
   margin-bottom: var(--space-4, 1rem);
   padding-bottom: 2px;
-  border-bottom: 1px solid var(--border-color);
 }
 
 .command-center-tab-row .tabstrip .tabstrip__container {
   border-bottom: none;
+  width: auto;
+  max-width: 100%;
 }
 
-/* Tab strip shares the row with refresh: avoid width:100% (TabStrip.css) stealing space and clipping the button */
+.command-center-tab-row .tabstrip__nav {
+  width: auto;
+  max-width: 100%;
+}
+
+/* Tab strip shrink-wraps to tab labels; baseline border only as wide as tabs */
 .command-center-tab-row .tabstrip {
-  flex: 1 1 auto;
+  flex: 0 1 auto;
   min-width: 0;
   width: auto;
   max-width: 100%;
+}
+
+.command-center-tab-row .tabstrip__tabs {
+  flex: 0 1 auto;
+  width: fit-content;
+  max-width: 100%;
+  border-bottom: 1px solid var(--border-color);
 }
 
 .command-center-tab-row__refresh {

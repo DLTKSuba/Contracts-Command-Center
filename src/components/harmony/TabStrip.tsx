@@ -298,7 +298,7 @@ export function TabStrip({
     } = tabEffectiveFlags(tab, showTabOpenInNew, showTabClose, showTabOverflowMenu)
 
     const tabContent = (
-      <>
+      <span className="tab__inner">
         {tab.icon && iconPosition === 'top' && (
           <span className="tab__icon-wrapper">
             <Icon name={tab.icon} size="sm" className="tab__icon" />
@@ -313,7 +313,7 @@ export function TabStrip({
         {tab.icon && iconPosition === 'right' && (
           <Icon name={tab.icon} size="sm" className="tab__icon" />
         )}
-      </>
+      </span>
     )
 
     const tabClasses = clsx(
