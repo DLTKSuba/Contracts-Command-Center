@@ -53,10 +53,14 @@
   background-color: #ffffff;
   overflow: hidden;
   border-radius: var(--radius-xl, 0.75rem);
+  max-width: 100%;
+  min-width: 0;
 }
 
 .command-center-home .card__body {
   background-color: #ffffff;
+  min-width: 0;
+  max-width: 100%;
 }
 
 /*
@@ -190,6 +194,98 @@
   line-height: 1.35;
 }
 
+.command-center-contract-info__layout {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-2, 0.5rem);
+  min-width: 0;
+}
+
+.command-center-contract-info__expand {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 1px;
+  padding: 2px;
+  border: none;
+  border-radius: var(--radius-sm, 4px);
+  background: transparent;
+  cursor: pointer;
+  color: var(--text-secondary, #6b7280);
+}
+
+.command-center-contract-info__expand:hover {
+  /* No hover tint — keyboard users rely on focus-visible */
+  color: var(--text-secondary, #6b7280);
+  background-color: transparent;
+}
+
+.command-center-contract-info__expand:focus-visible {
+  outline: 2px solid var(--theme-primary);
+  outline-offset: 2px;
+}
+
+.command-center-contract-info__expand-spacer {
+  width: 1.75rem;
+  flex-shrink: 0;
+}
+
+/* Project subrows: inherit table zebra via .table--striped; pointer shows row is clickable */
+.command-center-data-table tbody tr.command-center-table-row--project {
+  cursor: pointer;
+}
+
+.command-center-data-table tbody tr.command-center-table-row--project:focus-visible {
+  outline: 2px solid var(--theme-primary);
+  outline-offset: -2px;
+}
+
+.command-center-contract-project-row__first {
+  vertical-align: middle;
+}
+
+.command-center-contract-project-row__indent {
+  padding-left: 3.25rem;
+}
+
+.command-center-contract-project-row__id {
+  font-variant-numeric: tabular-nums;
+  font-weight: 600;
+  color: var(--text-secondary, #4b5563);
+}
+
+/* Command Center contracts grid: no blue hover tint; selection = brand main frame */
+.command-center-data-table.table--striped tbody tr:nth-child(odd):hover:not(.table-row--selected) {
+  background-color: var(--surface-bg) !important;
+}
+
+.command-center-data-table.table--striped tbody tr:nth-child(even):hover:not(.table-row--selected) {
+  background-color: var(--card-bg) !important;
+}
+
+.command-center-data-table.table--striped tbody tr.command-center-table-row--selectable.table-row--selected:nth-child(odd),
+.command-center-data-table.table--striped tbody tr.command-center-table-row--selectable.table-row--selected:nth-child(odd):hover {
+  background-color: var(--surface-bg) !important;
+}
+
+.command-center-data-table.table--striped tbody tr.command-center-table-row--selectable.table-row--selected:nth-child(even),
+.command-center-data-table.table--striped tbody tr.command-center-table-row--selectable.table-row--selected:nth-child(even):hover {
+  background-color: var(--card-bg) !important;
+}
+
+.command-center-data-table tbody tr.command-center-table-row--selectable.table-row--selected {
+  outline: 6px solid var(--theme-primary);
+  outline-offset: -6px;
+  box-shadow: none;
+}
+
+/* CP shell: main fills the grid row so overflow-y scroll reaches long tables */
+.shell-layout[data-cp-variant="true"] .shell-layout__main {
+  align-self: stretch;
+  min-height: 0;
+}
+
 .command-center-actions-cell {
   vertical-align: middle;
   white-space: nowrap;
@@ -212,23 +308,55 @@
   outline-offset: -2px;
 }
 
+/* Funding used ≥ 65% — error token on value cell only (matches spend KPI threshold). */
+.command-center-data-table .command-center-funding-used--high {
+  color: var(--color-error);
+}
+
 /*
  * Split layout at table level (not modal): table + detail sit side-by-side so users
  * can still read and interact with the grid while details are open.
  */
+/* Overrides LifecycleBarChart.css overflow-x on .lifecycle-bar-chart__table — avoid nested horizontal scroll when the split pane opens */
 .lifecycle-bar-chart__table.command-center-table-detail-anchor {
   display: flex;
   flex-direction: row;
   align-items: stretch;
   gap: 0;
+  width: 100%;
+  max-width: 100%;
   min-width: 0;
-  overflow-x: visible;
+  overflow-x: hidden;
 }
 
 .command-center-table-detail-stack {
   flex: 1 1 50%;
   min-width: 0;
-  overflow-x: auto;
+  max-width: 100%;
+  overflow-x: hidden;
+}
+
+.command-center-contracts-table-wrap {
+  min-width: 0;
+  max-width: 100%;
+}
+
+/* Contracts grid only: shrink with the split pane without forcing horizontal scroll */
+.command-center-contracts-table-wrap .table-wrapper {
+  min-width: 0;
+  max-width: 100%;
+}
+
+.command-center-contracts-table-wrap .command-center-data-table.table {
+  table-layout: fixed;
+  width: 100%;
+  max-width: 100%;
+}
+
+.command-center-contracts-table-wrap .command-center-data-table thead th,
+.command-center-contracts-table-wrap .command-center-data-table tbody td {
+  overflow-wrap: break-word;
+  word-wrap: break-word;
 }
 
 /* Requisition detail column (non-modal companion pane) — wider for single-line summary rows */
