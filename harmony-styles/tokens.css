@@ -218,6 +218,12 @@
   --z-popover: 400;
   --z-tooltip: 500;
 
+  /* Surfaces — zebra band (black @ 1% on light backgrounds) */
+  --overlay-black-01: rgba(0, 0, 0, 0.01);
+
+  /* Stroke — weak / inactive (grid lines, inactive chrome) */
+  --stroke-weak-inactive: #e2e8f0;
+
   /* Focus Ring */
   --focus-ring-opacity: 0.32;
   --focus-ring-primary: 0 0 0 3px var(--theme-primary-light), 0 0 0 4px var(--card-bg);
@@ -325,6 +331,11 @@
    =========================================== */
 
 html.dark {
+  /* Stripe overlay on dark surfaces (white @ 1%) */
+  --overlay-black-01: rgba(255, 255, 255, 0.01);
+
+  --stroke-weak-inactive: #4b5563;
+
   /* Atlassian-style dark mode shadows with increased opacity for better visibility */
   --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.3);
   --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.3), 0 2px 4px -2px rgba(0, 0, 0, 0.2);
@@ -406,7 +417,7 @@ html.theme-cp {
   --table-row-selected-hover-bg: #d6ebff; /* Light blue for selected row hover */
   --table-command-center-border: #DDDDDD; /* Full grid: light gray (mockup-aligned) */
   --table-command-center-header-bg: #F5F5F5;
-  --table-command-center-stripe-bg: #FAFAFA;
+  --table-command-center-stripe-bg: var(--overlay-black-01);
   --table-command-center-row-hover-bg: #F0F0F0; /* Neutral hover, not primary tint */
   --table-command-center-selection-outline: var(--theme-primary);
   /* Command Center slide-in panel (docked) */
@@ -560,7 +571,7 @@ html.theme-cp.dark {
   --table-row-selected-hover-bg: rgba(89, 172, 255, 0.15); /* Light blue tint for selected row hover in dark mode */
   --table-command-center-border: #4b5563; /* Command Center grid (dark) */
   --table-command-center-header-bg: #37424D;
-  --table-command-center-stripe-bg: #2A3138;
+  --table-command-center-stripe-bg: var(--overlay-black-01);
   --table-command-center-row-hover-bg: #3D4652;
   --table-command-center-selection-outline: var(--theme-primary);
   /* Command Center slide-in panel (docked) */
@@ -697,7 +708,7 @@ html.theme-vp {
   --table-row-selected-hover-bg: #d6ebff; /* Light blue for selected row hover */
   --table-command-center-border: #DDDDDD; /* Full grid: light gray (mockup-aligned) */
   --table-command-center-header-bg: #F5F5F5;
-  --table-command-center-stripe-bg: #FAFAFA;
+  --table-command-center-stripe-bg: var(--overlay-black-01);
   --table-command-center-row-hover-bg: #F0F0F0; /* Neutral hover, not primary tint */
   --table-command-center-selection-outline: var(--theme-primary);
   /* Command Center slide-in panel (docked) */
@@ -811,7 +822,7 @@ html.theme-vp.dark {
   --table-row-selected-hover-bg: rgba(89, 172, 255, 0.15); /* Light blue tint for selected row hover in dark mode */
   --table-command-center-border: #4b5563; /* Command Center grid (dark) */
   --table-command-center-header-bg: #37424D;
-  --table-command-center-stripe-bg: #2A3138;
+  --table-command-center-stripe-bg: var(--overlay-black-01);
   --table-command-center-row-hover-bg: #3D4652;
   --table-command-center-selection-outline: var(--theme-primary);
   /* Command Center slide-in panel (docked) */
@@ -947,7 +958,7 @@ html.theme-ppm {
   --table-row-selected-hover-bg: #d6ebff; /* Light blue for selected row hover */
   --table-command-center-border: #DDDDDD; /* Full grid: light gray (mockup-aligned) */
   --table-command-center-header-bg: #F5F5F5;
-  --table-command-center-stripe-bg: #FAFAFA;
+  --table-command-center-stripe-bg: var(--overlay-black-01);
   --table-command-center-row-hover-bg: #F0F0F0; /* Neutral hover, not primary tint */
   --table-command-center-selection-outline: var(--theme-primary);
   /* Command Center slide-in panel (docked) */
@@ -1061,7 +1072,7 @@ html.theme-ppm.dark {
   --table-row-selected-hover-bg: rgba(89, 172, 255, 0.15); /* Light blue tint for selected row hover in dark mode */
   --table-command-center-border: #4b5563; /* Command Center grid (dark) */
   --table-command-center-header-bg: #37424D;
-  --table-command-center-stripe-bg: #2A3138;
+  --table-command-center-stripe-bg: var(--overlay-black-01);
   --table-command-center-row-hover-bg: #3D4652;
   --table-command-center-selection-outline: var(--theme-primary);
   /* Command Center slide-in panel (docked) */
@@ -1197,7 +1208,7 @@ html.theme-maconomy {
   --table-row-selected-hover-bg: #d6ebff; /* Light blue for selected row hover */
   --table-command-center-border: #DDDDDD; /* Full grid: light gray (mockup-aligned) */
   --table-command-center-header-bg: #F5F5F5;
-  --table-command-center-stripe-bg: #FAFAFA;
+  --table-command-center-stripe-bg: var(--overlay-black-01);
   --table-command-center-row-hover-bg: #F0F0F0; /* Neutral hover, not primary tint */
   --table-command-center-selection-outline: var(--theme-primary);
   /* Command Center slide-in panel (docked) */
@@ -1311,7 +1322,7 @@ html.theme-maconomy.dark {
   --table-row-selected-hover-bg: rgba(89, 172, 255, 0.15); /* Light blue tint for selected row hover in dark mode */
   --table-command-center-border: #4b5563; /* Command Center grid (dark) */
   --table-command-center-header-bg: #37424D;
-  --table-command-center-stripe-bg: #2A3138;
+  --table-command-center-stripe-bg: var(--overlay-black-01);
   --table-command-center-row-hover-bg: #3D4652;
   --table-command-center-selection-outline: var(--theme-primary);
   /* Command Center slide-in panel (docked) */

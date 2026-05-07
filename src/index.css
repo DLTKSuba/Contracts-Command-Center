@@ -142,12 +142,26 @@
 .table-wrapper:has(.command-center-data-table) .command-center-data-table.table thead th,
 .table-wrapper:has(.command-center-data-table) .command-center-data-table.table tbody td {
   border-left: none;
-  border-right: 1px solid var(--border-light, #e2e8f0);
+  border-right: var(--border-width-thin) solid var(--stroke-weak-inactive);
+  border-bottom: var(--border-width-thin) solid var(--stroke-weak-inactive);
 }
 
 .table-wrapper:has(.command-center-data-table) .command-center-data-table.table thead th:first-child,
 .table-wrapper:has(.command-center-data-table) .command-center-data-table.table tbody td:first-child {
-  border-left: 1px solid var(--border-light, #e2e8f0);
+  border-left: var(--border-width-thin) solid var(--stroke-weak-inactive);
+}
+
+.table-wrapper:has(.command-center-data-table) .command-center-data-table.table thead tr:first-child th {
+  border-top: var(--border-width-thin) solid var(--stroke-weak-inactive);
+}
+
+/* Zebra: alternate row = black @ 1% token (non-alt = surface) */
+.table-wrapper:has(.command-center-data-table) .command-center-data-table.table--striped tbody tr:nth-child(odd) {
+  background-color: var(--surface-bg);
+}
+
+.table-wrapper:has(.command-center-data-table) .command-center-data-table.table--striped tbody tr:nth-child(even) {
+  background-color: var(--overlay-black-01);
 }
 
 .command-center-th {
@@ -261,7 +275,7 @@
 }
 
 .command-center-data-table.table--striped tbody tr:nth-child(even):hover:not(.table-row--selected) {
-  background-color: var(--card-bg) !important;
+  background-color: var(--overlay-black-01) !important;
 }
 
 .command-center-data-table.table--striped tbody tr.command-center-table-row--selectable.table-row--selected:nth-child(odd),
@@ -271,12 +285,13 @@
 
 .command-center-data-table.table--striped tbody tr.command-center-table-row--selectable.table-row--selected:nth-child(even),
 .command-center-data-table.table--striped tbody tr.command-center-table-row--selectable.table-row--selected:nth-child(even):hover {
-  background-color: var(--card-bg) !important;
+  background-color: var(--overlay-black-01) !important;
 }
 
+/* Selected contract row: brand main stroke only on selection (4px) */
 .command-center-data-table tbody tr.command-center-table-row--selectable.table-row--selected {
-  outline: 6px solid var(--theme-primary);
-  outline-offset: -6px;
+  outline: var(--border-width-thick) solid var(--theme-primary);
+  outline-offset: calc(-1 * var(--border-width-thick));
   box-shadow: none;
 }
 
