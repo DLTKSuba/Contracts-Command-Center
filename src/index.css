@@ -478,13 +478,6 @@
   width: 100%;
 }
 
-.command-center-contracts-table-toolbar__as-of {
-  margin-left: auto;
-  font-size: var(--text-sm);
-  font-weight: var(--font-semibold);
-  color: var(--text-secondary);
-}
-
 .command-center-contracts-table-toolbar button.command-center-contracts-table-toolbar__btn.btn--outline:not(:disabled):not(.btn--disabled) {
   box-sizing: border-box;
   height: var(--button-height-sm);

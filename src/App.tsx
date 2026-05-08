@@ -191,15 +191,6 @@ function formatContractEndFromDays(daysFromAsOf: number): string {
   return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
 }
 
-/** Same calendar basis shown in the contracts toolbar (“As of …”). */
-function formatCommandCenterAsOfDate(): string {
-  return COMMAND_CENTER_AS_OF.toLocaleDateString('en-US', {
-    month: 'short',
-    day: 'numeric',
-    year: 'numeric',
-  })
-}
-
 const DEMO_CONTRACT_END = {
   d8: formatContractEndFromDays(8),
   d12: formatContractEndFromDays(12),
@@ -1713,12 +1704,6 @@ function HomeShell() {
                   >
                     Expand All
                   </Button>
-                  <span
-                    className="command-center-contracts-table-toolbar__as-of"
-                    aria-label={`Contract data as of ${formatCommandCenterAsOfDate()}`}
-                  >
-                    As of {formatCommandCenterAsOfDate()}
-                  </span>
                 </div>
                 <div className="command-center-table-split">
                   <div className="command-center-table-detail-stack">
