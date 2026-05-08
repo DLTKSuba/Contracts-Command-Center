@@ -19,6 +19,7 @@ import { Table } from './components/harmony/Table'
 import {
   ContractsExpirationDashboard,
   type ExpirationTierKey,
+  type TierExpiryLine,
 } from './components/harmony/ContractsExpirationDashboard'
 import { SpendSignalsKpiStrip } from './components/harmony/SpendSignalsKpiStrip'
 import { Link } from './components/harmony/Link'
@@ -181,6 +182,35 @@ type RequisitionLineRow = {
   orgName: string
 }
 
+/** Demo “today”: May 6, 2026 — aligns contract ends and expiry KPIs with `daysUntilContractExpiry`. (`Date` month is 0-based; `4` = May.) */
+const COMMAND_CENTER_AS_OF = new Date(2026, 4, 6)
+
+function formatContractEndFromDays(daysFromAsOf: number): string {
+  const d = new Date(COMMAND_CENTER_AS_OF)
+  d.setDate(d.getDate() + daysFromAsOf)
+  return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
+}
+
+/** Same calendar basis shown in the contracts toolbar (“As of …”). */
+function formatCommandCenterAsOfDate(): string {
+  return COMMAND_CENTER_AS_OF.toLocaleDateString('en-US', {
+    month: 'short',
+    day: 'numeric',
+    year: 'numeric',
+  })
+}
+
+const DEMO_CONTRACT_END = {
+  d8: formatContractEndFromDays(8),
+  d12: formatContractEndFromDays(12),
+  d18: formatContractEndFromDays(18),
+  d44: formatContractEndFromDays(44),
+  d48: formatContractEndFromDays(48),
+  d52: formatContractEndFromDays(52),
+  d75: formatContractEndFromDays(75),
+  d85: formatContractEndFromDays(85),
+} as const
+
 const REQUISITION_ROWS: RequisitionRow[] = [
   {
     id: 'PR-2041',
@@ -191,7 +221,7 @@ const REQUISITION_ROWS: RequisitionRow[] = [
     contractVehicle: 'IDIQ',
     primeContractNo: 'PRIME-2024-0112',
     managerName: 'Alex Rivera',
-    contractEnd: 'Apr 18, 2025',
+    contractEnd: DEMO_CONTRACT_END.d48,
     vendorId: 'VND-900101',
     vendor: 'Acme Office Supplies',
     amount: '$1,250.00',
@@ -207,7 +237,7 @@ const REQUISITION_ROWS: RequisitionRow[] = [
     requestedBy: 'Alex Rivera',
     organization: 'HQ — Procurement',
     createdDate: 'Apr 2, 2025',
-    needBy: 'Apr 18, 2025',
+    needBy: DEMO_CONTRACT_END.d48,
     bannerMessage: '',
     buyerAssignedLineCount: 4,
     lateItemsStageCounts: [1, 0, 1, 0],
@@ -218,7 +248,7 @@ const REQUISITION_ROWS: RequisitionRow[] = [
         id: 'PR-1000-101',
         nextImportantDate: 'Apr 12, 2025',
         startDate: 'Apr 2, 2025',
-        endDate: 'Apr 18, 2025',
+        endDate: DEMO_CONTRACT_END.d48,
         contractValue: '$625.00',
         fundedValue: '$2,500.00',
         itdCost: '$950.00',
@@ -228,7 +258,7 @@ const REQUISITION_ROWS: RequisitionRow[] = [
         id: 'PR-1000-102',
         nextImportantDate: 'Apr 14, 2025',
         startDate: 'Apr 2, 2025',
-        endDate: 'Apr 18, 2025',
+        endDate: DEMO_CONTRACT_END.d48,
         contractValue: '$625.00',
         fundedValue: '$2,500.00',
         itdCost: '$950.00',
@@ -246,7 +276,7 @@ const REQUISITION_ROWS: RequisitionRow[] = [
     contractVehicle: 'GSA MAS',
     primeContractNo: 'PRIME-2023-0801',
     managerName: 'Sam Lee',
-    contractEnd: 'Apr 22, 2025',
+    contractEnd: DEMO_CONTRACT_END.d18,
     vendorId: 'VND-900205',
     vendor: 'Litware Medical Devices',
     amount: '$3,890.25',
@@ -262,7 +292,7 @@ const REQUISITION_ROWS: RequisitionRow[] = [
     requestedBy: 'Sam Lee',
     organization: 'Region NA — Ops',
     createdDate: 'Mar 28, 2025',
-    needBy: 'Apr 22, 2025',
+    needBy: DEMO_CONTRACT_END.d18,
     bannerMessage: '',
     buyerAssignedLineCount: 6,
     lateItemsStageCounts: [0, 0, 1, 0],
@@ -273,7 +303,7 @@ const REQUISITION_ROWS: RequisitionRow[] = [
         id: 'PR-1000-201',
         nextImportantDate: 'Apr 16, 2025',
         startDate: 'Mar 28, 2025',
-        endDate: 'Apr 22, 2025',
+        endDate: DEMO_CONTRACT_END.d18,
         contractValue: '$3,890.25',
         fundedValue: '$12,000.00',
         itdCost: '$8,520.00',
@@ -291,7 +321,7 @@ const REQUISITION_ROWS: RequisitionRow[] = [
     contractVehicle: 'GWAC',
     primeContractNo: 'PRIME-2024-0042',
     managerName: 'Jordan Smith',
-    contractEnd: 'Apr 10, 2025',
+    contractEnd: DEMO_CONTRACT_END.d52,
     vendorId: 'VND-900302',
     vendor: 'Northwind Logistics LLC',
     amount: '$8,420.50',
@@ -307,7 +337,7 @@ const REQUISITION_ROWS: RequisitionRow[] = [
     requestedBy: 'Jordan Smith',
     organization: 'HQ — Finance',
     createdDate: 'Mar 15, 2025',
-    needBy: 'Apr 10, 2025',
+    needBy: DEMO_CONTRACT_END.d52,
     bannerMessage: '',
     buyerAssignedLineCount: 3,
     lateItemsStageCounts: [0, 0, 0, 1],
@@ -318,7 +348,7 @@ const REQUISITION_ROWS: RequisitionRow[] = [
         id: 'PR-1001-310',
         nextImportantDate: 'Apr 8, 2025',
         startDate: 'Mar 15, 2025',
-        endDate: 'Apr 10, 2025',
+        endDate: DEMO_CONTRACT_END.d52,
         contractValue: '$4,210.25',
         fundedValue: '$12,500.00',
         itdCost: '$11,000.00',
@@ -328,7 +358,7 @@ const REQUISITION_ROWS: RequisitionRow[] = [
         id: 'PR-1001-311',
         nextImportantDate: 'Apr 10, 2025',
         startDate: 'Mar 15, 2025',
-        endDate: 'Apr 10, 2025',
+        endDate: DEMO_CONTRACT_END.d52,
         contractValue: '$4,210.25',
         fundedValue: '$12,500.00',
         itdCost: '$11,000.00',
@@ -346,7 +376,7 @@ const REQUISITION_ROWS: RequisitionRow[] = [
     contractVehicle: 'BPA',
     primeContractNo: 'PRIME-2022-1204',
     managerName: 'Priya Nair',
-    contractEnd: 'Apr 5, 2025',
+    contractEnd: DEMO_CONTRACT_END.d12,
     vendorId: 'VND-900448',
     vendor: 'Wide World Importers',
     amount: '$22,150.00',
@@ -362,7 +392,7 @@ const REQUISITION_ROWS: RequisitionRow[] = [
     requestedBy: 'Priya Nair',
     organization: 'EMEA — Supply',
     createdDate: 'Mar 20, 2025',
-    needBy: 'Apr 5, 2025',
+    needBy: DEMO_CONTRACT_END.d12,
     bannerMessage: '',
     buyerAssignedLineCount: 5,
     lateItemsStageCounts: [1, 0, 2, 1],
@@ -373,7 +403,7 @@ const REQUISITION_ROWS: RequisitionRow[] = [
         id: 'PR-1002-415',
         nextImportantDate: 'Apr 3, 2025',
         startDate: 'Mar 20, 2025',
-        endDate: 'Apr 5, 2025',
+        endDate: DEMO_CONTRACT_END.d12,
         contractValue: '$22,150.00',
         fundedValue: '$48,000.00',
         itdCost: '$39,360.00',
@@ -391,7 +421,7 @@ const REQUISITION_ROWS: RequisitionRow[] = [
     contractVehicle: 'GWAC',
     primeContractNo: 'PRIME-2024-0199',
     managerName: 'Morgan Chen',
-    contractEnd: 'Apr 25, 2025',
+    contractEnd: DEMO_CONTRACT_END.d44,
     vendorId: 'VND-900503',
     vendor: 'Contoso Training Group',
     amount: '$2,100.00',
@@ -407,7 +437,7 @@ const REQUISITION_ROWS: RequisitionRow[] = [
     requestedBy: 'Morgan Chen',
     organization: 'HQ — L&D',
     createdDate: 'Apr 8, 2025',
-    needBy: 'Apr 25, 2025',
+    needBy: DEMO_CONTRACT_END.d44,
     bannerMessage: '',
     buyerAssignedLineCount: 2,
     lateItemsStageCounts: [1, 0, 0, 0],
@@ -418,7 +448,7 @@ const REQUISITION_ROWS: RequisitionRow[] = [
         id: 'PR-1003-520',
         nextImportantDate: 'Apr 18, 2025',
         startDate: 'Apr 8, 2025',
-        endDate: 'Apr 25, 2025',
+        endDate: DEMO_CONTRACT_END.d44,
         contractValue: '$700.00',
         fundedValue: '$2,666.67',
         itdCost: '$1,200.00',
@@ -428,7 +458,7 @@ const REQUISITION_ROWS: RequisitionRow[] = [
         id: 'PR-1003-521',
         nextImportantDate: 'Apr 19, 2025',
         startDate: 'Apr 8, 2025',
-        endDate: 'Apr 25, 2025',
+        endDate: DEMO_CONTRACT_END.d44,
         contractValue: '$700.00',
         fundedValue: '$2,666.67',
         itdCost: '$1,200.00',
@@ -438,7 +468,7 @@ const REQUISITION_ROWS: RequisitionRow[] = [
         id: 'PR-1003-522',
         nextImportantDate: 'Apr 20, 2025',
         startDate: 'Apr 8, 2025',
-        endDate: 'Apr 25, 2025',
+        endDate: DEMO_CONTRACT_END.d44,
         contractValue: '$700.00',
         fundedValue: '$2,666.66',
         itdCost: '$1,200.00',
@@ -456,7 +486,7 @@ const REQUISITION_ROWS: RequisitionRow[] = [
     contractVehicle: 'GSA MAS',
     primeContractNo: 'PRIME-2024-0330',
     managerName: 'Casey Brooks',
-    contractEnd: 'Apr 30, 2025',
+    contractEnd: DEMO_CONTRACT_END.d75,
     vendorId: 'VND-900606',
     vendor: 'Adventure Works IT',
     amount: '$475.90',
@@ -471,7 +501,7 @@ const REQUISITION_ROWS: RequisitionRow[] = [
     requestedBy: 'Casey Brooks',
     organization: 'IT — Infrastructure',
     createdDate: 'Apr 1, 2025',
-    needBy: 'Apr 30, 2025',
+    needBy: DEMO_CONTRACT_END.d75,
     bannerMessage: '',
     buyerAssignedLineCount: 1,
     lateItemsStageCounts: [0, 0, 0, 0],
@@ -482,7 +512,7 @@ const REQUISITION_ROWS: RequisitionRow[] = [
         id: 'PR-1004-625',
         nextImportantDate: 'Apr 22, 2025',
         startDate: 'Apr 1, 2025',
-        endDate: 'Apr 30, 2025',
+        endDate: DEMO_CONTRACT_END.d75,
         contractValue: '$475.90',
         fundedValue: '$3,500.00',
         itdCost: '$980.00',
@@ -500,7 +530,7 @@ const REQUISITION_ROWS: RequisitionRow[] = [
     contractVehicle: 'IDIQ',
     primeContractNo: 'PRIME-2023-0518',
     managerName: 'Riley Ortiz',
-    contractEnd: 'Mar 1, 2025',
+    contractEnd: DEMO_CONTRACT_END.d85,
     vendorId: 'VND-900704',
     vendor: 'Fabrikam Facilities Inc.',
     amount: '$640.00',
@@ -516,7 +546,7 @@ const REQUISITION_ROWS: RequisitionRow[] = [
     requestedBy: 'Riley Ortiz',
     organization: 'Facilities — West',
     createdDate: 'Feb 10, 2025',
-    needBy: 'Mar 1, 2025',
+    needBy: DEMO_CONTRACT_END.d85,
     bannerMessage: '',
     buyerAssignedLineCount: 0,
     lateItemsStageCounts: [0, 1, 0, 0],
@@ -527,7 +557,7 @@ const REQUISITION_ROWS: RequisitionRow[] = [
         id: 'PR-1005-730',
         nextImportantDate: 'Feb 28, 2025',
         startDate: 'Feb 10, 2025',
-        endDate: 'Mar 1, 2025',
+        endDate: DEMO_CONTRACT_END.d85,
         contractValue: '$640.00',
         fundedValue: '$4,200.00',
         itdCost: '$2,310.00',
@@ -545,7 +575,7 @@ const REQUISITION_ROWS: RequisitionRow[] = [
     contractVehicle: 'GSA MAS',
     primeContractNo: 'PRIME-2024-0042',
     managerName: 'Sarah Johnson',
-    contractEnd: 'Jan 15, 2027',
+    contractEnd: DEMO_CONTRACT_END.d8,
     vendorId: 'VND-900807',
     vendor: 'Armstrong Labs',
     amount: '$9,999.00',
@@ -561,7 +591,7 @@ const REQUISITION_ROWS: RequisitionRow[] = [
     requestedBy: 'Taylor Kim',
     organization: 'HQ — Analytics',
     createdDate: 'Jan 22, 2025',
-    needBy: 'Feb 28, 2025',
+    needBy: DEMO_CONTRACT_END.d8,
     bannerMessage: '',
     buyerAssignedLineCount: 8,
     lateItemsStageCounts: [0, 1, 1, 1],
@@ -572,7 +602,7 @@ const REQUISITION_ROWS: RequisitionRow[] = [
         id: 'PR-1006-835',
         nextImportantDate: 'Feb 15, 2025',
         startDate: 'Jan 22, 2025',
-        endDate: 'Feb 28, 2025',
+        endDate: DEMO_CONTRACT_END.d8,
         contractValue: '$4,999.50',
         fundedValue: '$17,500.00',
         itdCost: '$16,100.00',
@@ -582,7 +612,7 @@ const REQUISITION_ROWS: RequisitionRow[] = [
         id: 'PR-1006-836',
         nextImportantDate: 'Feb 18, 2025',
         startDate: 'Jan 22, 2025',
-        endDate: 'Feb 28, 2025',
+        endDate: DEMO_CONTRACT_END.d8,
         contractValue: '$4,999.50',
         fundedValue: '$17,500.00',
         itdCost: '$16,100.00',
@@ -637,6 +667,37 @@ function summarizeExpirationTierCounts(rows: RequisitionRow[]): {
     warning: base.filter((r) => r.daysUntilContractExpiry >= 31 && r.daysUntilContractExpiry <= 60).length,
     upcoming: base.filter((r) => r.daysUntilContractExpiry >= 61 && r.daysUntilContractExpiry <= 90).length,
   }
+}
+
+function summarizeExpirationTierFirstExpiry(rows: RequisitionRow[]): {
+  critical: TierExpiryLine
+  warning: TierExpiryLine
+  upcoming: TierExpiryLine
+} {
+  const tiers = ['critical', 'warning', 'upcoming'] as const satisfies readonly ExpirationTierKey[]
+  const base = rows.filter((r) => r.daysUntilContractExpiry <= DEFAULT_EXPIRY_MAX_DAYS)
+  const result: {
+    critical: TierExpiryLine
+    warning: TierExpiryLine
+    upcoming: TierExpiryLine
+  } = {
+    critical: null,
+    warning: null,
+    upcoming: null,
+  }
+  for (const tier of tiers) {
+    const inTier = base.filter((r) => matchesExpiryTier(r, tier))
+    if (inTier.length === 0) continue
+    const row = inTier.reduce((a, b) =>
+      a.daysUntilContractExpiry <= b.daysUntilContractExpiry ? a : b,
+    )
+    const d = row.daysUntilContractExpiry
+    result[tier] = {
+      firstExpiresDate: formatContractEndFromDays(d),
+      daysUntilShort: `${d}d`,
+    }
+  }
+  return result
 }
 
 function computeSpendMetricsFromRows(rows: RequisitionRow[]) {
@@ -1449,6 +1510,11 @@ function HomeShell() {
 
   const expirationTierCounts = useMemo(() => summarizeExpirationTierCounts(REQUISITION_ROWS), [])
 
+  const expirationTierExpiryLines = useMemo(
+    () => summarizeExpirationTierFirstExpiry(REQUISITION_ROWS),
+    [],
+  )
+
   const filteredRequisitionRows = useMemo(
     () => filterRowsByExpirySelection(REQUISITION_ROWS, expirationTierFilter),
     [expirationTierFilter],
@@ -1604,6 +1670,7 @@ function HomeShell() {
                 <ContractsExpirationDashboard
                   key={refreshTick}
                   tierCounts={expirationTierCounts}
+                  tierExpiryLines={expirationTierExpiryLines}
                   selectedTier={expirationTierFilter}
                   onSelectTier={setExpirationTierFilter}
                 />
@@ -1646,6 +1713,12 @@ function HomeShell() {
                   >
                     Expand All
                   </Button>
+                  <span
+                    className="command-center-contracts-table-toolbar__as-of"
+                    aria-label={`Contract data as of ${formatCommandCenterAsOfDate()}`}
+                  >
+                    As of {formatCommandCenterAsOfDate()}
+                  </span>
                 </div>
                 <div className="command-center-table-split">
                   <div className="command-center-table-detail-stack">

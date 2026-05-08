@@ -10,44 +10,51 @@ type TierCardModel = {
   count: number
   /** Calendar date for the first expiring contract in this tier. */
   firstExpiresDate: string
-  /** Days-in-parentheses suffix, e.g. "5d" → rendered as "(5d)". */
+  /** Days-in-parentheses suffix, e.g. "5d" → rendered as "(5d)". Empty hides parens. */
   daysUntilShort: string
 }
+
+/** Derived from grid data — null when no contracts in tier within the 90-day window. */
+export type TierExpiryLine = {
+  firstExpiresDate: string
+  daysUntilShort: string
+} | null
 
 const CRITICAL_META = {
   tier: 'critical' as const,
   windowLabel: 'Expires within 30 days',
-  firstExpiresDate: 'Mar 31, 2026',
-  daysUntilShort: '5d',
 }
 
 const WARNING_META = {
   tier: 'warning' as const,
   windowLabel: 'Expires in 31–60 days',
-  firstExpiresDate: 'May 3, 2026',
-  daysUntilShort: '38d',
 }
 
 const UPCOMING_META = {
   tier: 'upcoming' as const,
   windowLabel: 'Expires in 61–90 days',
-  firstExpiresDate: 'May 30, 2026',
-  daysUntilShort: '65d',
 }
 
 function TierCard({
   meta,
+  expiryLine,
   count,
   selected,
   onSelect,
 }: {
-  meta: Omit<TierCardModel, 'count'>
+  meta: Omit<TierCardModel, 'count' | 'firstExpiresDate' | 'daysUntilShort'>
+  expiryLine: TierExpiryLine
   count: number
   selected: boolean
   onSelect: () => void
 }) {
   const headingId = `ced-${meta.tier}-heading`
-  const card: TierCardModel = { ...meta, count }
+  const card: TierCardModel = {
+    ...meta,
+    count,
+    firstExpiresDate: expiryLine?.firstExpiresDate ?? '—',
+    daysUntilShort: expiryLine?.daysUntilShort ?? '',
+  }
 
   return (
     <article
@@ -83,7 +90,9 @@ function TierCard({
           <p className="ced-card__expires-line">
             <span className="ced-card__first-expiry-prefix">First expiry </span>
             <span className="ced-card__expires-date">{card.firstExpiresDate}</span>
-            <span className="ced-card__expires-paren"> ({card.daysUntilShort})</span>
+            {card.daysUntilShort ? (
+              <span className="ced-card__expires-paren"> ({card.daysUntilShort})</span>
+            ) : null}
           </p>
         </div>
       </div>
@@ -93,12 +102,18 @@ function TierCard({
 
 export type ContractsExpirationDashboardProps = {
   tierCounts: { critical: number; warning: number; upcoming: number }
+  tierExpiryLines: {
+    critical: TierExpiryLine
+    warning: TierExpiryLine
+    upcoming: TierExpiryLine
+  }
   selectedTier: ExpirationTierKey | null
   onSelectTier: (tier: ExpirationTierKey) => void
 }
 
 export function ContractsExpirationDashboard({
   tierCounts,
+  tierExpiryLines,
   selectedTier,
   onSelectTier,
 }: ContractsExpirationDashboardProps) {
@@ -107,18 +122,21 @@ export function ContractsExpirationDashboard({
       <div className="contracts-expiration-dashboard__grid">
         <TierCard
           meta={CRITICAL_META}
+          expiryLine={tierExpiryLines.critical}
           count={tierCounts.critical}
           selected={selectedTier === 'critical'}
           onSelect={() => onSelectTier('critical')}
         />
         <TierCard
           meta={WARNING_META}
+          expiryLine={tierExpiryLines.warning}
           count={tierCounts.warning}
           selected={selectedTier === 'warning'}
           onSelect={() => onSelectTier('warning')}
         />
         <TierCard
           meta={UPCOMING_META}
+          expiryLine={tierExpiryLines.upcoming}
           count={tierCounts.upcoming}
           selected={selectedTier === 'upcoming'}
           onSelect={() => onSelectTier('upcoming')}

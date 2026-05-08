@@ -1,0 +1,50 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "Start dev server (Vite)",
+      "type": "npm",
+      "script": "dev",
+      "isBackground": true,
+      "problemMatcher": {
+        "owner": "vite",
+        "pattern": { "regexp": "^$" },
+        "background": {
+          "activeOnStart": true,
+          "beginsPattern": ".",
+          "endsPattern": "Local:\\s+http://localhost:5175"
+        }
+      },
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated",
+        "group": "commandCenter"
+      }
+    },
+    {
+      "label": "Show Command Center preview URL",
+      "type": "shell",
+      "command": "echo '' && echo '  Command Center → Simple Browser:' && echo '  http://localhost:5175/index-cc.html' && echo '' && echo '  Cursor: Cmd+Shift+P → \"Simple Browser: Show\" → paste URL above' && echo ''",
+      "problemMatcher": [],
+      "presentation": {
+        "reveal": "always",
+        "panel": "shared",
+        "focus": true
+      }
+    },
+    {
+      "label": "Command Center: dev server + preview URL",
+      "dependsOrder": "sequence",
+      "dependsOn": ["Start dev server (Vite)", "Show Command Center preview URL"],
+      "problemMatcher": [],
+      "group": {
+        "kind": "build",
+        "isDefault": true
+      },
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated"
+      }
+    }
+  ]
+}

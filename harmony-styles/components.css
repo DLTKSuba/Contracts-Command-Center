@@ -5763,10 +5763,11 @@ html.dark .left-sidebar__icon .left-sidebar__custom-icon {
    LEFT SIDEBAR PANEL FUNCTIONALITY
    =========================================== */
 
-/* Visual unity - remove borders/elevation when panel open */
+/* Visual unity - remove borders/elevation when panel open; keep rail edge vs panel */
 .left-sidebar[data-panel-open="true"] .left-sidebar__section {
   box-shadow: none;
   border: none;
+  border-right: 1px solid var(--border-color);
   background-color: transparent;
   border-radius: 0;
 }
@@ -5870,7 +5871,6 @@ html.dark .left-sidebar__icon .left-sidebar__custom-icon {
 .right-sidebar__section {
   background-color: var(--nav-bg);
   border: 1px solid var(--border-color);
-  border-right: none;
   border-radius: var(--radius-12) 0 0 var(--radius-12);
   box-shadow: var(--shadow-xl);
   padding: var(--space-3) var(--space-2);
@@ -5953,10 +5953,11 @@ html.dark .left-sidebar__icon .left-sidebar__custom-icon {
    RIGHT SIDEBAR PANEL-OPEN STATES
    =========================================== */
 
-/* When panel is open, remove sidebar section elevation - unified with panel */
+/* When panel is open, remove sidebar section elevation - unified with panel; keep outer rail stroke */
 .right-sidebar[data-panel-open="true"] .right-sidebar__section {
   box-shadow: none; /* Remove elevation - unified with panel */
-  border: none; /* Remove all borders - seamless connection */
+  border: none;
+  border-right: 1px solid var(--border-color);
   background-color: transparent; /* Match panel background for unity */
   border-radius: 0; /* Remove border-radius on left side to connect with panel */
 }
@@ -6712,6 +6713,9 @@ html.theme-maconomy.dark .left-sidebar__variant--maconomy {
   row-gap: 0;
   align-items: start;
   overflow: hidden; /* contain panel slide-in transform */
+  /* Inset so the docked panel's right border is not clipped (overflow clips flush edges) */
+  padding-inline-end: 1px;
+  box-sizing: border-box;
 }
 
 .command-center-canvas--with-toolbar {

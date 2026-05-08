@@ -571,7 +571,10 @@
   column-gap: 0;
   row-gap: 0;
   align-items: start;
-  overflow: hidden;
+  overflow: hidden; /* contain panel slide-in transform */
+  /* Inset so the docked panel's right border is not clipped (overflow clips flush edges) */
+  padding-inline-end: 1px;
+  box-sizing: border-box;
 }
 
 .command-center-canvas--with-toolbar {
