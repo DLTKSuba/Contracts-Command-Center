@@ -48,10 +48,11 @@
   font-variant-numeric: tabular-nums;
 }
 
-/* Command Center home card + body: white surface; rounded shell matches KPI strip (primary top bar clips to radius) */
+/* Command Center home card + body: white surface; rounded shell matches KPI strip */
 .command-center-home.card {
   background-color: #ffffff;
-  overflow: hidden;
+  /* Allow detail-pane borders to paint (overflow:hidden on .card clipped the right stroke at the radius) */
+  overflow: visible;
   border-radius: var(--radius-xl, 0.75rem);
   max-width: 100%;
   min-width: 0;
@@ -341,7 +342,10 @@
   width: 100%;
   max-width: 100%;
   min-width: 0;
-  overflow-x: hidden;
+  /* Do not clip horizontal overflow: the split row contains the detail pane; hidden ate its right border */
+  overflow-x: visible;
+  padding-inline-end: 4px;
+  box-sizing: border-box;
 }
 
 /* Toolbar spans full width; table + sidebar align on one row so panel header lines up with thead */
@@ -353,9 +357,9 @@
   gap: 0;
   width: 100%;
   min-width: 0;
-  overflow-x: hidden;
-  /* Keeps the detail pane’s right stroke inside the overflow clip */
-  padding-inline-end: 1px;
+  /* Allow flex children’s borders to paint (hidden clipped the detail pane’s right edge in some layouts) */
+  overflow-x: visible;
+  padding-inline-end: 4px;
   box-sizing: border-box;
 }
 
@@ -401,9 +405,11 @@
   flex-direction: column;
   border-radius: 0;
   box-sizing: border-box;
-  border: 1px solid var(--command-center-panel-border, var(--border-color));
-  border-left-width: 2px;
-  border-left-color: var(--table-command-center-border, var(--border-color));
+  /* Perimeter: use shell --border-color so edges read on white (panel token is too light on the outer/right seam) */
+  border-top: 1px solid var(--border-color);
+  border-right: 2px solid var(--border-color);
+  border-bottom: 1px solid var(--border-color);
+  border-left: 2px solid var(--table-command-center-border, var(--border-color));
   background-color: var(--command-center-panel-surface-bg, #ffffff);
   box-shadow: none;
 }
@@ -417,7 +423,7 @@
     flex: 1 1 auto;
     max-width: none;
     width: 100%;
-    border: 1px solid var(--command-center-panel-border, var(--border-color));
+    border: 1px solid var(--border-color);
   }
 }
 

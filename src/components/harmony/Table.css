@@ -572,8 +572,7 @@
   row-gap: 0;
   align-items: start;
   overflow: hidden; /* contain panel slide-in transform */
-  /* Inset so the docked panel's right border is not clipped (overflow clips flush edges) */
-  padding-inline-end: 1px;
+  padding-inline-end: 4px;
   box-sizing: border-box;
 }
 
@@ -671,7 +670,9 @@
   display: flex;
   flex-direction: column;
   min-height: 0;
-  border: 1px solid var(--command-center-panel-border, var(--border-color));
+  border-top: 1px solid var(--border-color);
+  border-right: 2px solid var(--border-color);
+  border-bottom: 1px solid var(--border-color);
   border-left: 2px solid var(--table-command-center-border);
   background-color: var(--command-center-panel-surface-bg, var(--surface-bg));
   color: var(--text-primary);
