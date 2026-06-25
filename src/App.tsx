@@ -1540,7 +1540,7 @@ function HomeShell() {
     )
     if (logoLink == null) return
 
-    const onLogoClick = (e: MouseEvent) => {
+    const onLogoClick = (e: globalThis.MouseEvent) => {
       e.preventDefault()
       setInteractionRulesOpen(true)
     }
