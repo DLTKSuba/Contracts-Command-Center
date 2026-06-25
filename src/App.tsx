@@ -26,6 +26,8 @@ import {
 } from './components/harmony/ContractsExpirationDashboard'
 import { Link } from './components/harmony/Link'
 import { Icon } from './components/harmony/Icon'
+import { Input } from './components/harmony/Input'
+import { Textarea } from './components/harmony/Textarea'
 import { ComponentGalleryPage } from './pages/ComponentGalleryPage'
 import { ComponentDemoPage } from './pages/ComponentDemoPage'
 import { RightSidebarPanelDemosPage } from './pages/RightSidebarPanelDemosPage'
@@ -41,7 +43,8 @@ const DEFAULT_THEME = 'theme-cp'
 const THEME_SHELL_PROPS: Record<string, Partial<ShellLayoutProps>> = {
   'theme-cp': {
     productName: 'CP',
-    logoSrc: '/logos/CPVPLogo.svg',
+    logoSrc: '/logos/CostpointLogo.png',
+    logoWordmark: true,
     showFooter: false,
     showFloatingNav: true,
     leftSidebarVariant: 'cp',
@@ -70,7 +73,7 @@ const THEME_SHELL_PROPS: Record<string, Partial<ShellLayoutProps>> = {
   },
 }
 
-const REQ_MAIN_TAB_IDS = ['requisitions', 'purchase-orders'] as const
+const REQ_MAIN_TAB_IDS = ['requisitions'] as const
 
 const PO_DETAIL_TAB_PREFIX = 'po-detail:' as const
 
@@ -631,6 +634,11 @@ function matchesHighFunding(row: RequisitionRow): boolean {
   return row.fundingPercent > 65
 }
 
+function parseDisplayDate(value: string): number {
+  const t = Date.parse(value)
+  return Number.isFinite(t) ? t : 0
+}
+
 function filterRowsByKpiSelection(
   rows: RequisitionRow[],
   selectedTier: ExpirationTierKey | null,
@@ -741,6 +749,14 @@ function requisitionReportHref(prId: string) {
   return `#/report/requisition/${encodeURIComponent(prId)}`
 }
 
+function vendorEmailForRow(row: RequisitionRow): string {
+  const slug = row.vendor
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '.')
+    .replace(/^\.+|\.+$/g, '')
+  return `contact@${slug || 'vendor'}.com`
+}
+
 /** Parses table overdue cell like `2/5` → late vs total counts. */
 function parseOverdueFraction(overdue: string): { late: number; total: number } | null {
   const m = /^(\d+)\s*\/\s*(\d+)$/.exec(overdue.trim())
@@ -807,44 +823,6 @@ function contractInfoCell(
   )
 }
 
-function contractActionsCell(row: RequisitionRow) {
-  return (
-    <td
-      className="command-center-actions-cell text-right"
-      onClick={(e) => e.stopPropagation()}
-    >
-      <div className="command-center-actions-cell__inner">
-        <Button
-          type="button"
-          variant="ghost"
-          size="sm"
-          icon="ellipsis-horizontal"
-          ariaLabel={`More actions for ${row.id}`}
-        />
-      </div>
-    </td>
-  )
-}
-
-function projectActionsCell(projectId: string) {
-  return (
-    <td
-      className="command-center-actions-cell text-right"
-      onClick={(e) => e.stopPropagation()}
-    >
-      <div className="command-center-actions-cell__inner">
-        <Button
-          type="button"
-          variant="ghost"
-          size="sm"
-          icon="ellipsis-horizontal"
-          ariaLabel={`More actions for ${projectId}`}
-        />
-      </div>
-    </td>
-  )
-}
-
 function commandCenterHeaderTh(
   label: string,
   align: 'left' | 'right' = 'left',
@@ -885,7 +863,6 @@ const REQUISITION_TABLE_HEADER = (
       {commandCenterHeaderTh('Funded Value', 'right')}
       {commandCenterHeaderTh('ITD Cost', 'right')}
       {commandCenterHeaderTh('Funding Used', 'right')}
-      {commandCenterHeaderTh('Actions', 'right', undefined, false)}
     </tr>
   </thead>
 )
@@ -1007,7 +984,6 @@ function RequisitionTableBody({
               >
                 {row.fundingPercent}%
               </td>
-              {contractActionsCell(row)}
             </tr>
             {expanded &&
               row.projects.map((proj, projIdx) => (
@@ -1045,7 +1021,6 @@ function RequisitionTableBody({
                   >
                     {proj.fundingPercent}%
                   </td>
-                  {projectActionsCell(proj.id)}
                 </tr>
               ))}
           </Fragment>
@@ -1070,7 +1045,10 @@ function RequisitionSidePanel({
 }) {
   const reportHref = requisitionReportHref(row.id)
   const fundingUsedHigh = row.fundingPercent > 65
+  const [vendorEmailOpen, setVendorEmailOpen] = useState(false)
+
   return (
+    <>
     <aside
       className="command-center-requisition-panel"
       aria-label={`Contract details for ${row.contractNumber}`}
@@ -1092,17 +1070,29 @@ function RequisitionSidePanel({
       <div className="command-center-requisition-panel__intro">
         <div className="command-center-requisition-panel__pr-row">
           <span className="command-center-requisition-panel__pr-id">{row.contractNumber}</span>
-          <Link
-            href={reportHref}
-            size="small"
-            title="Open Contract Details Report in a Command Center tab"
-            onClick={(e) => {
-              e.preventDefault()
-              onOpenRequisitionReportTab(row.id)
-            }}
-          >
-            Contract Details Report
-          </Link>
+          <div className="command-center-requisition-panel__report-links">
+            <Link
+              href={reportHref}
+              size="small"
+              title="Open Contract Details Report in a Command Center tab"
+              onClick={(e) => {
+                e.preventDefault()
+                onOpenRequisitionReportTab(row.id)
+              }}
+            >
+              Contract Details Report
+            </Link>
+            <Link
+              href="#"
+              size="small"
+              title="Open Smart Summaries"
+              onClick={(e: MouseEvent<HTMLAnchorElement>) => {
+                e.preventDefault()
+              }}
+            >
+              Smart Summaries
+            </Link>
+          </div>
         </div>
       </div>
       <div
@@ -1126,18 +1116,108 @@ function RequisitionSidePanel({
           row={row}
           open={summaryAccordionOpen}
           onOpenChange={onSummaryAccordionOpenChange}
+          onVendorClick={() => setVendorEmailOpen(true)}
         />
         <RequisitionRiskStatusSection row={row} />
       </div>
     </aside>
+    <VendorEmailDialog
+      row={row}
+      open={vendorEmailOpen}
+      onClose={() => setVendorEmailOpen(false)}
+    />
+    </>
   )
 }
 
-function ContractSummaryField({ label, value }: { label: string; value: string }) {
+function VendorEmailDialog({
+  row,
+  open,
+  onClose,
+}: {
+  row: RequisitionRow
+  open: boolean
+  onClose: () => void
+}) {
+  const to = vendorEmailForRow(row)
+  const [subject, setSubject] = useState('')
+  const [body, setBody] = useState('')
+
+  useEffect(() => {
+    if (!open) return
+    setSubject(`RE: ${row.contractNumber} — ${row.vendor}`)
+    setBody(
+      `Hello,\n\nI am following up regarding contract ${row.contractNumber}.\n\nThank you,`,
+    )
+  }, [open, row.contractNumber, row.vendor])
+
+  return (
+    <Dialog
+      id={`vendor-email-${row.id}`}
+      title={`Email ${row.vendor}`}
+      open={open}
+      onClose={onClose}
+      resizable={false}
+      footer={
+        <div className="dialog__footer-actions">
+          <Button buttonType="theme" variant="primary" onClick={onClose}>
+            Send
+          </Button>
+          <Button buttonType="theme" variant="secondary" onClick={onClose}>
+            Cancel
+          </Button>
+        </div>
+      }
+    >
+      <div className="command-center-vendor-email">
+        <Input label="To" labelVariant="stacked" type="email" value={to} readOnly />
+        <Input
+          label="Subject"
+          labelVariant="stacked"
+          value={subject}
+          onChange={(e) => setSubject(e.target.value)}
+        />
+        <Textarea
+          label="Message"
+          labelVariant="stacked"
+          rows={6}
+          value={body}
+          onChange={(e) => setBody(e.target.value)}
+        />
+      </div>
+    </Dialog>
+  )
+}
+
+function ContractSummaryField({
+  label,
+  value,
+  onValueClick,
+}: {
+  label: string
+  value: string
+  onValueClick?: () => void
+}) {
   return (
     <div className="command-center-requisition-summary__field">
       <div className="command-center-requisition-summary__label">{label}</div>
-      <div className="command-center-requisition-summary__value">{value}</div>
+      <div className="command-center-requisition-summary__value">
+        {onValueClick != null ? (
+          <Link
+            href="#"
+            size="small"
+            title={`Email ${value}`}
+            onClick={(e: MouseEvent<HTMLAnchorElement>) => {
+              e.preventDefault()
+              onValueClick()
+            }}
+          >
+            {value}
+          </Link>
+        ) : (
+          value
+        )}
+      </div>
     </div>
   )
 }
@@ -1146,10 +1226,12 @@ function RequisitionDetailSummary({
   row,
   open,
   onOpenChange,
+  onVendorClick,
 }: {
   row: RequisitionRow
   open: boolean
   onOpenChange: (next: boolean) => void
+  onVendorClick: () => void
 }) {
   return (
     <details
@@ -1171,7 +1253,7 @@ function RequisitionDetailSummary({
       <div className="command-center-requisition-accordion__content">
         <div className="command-center-requisition-summary__grid">
           <ContractSummaryField label="Contract ID" value={row.contractNumber} />
-          <ContractSummaryField label="Vendor" value={row.vendor} />
+          <ContractSummaryField label="Vendor" value={row.vendor} onValueClick={onVendorClick} />
           <ContractSummaryField label="Manager" value={row.managerName} />
           <ContractSummaryField label="Contract Type" value={row.contractType} />
           <ContractSummaryField label="Project Type" value={row.projectType} />
@@ -1498,13 +1580,13 @@ function HomeShell() {
     [expirationTierFilter],
   )
 
-  const sortedFilteredRequisitionRows = useMemo(() => {
-    const sorted = [...filteredRequisitionRows]
-    if (expirationTierFilter === 'highFunding') {
-      return sorted.sort((a, b) => b.fundingPercent - a.fundingPercent)
-    }
-    return sorted.sort((a, b) => a.daysUntilContractExpiry - b.daysUntilContractExpiry)
-  }, [filteredRequisitionRows, expirationTierFilter])
+  const sortedFilteredRequisitionRows = useMemo(
+    () =>
+      [...filteredRequisitionRows].sort(
+        (a, b) => parseDisplayDate(a.nextImportantDate) - parseDisplayDate(b.nextImportantDate),
+      ),
+    [filteredRequisitionRows],
+  )
 
   const selectedRequisition = useMemo(
     () => sortedFilteredRequisitionRows.find((r) => r.id === selectedRequisitionId) ?? null,
@@ -1569,7 +1651,7 @@ function HomeShell() {
   }
 
   useEffect(() => {
-    if (activeTabId !== 'requisitions' && activeTabId !== 'purchase-orders') {
+    if (activeTabId !== 'requisitions') {
       setSelectedRequisitionId(null)
     }
   }, [activeTabId])
@@ -1586,12 +1668,8 @@ function HomeShell() {
   const commandCenterTabs = useMemo(() => {
     const base = REQ_MAIN_TAB_IDS.map((id) => ({
       id,
-      label:
-        id === 'requisitions'
-          ? 'Contracts Expiration Timeline'
-          : 'Risk Analysis',
+      label: 'Contracts Expiration Timeline',
       active: activeTabId === id,
-      disabled: id === 'purchase-orders',
       showClose: false as const,
     }))
     const prDetailTabs = prDetailRequisitionIds.map((prId) => {
@@ -1630,7 +1708,6 @@ function HomeShell() {
               onTabSelected={(id: string) => {
                 if (
                   id === 'requisitions' ||
-                  id === 'purchase-orders' ||
                   isPoDetailTabId(id) ||
                   isPrDetailTabId(id)
                 ) {
@@ -1654,7 +1731,7 @@ function HomeShell() {
             />
           </div>
 
-          {(activeTabId === 'requisitions' || activeTabId === 'purchase-orders') && (
+          {activeTabId === 'requisitions' && (
             <div ref={kpiFilterZoneRef}>
               <ContractsExpirationDashboard
                 key={refreshTick}

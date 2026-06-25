@@ -36,8 +36,9 @@
   outline-offset: 2px;
 }
 
-/* Selection: primary on top / right / bottom only — no blue on the left (tier token stays visible). */
+/* Selection: light blue fill + primary border (left tier accent stripe unchanged). */
 .ced-card--selected {
+  background-color: rgb(219 233 247 / 0.8);
   box-shadow: none;
   border-left-color: var(--border-color);
   border-top-color: var(--theme-primary);

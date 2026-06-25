@@ -17,6 +17,8 @@ const PPM_COMPANIES: CompanyOption[] = [
 export interface ShellHeaderProps {
   productName?: string
   logoSrc?: string
+  /** Horizontal wordmark logo (hides product name, uses wider sizing). */
+  logoWordmark?: boolean
   companyName?: string
   showCompanyPicker?: boolean
   companyColor?: string
@@ -27,6 +29,7 @@ export interface ShellHeaderProps {
 export function ShellHeader({
   productName = 'Harmony',
   logoSrc = '/logos/PPMLogo.svg',
+  logoWordmark = false,
   companyName = 'Company name',
   showCompanyPicker = true,
   companyColor,
@@ -66,8 +69,12 @@ export function ShellHeader({
     <header className={clsx('header', className)}>
       <div className="header__brand">
         <a href="/" className="header__brand-link">
-          <img src={logoSrc} alt="Logo" className="header__logo" />
-          <span className="header__title">{productName}</span>
+          <img
+            src={logoSrc}
+            alt={logoWordmark ? 'Costpoint' : 'Logo'}
+            className={clsx('header__logo', logoWordmark && 'header__logo--wordmark')}
+          />
+          {!logoWordmark && <span className="header__title">{productName}</span>}
         </a>
       </div>
       <div className="header__actions">

@@ -50,18 +50,55 @@
 
 /* Command Center home card + body: white surface; rounded shell matches KPI strip */
 .command-center-home.card {
+  position: relative;
   background-color: #ffffff;
-  /* Allow detail-pane borders to paint (overflow:hidden on .card clipped the right stroke at the radius) */
-  overflow: visible;
+  overflow: hidden;
   border-radius: var(--radius-xl, 0.75rem);
   max-width: 100%;
   min-width: 0;
+  isolation: isolate;
+}
+
+/*
+ * Primary top accent: full-width bar with rounded top corners (CP content panel reference).
+ * Painted above .card__body (z-index) so the white body padding does not cover the accent.
+ */
+.command-center-home.card--primary {
+  /* Override .card--primary 4px top border; accent is the ::before ring (6px) */
+  border-top: 1px solid transparent;
+  box-shadow: var(--shadow-sm);
+}
+
+.command-center-home.card--primary.card--elevated {
+  box-shadow: var(--shadow-lg);
+}
+
+/*
+ * Primary top accent: top border on a rounded inset ring follows the corner arc
+ * (flat bars / masks leave white wedges in the parent border-radius).
+ */
+.command-center-home.card--primary::before {
+  content: '';
+  position: absolute;
+  inset: -1px;
+  border-radius: inherit;
+  border-style: solid;
+  border-color: var(--theme-primary);
+  border-width: calc(var(--space-1) + 2px) 0 0;
+  background: transparent;
+  pointer-events: none;
+  z-index: 2;
 }
 
 .command-center-home .card__body {
+  position: relative;
+  z-index: 1;
   background-color: #ffffff;
   min-width: 0;
   max-width: 100%;
+  /* Keep detail-pane right border inside the rounded shell */
+  padding-inline-end: calc(var(--space-4) + 2px);
+  box-sizing: border-box;
 }
 
 /*
@@ -456,6 +493,19 @@
   padding: var(--space-4);
   background-color: #ffffff;
   border-bottom: 1px solid var(--border-light);
+}
+
+.command-center-requisition-panel__report-links {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--space-1);
+}
+
+.command-center-vendor-email {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
 }
 
 .command-center-requisition-panel__pr-row {

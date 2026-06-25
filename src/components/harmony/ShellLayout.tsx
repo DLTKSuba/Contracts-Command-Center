@@ -20,6 +20,7 @@ import './ShellLayout.css'
 export interface ShellLayoutProps {
   productName?: string
   logoSrc?: string
+  logoWordmark?: boolean
   companyName?: string
   showCompanyPicker?: boolean
   companyColor?: string
@@ -74,6 +75,7 @@ const DEFAULT_TABS: ShellFooterTab[] = [
 export function ShellLayout({
   productName,
   logoSrc,
+  logoWordmark,
   companyName,
   showCompanyPicker = true,
   companyColor,
@@ -143,6 +145,7 @@ export function ShellLayout({
         <ShellHeader
           productName={productName}
           logoSrc={logoSrc}
+          logoWordmark={logoWordmark}
           companyName={companyName}
           showCompanyPicker={showCompanyPicker}
           companyColor={companyColor}

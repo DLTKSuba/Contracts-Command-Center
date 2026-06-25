@@ -66,6 +66,12 @@
   border-radius: var(--radius-full);
 }
 
+.header__logo--wordmark {
+  width: auto;
+  height: 1.75rem;
+  border-radius: 0;
+}
+
 .header__title {
   font-family: var(--font-display);
   font-weight: var(--font-bold);
