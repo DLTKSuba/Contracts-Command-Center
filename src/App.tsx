@@ -14,14 +14,16 @@ import { ShellLayout } from './components/harmony/ShellLayout'
 import type { ShellLayoutProps } from './components/harmony/ShellLayout'
 import { Card } from './components/harmony/Card'
 import { Button } from './components/harmony/Button'
+import { Dialog } from './components/harmony/Dialog'
+import { InteractionRulesPanel } from './components/harmony/InteractionRulesPanel'
 import { TabStrip } from './components/harmony/TabStrip'
 import { Table } from './components/harmony/Table'
 import {
   ContractsExpirationDashboard,
   type ExpirationTierKey,
+  type HighFundingLine,
   type TierExpiryLine,
 } from './components/harmony/ContractsExpirationDashboard'
-import { SpendSignalsKpiStrip } from './components/harmony/SpendSignalsKpiStrip'
 import { Link } from './components/harmony/Link'
 import { Icon } from './components/harmony/Icon'
 import { ComponentGalleryPage } from './pages/ComponentGalleryPage'
@@ -274,8 +276,8 @@ const REQUISITION_ROWS: RequisitionRow[] = [
     nextImportantDate: 'Apr 16, 2025',
     startDate: 'Mar 28, 2025',
     fundedValue: '$12,000.00',
-    itdCost: '$8,520.00',
-    fundingPercent: 71,
+    itdCost: '$6,240.00',
+    fundingPercent: 52,
     statusLabel: 'Pending Approval',
     stageIndices: [0, 2],
     overdue: '1/6',
@@ -297,8 +299,8 @@ const REQUISITION_ROWS: RequisitionRow[] = [
         endDate: DEMO_CONTRACT_END.d18,
         contractValue: '$3,890.25',
         fundedValue: '$12,000.00',
-        itdCost: '$8,520.00',
-        fundingPercent: 71,
+        itdCost: '$6,240.00',
+        fundingPercent: 52,
       },
     ],
     daysUntilContractExpiry: 18,
@@ -616,34 +618,27 @@ const REQUISITION_ROWS: RequisitionRow[] = [
 
 const DEFAULT_EXPIRY_MAX_DAYS = 90
 
-function parseUsd(value: string): number {
-  const n = Number(value.replace(/[$,\s]/g, ''))
-  return Number.isFinite(n) ? n : 0
-}
+type ExpiryTierKey = 'critical' | 'warning' | 'upcoming'
 
-function formatCurrencyCompact(amount: number): string {
-  const abs = Math.abs(amount)
-  if (abs >= 1_000_000) return `$${(amount / 1_000_000).toFixed(2)}M`
-  if (abs >= 1_000) return `$${(amount / 1_000).toFixed(2)}K`
-  return `$${amount.toLocaleString('en-US', {
-    minimumFractionDigits: 2,
-    maximumFractionDigits: 2,
-  })}`
-}
-
-function matchesExpiryTier(row: RequisitionRow, tier: ExpirationTierKey): boolean {
+function matchesExpiryTier(row: RequisitionRow, tier: ExpiryTierKey): boolean {
   const d = row.daysUntilContractExpiry
   if (tier === 'critical') return d <= 30
   if (tier === 'warning') return d >= 31 && d <= 60
   return d >= 61 && d <= 90
 }
 
-function filterRowsByExpirySelection(
+function matchesHighFunding(row: RequisitionRow): boolean {
+  return row.fundingPercent > 65
+}
+
+function filterRowsByKpiSelection(
   rows: RequisitionRow[],
   selectedTier: ExpirationTierKey | null,
 ): RequisitionRow[] {
   const withinDefault = rows.filter((r) => r.daysUntilContractExpiry <= DEFAULT_EXPIRY_MAX_DAYS)
   if (selectedTier == null) return withinDefault
+  if (selectedTier === 'highFunding') return withinDefault.filter((r) => matchesHighFunding(r))
+  // Expiry tiers include every contract in the window, regardless of funding used.
   return withinDefault.filter((r) => matchesExpiryTier(r, selectedTier))
 }
 
@@ -665,7 +660,7 @@ function summarizeExpirationTierFirstExpiry(rows: RequisitionRow[]): {
   warning: TierExpiryLine
   upcoming: TierExpiryLine
 } {
-  const tiers = ['critical', 'warning', 'upcoming'] as const satisfies readonly ExpirationTierKey[]
+  const tiers = ['critical', 'warning', 'upcoming'] as const satisfies readonly ExpiryTierKey[]
   const base = rows.filter((r) => r.daysUntilContractExpiry <= DEFAULT_EXPIRY_MAX_DAYS)
   const result: {
     critical: TierExpiryLine
@@ -691,31 +686,16 @@ function summarizeExpirationTierFirstExpiry(rows: RequisitionRow[]): {
   return result
 }
 
-function computeSpendMetricsFromRows(rows: RequisitionRow[]) {
-  if (rows.length === 0) {
-    return {
-      highSpendGe65Pct: 0,
-      fundedValueLabel: '$0.00',
-      fundingGapLabel: '$0.00',
-      unspentBalanceLabel: '$0.00',
-    }
-  }
-  const highSpend = rows.filter((r) => r.fundingPercent >= 65).length
-  const pct = Math.round((highSpend / rows.length) * 1000) / 10
-  let fundedSum = 0
-  let itdSum = 0
-  for (const r of rows) {
-    fundedSum += parseUsd(r.fundedValue)
-    itdSum += parseUsd(r.itdCost)
-  }
-  const unspent = Math.max(0, fundedSum - itdSum)
-  const gapDemo = Math.max(0, fundedSum * 0.052)
-  return {
-    highSpendGe65Pct: pct,
-    fundedValueLabel: formatCurrencyCompact(fundedSum),
-    fundingGapLabel: formatCurrencyCompact(gapDemo),
-    unspentBalanceLabel: formatCurrencyCompact(unspent),
-  }
+function summarizeHighFunding(rows: RequisitionRow[]): {
+  count: number
+  line: HighFundingLine
+} {
+  const base = rows.filter(
+    (r) => r.daysUntilContractExpiry <= DEFAULT_EXPIRY_MAX_DAYS && matchesHighFunding(r),
+  )
+  if (base.length === 0) return { count: 0, line: null }
+  const highestPct = Math.max(...base.map((r) => r.fundingPercent))
+  return { count: base.length, line: { highestPct } }
 }
 
 function requisitionLineRowsForPr(row: RequisitionRow): RequisitionLineRow[] {
@@ -1490,8 +1470,13 @@ function HomeShell() {
   const [reqPanelSummaryOpen, setReqPanelSummaryOpen] = useState(true)
   const [expirationTierFilter, setExpirationTierFilter] = useState<ExpirationTierKey | null>(null)
   const [expandedContractIds, setExpandedContractIds] = useState<string[]>([])
-  const expirationDashRef = useRef<HTMLDivElement>(null)
+  const [interactionRulesOpen, setInteractionRulesOpen] = useState(false)
+  const kpiFilterZoneRef = useRef<HTMLDivElement>(null)
   const themeProps = THEME_SHELL_PROPS[DEFAULT_THEME] ?? THEME_SHELL_PROPS['theme-cp']
+
+  const handleSelectKpiTier = useCallback((tier: ExpirationTierKey) => {
+    setExpirationTierFilter((prev) => (prev === tier ? null : tier))
+  }, [])
 
   const toggleContractExpanded = useCallback((rowId: string) => {
     setExpandedContractIds((prev) =>
@@ -1506,22 +1491,20 @@ function HomeShell() {
     [],
   )
 
+  const highFundingSummary = useMemo(() => summarizeHighFunding(REQUISITION_ROWS), [])
+
   const filteredRequisitionRows = useMemo(
-    () => filterRowsByExpirySelection(REQUISITION_ROWS, expirationTierFilter),
+    () => filterRowsByKpiSelection(REQUISITION_ROWS, expirationTierFilter),
     [expirationTierFilter],
   )
 
-  /** Highest funding used first (same metric as spend KPI ≥65% threshold). */
-  const sortedFilteredRequisitionRows = useMemo(
-    () =>
-      [...filteredRequisitionRows].sort((a, b) => b.fundingPercent - a.fundingPercent),
-    [filteredRequisitionRows],
-  )
-
-  const spendKpiMetrics = useMemo(
-    () => computeSpendMetricsFromRows(filteredRequisitionRows),
-    [filteredRequisitionRows],
-  )
+  const sortedFilteredRequisitionRows = useMemo(() => {
+    const sorted = [...filteredRequisitionRows]
+    if (expirationTierFilter === 'highFunding') {
+      return sorted.sort((a, b) => b.fundingPercent - a.fundingPercent)
+    }
+    return sorted.sort((a, b) => a.daysUntilContractExpiry - b.daysUntilContractExpiry)
+  }, [filteredRequisitionRows, expirationTierFilter])
 
   const selectedRequisition = useMemo(
     () => sortedFilteredRequisitionRows.find((r) => r.id === selectedRequisitionId) ?? null,
@@ -1542,7 +1525,7 @@ function HomeShell() {
   useEffect(() => {
     if (expirationTierFilter === null) return
     const onDocMouseDown = (e: Event) => {
-      const el = expirationDashRef.current
+      const el = kpiFilterZoneRef.current
       if (el != null && !el.contains(e.target as Node)) {
         setExpirationTierFilter(null)
       }
@@ -1550,6 +1533,21 @@ function HomeShell() {
     document.addEventListener('mousedown', onDocMouseDown)
     return () => document.removeEventListener('mousedown', onDocMouseDown)
   }, [expirationTierFilter])
+
+  useEffect(() => {
+    const logoLink = document.querySelector<HTMLAnchorElement>(
+      '.shell-layout__header .header__brand-link',
+    )
+    if (logoLink == null) return
+
+    const onLogoClick = (e: MouseEvent) => {
+      e.preventDefault()
+      setInteractionRulesOpen(true)
+    }
+
+    logoLink.addEventListener('click', onLogoClick)
+    return () => logoLink.removeEventListener('click', onLogoClick)
+  }, [])
 
   const openPrRequisitionDetailTab = (prId: string) => {
     setPrDetailRequisitionIds((prev) => (prev.includes(prId) ? prev : [...prev, prId]))
@@ -1618,11 +1616,12 @@ function HomeShell() {
   }, [activeTabId, prDetailRequisitionIds, poDetailOrderIds])
 
   return (
-    <ShellLayout
-      {...themeProps}
-      pageHeaderTitle="Command Center"
-      pageHeaderShowDefaultButtons={false}
-    >
+    <>
+      <ShellLayout
+        {...themeProps}
+        pageHeaderTitle="Command Center"
+        pageHeaderShowDefaultButtons={false}
+      >
       <Card primary elevated className="command-center-home">
         <div className="card__body">
           <div className="command-center-tab-row">
@@ -1656,21 +1655,15 @@ function HomeShell() {
           </div>
 
           {(activeTabId === 'requisitions' || activeTabId === 'purchase-orders') && (
-            <>
-              <div ref={expirationDashRef}>
-                <ContractsExpirationDashboard
-                  key={refreshTick}
-                  tierCounts={expirationTierCounts}
-                  tierExpiryLines={expirationTierExpiryLines}
-                  selectedTier={expirationTierFilter}
-                  onSelectTier={setExpirationTierFilter}
-                />
-              </div>
-              <SpendSignalsKpiStrip
-                highSpendGe65Pct={spendKpiMetrics.highSpendGe65Pct}
-                fundedValueLabel={spendKpiMetrics.fundedValueLabel}
-                fundingGapLabel={spendKpiMetrics.fundingGapLabel}
-                unspentBalanceLabel={spendKpiMetrics.unspentBalanceLabel}
+            <div ref={kpiFilterZoneRef}>
+              <ContractsExpirationDashboard
+                key={refreshTick}
+                tierCounts={expirationTierCounts}
+                tierExpiryLines={expirationTierExpiryLines}
+                highFundingCount={highFundingSummary.count}
+                highFundingLine={highFundingSummary.line}
+                selectedTier={expirationTierFilter}
+                onSelectTier={handleSelectKpiTier}
               />
               <div className="lifecycle-bar-chart__table command-center-table-detail-anchor">
                 <div
@@ -1736,7 +1729,7 @@ function HomeShell() {
                   )}
                 </div>
               </div>
-            </>
+            </div>
           )}
 
           {isPrDetailTabId(activeTabId) && (
@@ -1752,7 +1745,28 @@ function HomeShell() {
           )}
         </div>
       </Card>
-    </ShellLayout>
+      </ShellLayout>
+      <Dialog
+        id="command-center-interaction-rules"
+        title="Interaction rules"
+        open={interactionRulesOpen}
+        onClose={() => setInteractionRulesOpen(false)}
+        resizable={false}
+        footer={
+          <div className="dialog__footer-actions">
+            <Button
+              buttonType="theme"
+              variant="primary"
+              onClick={() => setInteractionRulesOpen(false)}
+            >
+              Close
+            </Button>
+          </div>
+        }
+      >
+        <InteractionRulesPanel />
+      </Dialog>
+    </>
   )
 }
 

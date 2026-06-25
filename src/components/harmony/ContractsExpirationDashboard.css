@@ -66,6 +66,14 @@
   background-color: var(--data-viz-upcoming);
 }
 
+.ced-card--high-funding .ced-card__accent {
+  background-color: var(--data-viz-warning);
+}
+
+.ced-card--high-funding .ced-card__count {
+  color: var(--data-viz-warning);
+}
+
 .ced-card__body {
   flex: 1;
   min-width: 0;

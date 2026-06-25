@@ -1,0 +1,43 @@
+.interaction-rules-panel {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4, 1rem);
+  max-height: min(60vh, 28rem);
+  overflow-y: auto;
+  font-family: var(--font-display);
+}
+
+.interaction-rules-panel__intro {
+  margin: 0;
+  font-size: var(--text-sm, 0.875rem);
+  line-height: 1.45;
+  color: var(--text-secondary);
+}
+
+.interaction-rules-panel__section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2, 0.5rem);
+}
+
+.interaction-rules-panel__heading {
+  margin: 0;
+  font-size: var(--text-sm, 0.875rem);
+  font-weight: var(--font-semibold, 600);
+  line-height: 1.35;
+  color: var(--text-primary);
+}
+
+.interaction-rules-panel__list {
+  margin: 0;
+  padding-inline-start: var(--space-5, 1.25rem);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2, 0.5rem);
+}
+
+.interaction-rules-panel__list li {
+  font-size: var(--text-sm, 0.875rem);
+  line-height: 1.45;
+  color: var(--text-secondary);
+}

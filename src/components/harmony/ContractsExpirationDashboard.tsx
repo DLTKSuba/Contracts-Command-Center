@@ -1,7 +1,7 @@
 import clsx from 'clsx'
 import './ContractsExpirationDashboard.css'
 
-export type ExpirationTierKey = 'critical' | 'warning' | 'upcoming'
+export type ExpirationTierKey = 'critical' | 'warning' | 'upcoming' | 'highFunding'
 
 type TierCardModel = {
   tier: ExpirationTierKey
@@ -34,6 +34,16 @@ const UPCOMING_META = {
   tier: 'upcoming' as const,
   windowLabel: 'Expires in 61–90 days',
 }
+
+const HIGH_FUNDING_META = {
+  tier: 'highFunding' as const,
+  windowLabel: 'Funding used > 65%',
+}
+
+/** Derived from grid data — null when no contracts exceed the funding threshold. */
+export type HighFundingLine = {
+  highestPct: number
+} | null
 
 function TierCard({
   meta,
@@ -100,6 +110,66 @@ function TierCard({
   )
 }
 
+function HighFundingCard({
+  count,
+  fundingLine,
+  selected,
+  onSelect,
+}: {
+  count: number
+  fundingLine: HighFundingLine
+  selected: boolean
+  onSelect: () => void
+}) {
+  const headingId = 'ced-high-funding-heading'
+
+  return (
+    <article
+      className={clsx(
+        'ced-card',
+        'ced-card--high-funding',
+        selected && 'ced-card--selected',
+      )}
+      aria-labelledby={headingId}
+      role="button"
+      tabIndex={0}
+      aria-pressed={selected}
+      onClick={(e) => {
+        e.preventDefault()
+        onSelect()
+      }}
+      onKeyDown={(e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault()
+          onSelect()
+        }
+      }}
+    >
+      <div className="ced-card__accent" aria-hidden />
+      <div className="ced-card__body">
+        <p className="ced-card__window-label" id={headingId}>
+          {HIGH_FUNDING_META.windowLabel}
+        </p>
+        <div className="ced-card__value-stack">
+          <p className="ced-card__count" aria-label={`${count} contracts`}>
+            {count}
+          </p>
+          <p className="ced-card__expires-line">
+            {fundingLine != null ? (
+              <>
+                <span className="ced-card__first-expiry-prefix">Highest funding used </span>
+                <span className="ced-card__expires-date">{fundingLine.highestPct}%</span>
+              </>
+            ) : (
+              <span className="ced-card__first-expiry-prefix">No contracts above threshold</span>
+            )}
+          </p>
+        </div>
+      </div>
+    </article>
+  )
+}
+
 export type ContractsExpirationDashboardProps = {
   tierCounts: { critical: number; warning: number; upcoming: number }
   tierExpiryLines: {
@@ -107,6 +177,8 @@ export type ContractsExpirationDashboardProps = {
     warning: TierExpiryLine
     upcoming: TierExpiryLine
   }
+  highFundingCount: number
+  highFundingLine: HighFundingLine
   selectedTier: ExpirationTierKey | null
   onSelectTier: (tier: ExpirationTierKey) => void
 }
@@ -114,6 +186,8 @@ export type ContractsExpirationDashboardProps = {
 export function ContractsExpirationDashboard({
   tierCounts,
   tierExpiryLines,
+  highFundingCount,
+  highFundingLine,
   selectedTier,
   onSelectTier,
 }: ContractsExpirationDashboardProps) {
@@ -140,6 +214,12 @@ export function ContractsExpirationDashboard({
           count={tierCounts.upcoming}
           selected={selectedTier === 'upcoming'}
           onSelect={() => onSelectTier('upcoming')}
+        />
+        <HighFundingCard
+          count={highFundingCount}
+          fundingLine={highFundingLine}
+          selected={selectedTier === 'highFunding'}
+          onSelect={() => onSelectTier('highFunding')}
         />
       </div>
     </section>
