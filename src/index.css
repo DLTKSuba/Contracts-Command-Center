@@ -96,6 +96,10 @@
   background-color: #ffffff;
   min-width: 0;
   max-width: 100%;
+  flex: 1 1 auto;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
   /* Keep detail-pane right border inside the rounded shell */
   padding-inline-end: calc(var(--space-4) + 2px);
   box-sizing: border-box;
@@ -339,6 +343,29 @@
   min-height: 0;
 }
 
+/* Command Center card fills remaining main height; table + panel scroll inside */
+.shell-layout[data-cp-variant="true"] .shell-layout__main .command-center-home.card {
+  flex: 1 1 auto;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.command-center-home .command-center-tab-row {
+  flex-shrink: 0;
+}
+
+.command-center-requisitions-workspace {
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 auto;
+  min-height: 0;
+}
+
+.command-center-requisitions-workspace .contracts-expiration-dashboard {
+  flex-shrink: 0;
+}
+
 .command-center-actions-cell {
   vertical-align: middle;
   white-space: nowrap;
@@ -376,11 +403,12 @@
   flex-direction: column;
   align-items: stretch;
   gap: 0;
+  flex: 1 1 auto;
+  min-height: 0;
   width: 100%;
   max-width: 100%;
   min-width: 0;
-  /* Do not clip horizontal overflow: the split row contains the detail pane; hidden ate its right border */
-  overflow-x: visible;
+  overflow: hidden;
   padding-inline-end: 4px;
   box-sizing: border-box;
 }
@@ -394,8 +422,8 @@
   gap: 0;
   width: 100%;
   min-width: 0;
-  /* Allow flex children’s borders to paint (hidden clipped the detail pane’s right edge in some layouts) */
-  overflow-x: visible;
+  min-height: 0;
+  overflow: hidden;
   padding-inline-end: 4px;
   box-sizing: border-box;
 }
@@ -404,12 +432,21 @@
   flex: 1 1 50%;
   min-width: 0;
   max-width: 100%;
-  overflow-x: hidden;
+  min-height: 0;
+  overflow-x: auto;
+  overflow-y: auto;
 }
 
 .command-center-contracts-table-wrap {
   min-width: 0;
   max-width: 100%;
+}
+
+/* Keep table header visible while the contracts grid scrolls */
+.command-center-table-detail-stack .command-center-data-table thead th {
+  position: sticky;
+  top: 0;
+  z-index: 1;
 }
 
 /* Contracts grid only: shrink with the split pane without forcing horizontal scroll */
@@ -439,7 +476,9 @@
   max-width: min(calc(58% * 0.8), calc(40rem * 0.8));
   min-width: 0;
   min-height: 0;
+  max-height: 100%;
   flex-direction: column;
+  overflow: hidden;
   border-radius: 0;
   box-sizing: border-box;
   /* Perimeter: use shell --border-color so edges read on white (panel token is too light on the outer/right seam) */
@@ -456,10 +495,17 @@
     flex-direction: column;
   }
 
+  .command-center-table-detail-stack {
+    flex: 1 1 auto;
+    min-height: 0;
+  }
+
   .command-center-requisition-panel {
     flex: 1 1 auto;
     max-width: none;
+    max-height: none;
     width: 100%;
+    min-height: 0;
     border: 1px solid var(--border-color);
   }
 }
@@ -467,10 +513,10 @@
 /* Compact bar height aligned with Harmony shell panel header rhythm */
 .command-center-requisition-panel__header {
   display: flex;
+  flex-shrink: 0;
   align-items: center;
   justify-content: space-between;
   gap: var(--space-3);
-  flex-shrink: 0;
   min-height: calc(var(--space-2) * 2 + var(--icon-lg));
   padding: var(--space-2) var(--space-4);
   background-color: var(--theme-primary);

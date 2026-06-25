@@ -1741,7 +1741,7 @@ function HomeShell() {
           </div>
 
           {activeTabId === 'requisitions' && (
-            <div ref={kpiFilterZoneRef}>
+            <div ref={kpiFilterZoneRef} className="command-center-requisitions-workspace">
               <ContractsExpirationDashboard
                 key={refreshTick}
                 tierCounts={expirationTierCounts}
