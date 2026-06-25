@@ -800,6 +800,13 @@ html.theme-cp:not(.dark) .command-center-pr-summary-panel__value {
   color: var(--link-color);
 }
 
+.command-center-summary-email-link {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  color: var(--link-color);
+}
+
 .command-center-requisition-late-items {
   padding: var(--space-4) var(--space-4) var(--space-4) var(--cc-accordion-content-inset-start);
   box-sizing: border-box;

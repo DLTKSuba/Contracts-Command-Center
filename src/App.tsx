@@ -1193,10 +1193,12 @@ function ContractSummaryField({
   label,
   value,
   onValueClick,
+  emailLink = false,
 }: {
   label: string
   value: string
   onValueClick?: () => void
+  emailLink?: boolean
 }) {
   return (
     <div className="command-center-requisition-summary__field">
@@ -1206,12 +1208,14 @@ function ContractSummaryField({
           <Link
             href="#"
             size="small"
-            title={`Email ${value}`}
+            title={emailLink ? `Compose email to ${value}` : `Email ${value}`}
+            className={emailLink ? 'command-center-summary-email-link' : undefined}
             onClick={(e: MouseEvent<HTMLAnchorElement>) => {
               e.preventDefault()
               onValueClick()
             }}
           >
+            {emailLink && <Icon name="envelope" size="xs" aria-hidden />}
             {value}
           </Link>
         ) : (
@@ -1253,7 +1257,12 @@ function RequisitionDetailSummary({
       <div className="command-center-requisition-accordion__content">
         <div className="command-center-requisition-summary__grid">
           <ContractSummaryField label="Contract ID" value={row.contractNumber} />
-          <ContractSummaryField label="Vendor" value={row.vendor} onValueClick={onVendorClick} />
+          <ContractSummaryField
+            label="Vendor"
+            value={row.vendor}
+            onValueClick={onVendorClick}
+            emailLink
+          />
           <ContractSummaryField label="Manager" value={row.managerName} />
           <ContractSummaryField label="Contract Type" value={row.contractType} />
           <ContractSummaryField label="Project Type" value={row.projectType} />
