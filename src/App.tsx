@@ -20,9 +20,12 @@ import { TabStrip } from './components/harmony/TabStrip'
 import { Table } from './components/harmony/Table'
 import {
   ContractsExpirationDashboard,
+  VizDesignOptionPicker,
   type ExpirationTierKey,
+  type FundingUtilizationSummary,
   type HighFundingLine,
   type TierExpiryLine,
+  type VizDesignOption,
 } from './components/harmony/ContractsExpirationDashboard'
 import { Link } from './components/harmony/Link'
 import { Icon } from './components/harmony/Icon'
@@ -631,7 +634,7 @@ function matchesExpiryTier(row: RequisitionRow, tier: ExpiryTierKey): boolean {
 }
 
 function matchesHighFunding(row: RequisitionRow): boolean {
-  return row.fundingPercent > 65
+  return row.fundingPercent >= 65
 }
 
 function parseDisplayDate(value: string): number {
@@ -648,6 +651,22 @@ function filterRowsByKpiSelection(
   if (selectedTier === 'highFunding') return withinDefault.filter((r) => matchesHighFunding(r))
   // Expiry tiers include every contract in the window, regardless of funding used.
   return withinDefault.filter((r) => matchesExpiryTier(r, selectedTier))
+}
+
+
+function summarizeFundingUtilization(rows: RequisitionRow[]): FundingUtilizationSummary {
+  const base = rows.filter((r) => r.daysUntilContractExpiry <= DEFAULT_EXPIRY_MAX_DAYS)
+  const above = base.filter((r) => r.fundingPercent >= 65)
+  return {
+    aboveThresholdCount: above.length,
+    totalInWindow: base.length,
+    tiers: {
+      critical: above.filter((r) => r.fundingPercent >= 90).length,
+      elevated: above.filter((r) => r.fundingPercent >= 80 && r.fundingPercent < 90).length,
+      normal: above.filter((r) => r.fundingPercent >= 65 && r.fundingPercent < 80).length,
+    },
+    belowThresholdCount: base.filter((r) => r.fundingPercent < 65).length,
+  }
 }
 
 function summarizeExpirationTierCounts(rows: RequisitionRow[]): {
@@ -1560,6 +1579,7 @@ function HomeShell() {
   const [selectedRequisitionId, setSelectedRequisitionId] = useState<string | null>(null)
   const [reqPanelSummaryOpen, setReqPanelSummaryOpen] = useState(true)
   const [expirationTierFilter, setExpirationTierFilter] = useState<ExpirationTierKey | null>(null)
+  const [vizDesignOption, setVizDesignOption] = useState<VizDesignOption>('option1')
   const [expandedContractIds, setExpandedContractIds] = useState<string[]>([])
   const [interactionRulesOpen, setInteractionRulesOpen] = useState(false)
   const kpiFilterZoneRef = useRef<HTMLDivElement>(null)
@@ -1583,6 +1603,11 @@ function HomeShell() {
   )
 
   const highFundingSummary = useMemo(() => summarizeHighFunding(REQUISITION_ROWS), [])
+
+  const fundingUtilization = useMemo(
+    () => summarizeFundingUtilization(REQUISITION_ROWS),
+    [],
+  )
 
   const filteredRequisitionRows = useMemo(
     () => filterRowsByKpiSelection(REQUISITION_ROWS, expirationTierFilter),
@@ -1615,14 +1640,14 @@ function HomeShell() {
 
   useEffect(() => {
     if (expirationTierFilter === null) return
-    const onDocMouseDown = (e: Event) => {
+    const onDocPointerDown = (e: PointerEvent) => {
       const el = kpiFilterZoneRef.current
       if (el != null && !el.contains(e.target as Node)) {
         setExpirationTierFilter(null)
       }
     }
-    document.addEventListener('mousedown', onDocMouseDown)
-    return () => document.removeEventListener('mousedown', onDocMouseDown)
+    document.addEventListener('pointerdown', onDocPointerDown)
+    return () => document.removeEventListener('pointerdown', onDocPointerDown)
   }, [expirationTierFilter])
 
   useEffect(() => {
@@ -1708,6 +1733,15 @@ function HomeShell() {
         {...themeProps}
         pageHeaderTitle="Command Center"
         pageHeaderShowDefaultButtons={false}
+        pageHeaderActions={
+          activeTabId === 'requisitions' ? (
+            <VizDesignOptionPicker
+              variant="header"
+              value={vizDesignOption}
+              onChange={setVizDesignOption}
+            />
+          ) : null
+        }
       >
       <Card primary elevated className="command-center-home">
         <div className="card__body">
@@ -1741,16 +1775,20 @@ function HomeShell() {
           </div>
 
           {activeTabId === 'requisitions' && (
-            <div ref={kpiFilterZoneRef} className="command-center-requisitions-workspace">
-              <ContractsExpirationDashboard
-                key={refreshTick}
-                tierCounts={expirationTierCounts}
-                tierExpiryLines={expirationTierExpiryLines}
-                highFundingCount={highFundingSummary.count}
-                highFundingLine={highFundingSummary.line}
-                selectedTier={expirationTierFilter}
-                onSelectTier={handleSelectKpiTier}
-              />
+            <div className="command-center-requisitions-workspace">
+              <div ref={kpiFilterZoneRef} className="command-center-kpi-filter-zone">
+                <ContractsExpirationDashboard
+                  key={refreshTick}
+                  designOption={vizDesignOption}
+                  tierCounts={expirationTierCounts}
+                  tierExpiryLines={expirationTierExpiryLines}
+                  highFundingCount={highFundingSummary.count}
+                  highFundingLine={highFundingSummary.line}
+                  fundingUtilization={fundingUtilization}
+                  selectedTier={expirationTierFilter}
+                  onSelectTier={handleSelectKpiTier}
+                />
+              </div>
               <div className="lifecycle-bar-chart__table command-center-table-detail-anchor">
                 <div
                   className="command-center-contracts-table-toolbar"

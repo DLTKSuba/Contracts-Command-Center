@@ -3,6 +3,101 @@
   margin-bottom: var(--space-4, 1rem);
 }
 
+/* ── View design picker (page header + legacy hook) ── */
+.ced-viz-design-picker {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: var(--space-1, 0.25rem);
+  flex: 0 0 auto;
+}
+
+.ced-viz-design-picker--header {
+  flex-direction: row;
+  align-items: center;
+  gap: var(--space-2, 0.5rem);
+}
+
+.ced-viz-design-picker--header .ced-viz-design-picker__select.select {
+  min-width: 11rem;
+}
+
+.ced-viz-design-picker__label {
+  font-size: var(--text-xs, 0.75rem);
+  font-weight: var(--font-medium, 500);
+  color: var(--text-secondary);
+  white-space: nowrap;
+}
+
+.ced-viz-design-picker__select.select {
+  width: auto;
+  min-width: 13rem;
+  height: var(--dropdown-height, 2.5rem);
+  padding-top: 0;
+  padding-bottom: 0;
+}
+
+/* ── Option 1 — card strip only ── */
+.ced-layout-option1 {
+  width: 100%;
+}
+
+/* ── Option 2 — dual visualization grid ── */
+.ced-layout-option2 {
+  width: 100%;
+}
+
+.ced-dual-viz-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-4, 1rem);
+  width: 100%;
+  min-width: 0;
+  align-items: start;
+}
+
+.ced-viz-panel.card {
+  min-width: 0;
+  height: auto;
+  display: flex;
+  flex-direction: column;
+  background-color: var(--surface-bg, #ffffff);
+  box-shadow: none;
+  /* Harmony .card defaults: radius, border, overflow:hidden */
+}
+
+.ced-viz-panel.card--elevated {
+  box-shadow: none;
+}
+
+.ced-viz-panel.card--with-header .card__header {
+  padding-bottom: 0;
+  background-color: var(--surface-bg, #ffffff);
+}
+
+.ced-viz-panel .card__body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4, 1rem);
+  flex: 1 1 auto;
+  min-width: 0;
+  background-color: var(--surface-bg, #ffffff);
+}
+
+.ced-viz-panel .card__header-title {
+  font-size: var(--text-sm, 0.875rem);
+  font-weight: var(--font-semibold, 600);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  line-height: 1.35;
+}
+
+.ced-viz-panel .card__header-subtitle {
+  font-size: var(--text-xs, 0.75rem);
+  line-height: 1.4;
+}
+
+/* ── Option 1 — original 4 KPI cards (accent stripe) ── */
 .contracts-expiration-dashboard__grid {
   display: flex;
   flex-direction: row;
@@ -13,7 +108,6 @@
   min-width: 0;
 }
 
-/* KPI card: left tier accent + body (rounded shell + accent stripe follows prominent left radius) */
 .ced-card {
   flex: 1 1 0;
   display: flex;
@@ -36,7 +130,6 @@
   outline-offset: 2px;
 }
 
-/* Selection: light blue fill + primary border (left tier accent stripe unchanged). */
 .ced-card--selected {
   background-color: rgb(219 233 247 / 0.8);
   box-shadow: none;
@@ -58,7 +151,6 @@
   background-color: var(--data-viz-critical);
 }
 
-/* 31–60 tier: CP --dusty-orange (terracotta); spend strip uses gold --data-viz-warning */
 .ced-card--warning .ced-card__accent {
   background-color: var(--dusty-orange, var(--color-warning));
 }
@@ -87,7 +179,6 @@
   font-family: var(--font-display);
 }
 
-/* Count left-aligned, first-expiry line stacked directly below */
 .ced-card__value-stack {
   display: flex;
   flex-direction: column;
@@ -98,7 +189,6 @@
   margin-top: auto;
 }
 
-/* Window copy — tier headline (14px / medium) */
 .ced-card__window-label {
   margin: 0;
   font-size: var(--text-sm, 0.875rem);
@@ -107,7 +197,6 @@
   color: var(--text-primary);
 }
 
-/* Large metric — 24px semibold; tier accent overrides color */
 .ced-card__count {
   margin: 0;
   font-size: var(--heading-l, 1.5rem);
@@ -129,7 +218,6 @@
   color: var(--data-viz-upcoming);
 }
 
-/* First expiry + date + (Xd); below count */
 .ced-card__expires-line {
   margin: 0;
   max-width: 100%;
@@ -138,7 +226,6 @@
   line-height: 1.35;
 }
 
-/* Same type scale as critical for 31–60 & 61–90 tiers (colors use --warning / --upcoming rules below) */
 .ced-card--warning .ced-card__window-label,
 .ced-card--upcoming .ced-card__window-label {
   font-size: var(--text-sm, 0.875rem);
@@ -157,7 +244,6 @@
   font-weight: var(--font-medium, 500);
 }
 
-/* “First expiry” + date (all tiers) */
 .ced-card__first-expiry-prefix,
 .ced-card__expires-date {
   color: var(--text-secondary);
@@ -175,7 +261,158 @@
   color: var(--data-viz-upcoming);
 }
 
-@media (max-width: 640px) {
+/* ── Funding utilization (Viz 02) ── */
+.ced-funding-viz {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: var(--space-6, 1.5rem);
+  width: 100%;
+  min-width: 0;
+}
+
+.ced-funding-viz__donut-wrap {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.ced-donut {
+  display: block;
+}
+
+.ced-funding-viz__stats {
+  flex: 1 1 auto;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3, 0.75rem);
+}
+
+.ced-funding-viz__headline {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1, 0.25rem);
+}
+
+.ced-funding-viz__total {
+  font-size: 2.25rem;
+  font-weight: var(--font-semibold, 600);
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+  color: var(--data-viz-warning);
+}
+
+.ced-funding-viz__context {
+  font-size: var(--text-xs, 0.75rem);
+  font-weight: var(--font-medium, 500);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--text-secondary);
+}
+
+.ced-funding-viz__tier-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2, 0.5rem);
+}
+
+.ced-funding-viz__tier-row {
+  display: grid;
+  grid-template-columns: auto 1fr minmax(3rem, 5rem) auto;
+  align-items: center;
+  gap: var(--space-2, 0.5rem);
+  width: 100%;
+  padding: var(--space-1, 0.25rem) 0;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  text-align: left;
+  font-family: inherit;
+  border-radius: var(--radius-sm, 0.25rem);
+}
+
+.ced-funding-viz__tier-row:focus-visible {
+  outline: 2px solid var(--border-focus, var(--theme-primary));
+  outline-offset: 2px;
+}
+
+.ced-funding-viz__tier-row--selected {
+  background-color: rgb(219 233 247 / 0.5);
+}
+
+.ced-funding-viz__tier-swatch {
+  width: 10px;
+  height: 10px;
+  border-radius: 2px;
+  flex-shrink: 0;
+}
+
+.ced-funding-viz__tier-row--critical .ced-funding-viz__tier-swatch {
+  background-color: var(--data-viz-critical);
+}
+
+.ced-funding-viz__tier-row--elevated .ced-funding-viz__tier-swatch {
+  background-color: var(--data-viz-warning);
+}
+
+.ced-funding-viz__tier-row--normal .ced-funding-viz__tier-swatch {
+  background-color: var(--color-info, #2563eb);
+}
+
+.ced-funding-viz__tier-label {
+  font-size: var(--text-sm, 0.875rem);
+  color: var(--text-primary);
+  min-width: 0;
+}
+
+.ced-funding-viz__tier-track {
+  height: 6px;
+  border-radius: 999px;
+  background-color: transparent;
+  overflow: hidden;
+}
+
+.ced-funding-viz__tier-fill {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  min-width: 2px;
+}
+
+.ced-funding-viz__tier-count {
+  font-size: var(--text-sm, 0.875rem);
+  font-weight: var(--font-semibold, 600);
+  font-variant-numeric: tabular-nums;
+  color: var(--text-primary);
+  text-align: right;
+}
+
+.ced-funding-viz__footer {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2, 0.5rem);
+  margin: var(--space-1, 0.25rem) 0 0;
+  font-size: var(--text-xs, 0.75rem);
+  color: var(--text-secondary);
+}
+
+.ced-funding-viz__footer-swatch {
+  width: 10px;
+  height: 10px;
+  border-radius: 2px;
+  background-color: var(--theme-primary, #1e3a5f);
+  flex-shrink: 0;
+}
+
+@media (max-width: 1024px) {
+  .ced-dual-viz-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 768px) {
   .contracts-expiration-dashboard__grid {
     flex-direction: column;
     flex-wrap: wrap;
@@ -183,5 +420,20 @@
 
   .ced-card {
     flex: 1 1 auto;
+  }
+
+  .ced-funding-viz {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .ced-viz-design-picker {
+    align-items: stretch;
+    width: 100%;
+  }
+
+  .ced-viz-design-picker__select.select {
+    width: 100%;
+    min-width: 0;
   }
 }

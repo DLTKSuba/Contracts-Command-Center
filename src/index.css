@@ -52,15 +52,19 @@
 .command-center-home.card {
   position: relative;
   background-color: #ffffff;
-  overflow: hidden;
+  overflow: visible;
   border-radius: var(--radius-xl, 0.75rem);
   max-width: 100%;
   min-width: 0;
   isolation: isolate;
 }
 
+/* Option 2 nested cards: don't clip Harmony card radius/shadow on the home shell */
+.command-center-home.card:has(.ced-layout-option2) {
+  overflow: visible;
+}
+
 /*
- * Primary top accent: full-width bar with rounded top corners (CP content panel reference).
  * Painted above .card__body (z-index) so the white body padding does not cover the accent.
  */
 .command-center-home.card--primary {
@@ -103,6 +107,12 @@
   /* Keep detail-pane right border inside the rounded shell */
   padding-inline-end: calc(var(--space-4) + 2px);
   box-sizing: border-box;
+  overflow: visible;
+}
+
+/* Nested viz cards: avoid clipping elevated corners/shadows from the home shell */
+.command-center-home .ced-dual-viz-grid {
+  overflow: visible;
 }
 
 /*
@@ -115,11 +125,12 @@
   gap: var(--space-3, 0.75rem);
   width: 100%;
   margin-bottom: var(--space-4, 1rem);
-  padding-bottom: 2px;
+  overflow: visible;
 }
 
+/* Shrink-wrap strip: grey baseline follows tab labels (Harmony .tabstrip__container rule). */
 .command-center-tab-row .tabstrip .tabstrip__container {
-  border-bottom: none;
+  border-bottom: 1px solid var(--border-color);
   width: auto;
   max-width: 100%;
 }
@@ -127,21 +138,26 @@
 .command-center-tab-row .tabstrip__nav {
   width: auto;
   max-width: 100%;
+  overflow: visible;
 }
 
-/* Tab strip shrink-wraps to tab labels; baseline border only as wide as tabs */
 .command-center-tab-row .tabstrip {
   flex: 0 1 auto;
   min-width: 0;
   width: auto;
   max-width: 100%;
+  overflow: visible;
 }
 
 .command-center-tab-row .tabstrip__tabs {
   flex: 0 1 auto;
   width: fit-content;
   max-width: 100%;
-  border-bottom: 1px solid var(--border-color);
+}
+
+/* Harmony TabStrip: active underline sits on the container baseline */
+.command-center-tab-row .tabstrip--command-center-tabs .tab.is-active .tab__label::after {
+  background-color: var(--theme-primary);
 }
 
 .command-center-tab-row__refresh {
@@ -341,14 +357,21 @@
 .shell-layout[data-cp-variant="true"] .shell-layout__main {
   align-self: stretch;
   min-height: 0;
+  max-height: 100%;
 }
 
-/* Command Center card fills remaining main height; table + panel scroll inside */
+/* Command Center card: full content height — main scrolls, card does not shrink */
 .shell-layout[data-cp-variant="true"] .shell-layout__main .command-center-home.card {
-  flex: 1 1 auto;
-  min-height: 0;
+  flex: 0 0 auto;
+  min-height: auto;
   display: flex;
   flex-direction: column;
+}
+
+.command-center-home .card__body {
+  flex: 0 1 auto;
+  min-height: auto;
+  overflow: visible;
 }
 
 .command-center-home .command-center-tab-row {
@@ -358,12 +381,19 @@
 .command-center-requisitions-workspace {
   display: flex;
   flex-direction: column;
-  flex: 1 1 auto;
-  min-height: 0;
+  flex: 0 0 auto;
+  min-height: auto;
+}
+
+.command-center-kpi-filter-zone {
+  flex-shrink: 0;
+  width: 100%;
+  min-width: 0;
 }
 
 .command-center-requisitions-workspace .contracts-expiration-dashboard {
   flex-shrink: 0;
+  overflow: visible;
 }
 
 .command-center-actions-cell {
@@ -403,14 +433,28 @@
   flex-direction: column;
   align-items: stretch;
   gap: 0;
-  flex: 1 1 auto;
-  min-height: 0;
+  flex: 0 1 auto;
+  min-height: auto;
   width: 100%;
   max-width: 100%;
   min-width: 0;
-  overflow: hidden;
+  overflow: visible;
   padding-inline-end: 4px;
   box-sizing: border-box;
+}
+
+/* When the detail pane is open, give the split a bounded height and scroll inside */
+.command-center-table-detail-anchor:has(.command-center-requisition-panel) {
+  flex: 1 1 auto;
+  min-height: 24rem;
+  max-height: min(70vh, 48rem);
+  overflow: hidden;
+}
+
+.command-center-table-detail-anchor:has(.command-center-requisition-panel) .command-center-table-split {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow: hidden;
 }
 
 /* Toolbar spans full width; table + sidebar align on one row so panel header lines up with thead */
@@ -418,23 +462,23 @@
   display: flex;
   flex-direction: row;
   align-items: stretch;
-  flex: 1 1 auto;
+  flex: 0 0 auto;
   gap: 0;
   width: 100%;
   min-width: 0;
-  min-height: 0;
-  overflow: hidden;
+  min-height: auto;
+  overflow: visible;
   padding-inline-end: 4px;
   box-sizing: border-box;
 }
 
 .command-center-table-detail-stack {
-  flex: 1 1 50%;
+  flex: 1 1 auto;
   min-width: 0;
   max-width: 100%;
-  min-height: 0;
+  min-height: auto;
   overflow-x: auto;
-  overflow-y: auto;
+  overflow-y: visible;
 }
 
 .command-center-contracts-table-wrap {
@@ -442,8 +486,20 @@
   max-width: 100%;
 }
 
-/* Keep table header visible while the contracts grid scrolls */
-.command-center-table-detail-stack .command-center-data-table thead th {
+/* Keep table header visible while the contracts grid scrolls (split pane open) */
+.command-center-table-detail-anchor:has(.command-center-requisition-panel) .command-center-table-detail-stack {
+  min-height: 0;
+  overflow-y: auto;
+}
+
+.command-center-table-detail-anchor:has(.command-center-requisition-panel) .command-center-table-detail-stack .command-center-data-table thead th {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+}
+
+/* Page scroll: sticky header follows shell main scroll when detail pane is closed */
+.command-center-table-detail-anchor:not(:has(.command-center-requisition-panel)) .command-center-table-detail-stack .command-center-data-table thead th {
   position: sticky;
   top: 0;
   z-index: 1;
@@ -478,7 +534,8 @@
   min-height: 0;
   max-height: 100%;
   flex-direction: column;
-  overflow: hidden;
+  overflow-x: hidden;
+  overflow-y: auto;
   border-radius: 0;
   box-sizing: border-box;
   /* Perimeter: use shell --border-color so edges read on white (panel token is too light on the outer/right seam) */
@@ -513,7 +570,6 @@
 /* Compact bar height aligned with Harmony shell panel header rhythm */
 .command-center-requisition-panel__header {
   display: flex;
-  flex-shrink: 0;
   align-items: center;
   justify-content: space-between;
   gap: var(--space-3);
@@ -535,7 +591,6 @@
 }
 
 .command-center-requisition-panel__intro {
-  flex-shrink: 0;
   padding: var(--space-4);
   background-color: #ffffff;
   border-bottom: 1px solid var(--border-light);
@@ -638,7 +693,6 @@
 }
 
 .command-center-requisition-panel__funding-strip {
-  flex-shrink: 0;
   box-sizing: border-box;
   padding: var(--space-3) 0;
   text-align: left;
@@ -721,10 +775,6 @@
 }
 
 .command-center-requisition-panel__body {
-  flex: 1 1 auto;
-  min-height: 0;
-  overflow-x: auto;
-  overflow-y: auto;
   background-color: #ffffff;
 }
 
@@ -846,11 +896,15 @@ html.theme-cp:not(.dark) .command-center-pr-summary-panel__value {
   color: var(--link-color);
 }
 
+.command-center-requisition-summary__value .link.command-center-summary-email-link,
+.command-center-requisition-summary__value .link.command-center-summary-email-link:hover {
+  color: var(--link-color);
+}
+
 .command-center-summary-email-link {
   display: inline-flex;
   align-items: center;
   gap: var(--space-1);
-  color: var(--link-color);
 }
 
 .command-center-requisition-late-items {

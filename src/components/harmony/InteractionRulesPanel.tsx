@@ -8,7 +8,7 @@ const RULE_SECTIONS = [
       'Expiry filters include every contract in the window, regardless of funding used.',
       'Click Funding used > 65% to show only contracts above the threshold.',
       'Click the same card again to clear the filter.',
-      'Click outside the KPI row and table to clear the filter.',
+      'Click outside the KPI cards (e.g. the table or page chrome) to clear the filter and show all contracts.',
     ],
   },
   {
