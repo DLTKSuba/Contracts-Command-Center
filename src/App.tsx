@@ -721,8 +721,11 @@ function summarizeHighFunding(rows: RequisitionRow[]): {
     (r) => r.daysUntilContractExpiry <= DEFAULT_EXPIRY_MAX_DAYS && matchesHighFunding(r),
   )
   if (base.length === 0) return { count: 0, line: null }
-  const highestPct = Math.max(...base.map((r) => r.fundingPercent))
-  return { count: base.length, line: { highestPct } }
+  const highestRow = base.reduce((a, b) => (a.fundingPercent >= b.fundingPercent ? a : b))
+  return {
+    count: base.length,
+    line: { highestPct: highestRow.fundingPercent, vendorName: highestRow.vendor },
+  }
 }
 
 function requisitionLineRowsForPr(row: RequisitionRow): RequisitionLineRow[] {

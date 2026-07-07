@@ -59,8 +59,9 @@
   isolation: isolate;
 }
 
-/* Option 2 nested cards: don't clip Harmony card radius/shadow on the home shell */
-.command-center-home.card:has(.ced-layout-option2) {
+/* Option 2/3 nested cards: don't clip Harmony card radius/shadow on the home shell */
+.command-center-home.card:has(.ced-layout-option2),
+.command-center-home.card:has(.ced-layout-option3) {
   overflow: visible;
 }
 
