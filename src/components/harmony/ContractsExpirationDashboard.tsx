@@ -525,17 +525,14 @@ const O3_EXPIRY_TIER_META = [
   {
     tier: 'critical' as const,
     label: '0–30 days',
-    icon: 'calendar-exclamation' as const,
   },
   {
     tier: 'warning' as const,
     label: '31–60 days',
-    icon: 'calendar-clock' as const,
   },
   {
     tier: 'upcoming' as const,
     label: '61–90 days',
-    icon: 'calendar' as const,
   },
 ] as const
 
@@ -604,12 +601,8 @@ function ExpiringByDaysCard({
         }
       }}
     >
-      <div className="ced-o3-expiry-card__accent" aria-hidden />
       <div className="ced-o3-expiry-card__body">
         <div className="ced-o3-expiry-card__top">
-          <span className={clsx('ced-o3-expiry-card__icon-wrap', `ced-o3-expiry-card__icon-wrap--${meta.tier}`)}>
-            <Icon name={meta.icon} size="sm" aria-hidden />
-          </span>
           <Icon name="chevron-right" size="xs" className="ced-o3-expiry-card__chevron" aria-hidden />
         </div>
         <p className="ced-o3-expiry-card__count" aria-label={`${count} contracts`}>
@@ -634,8 +627,8 @@ function ExpiringByDaysPanel({
   onSelectTier: (tier: ExpiryTierKey) => void
 }) {
   return (
-    <section className="ced-o3-expiring-panel" aria-label="Expiring by days remaining">
-      <h2 className="ced-o3-expiring-panel__title">Expiring — by days remaining</h2>
+    <section className="ced-o3-panel ced-o3-expiring-panel" aria-label="Expiring by days remaining">
+      <h2 className="ced-o3-panel__title">Expiring — by days remaining</h2>
       <div className="ced-o3-expiring-panel__cards" role="group" aria-label="Expiration windows">
         {O3_EXPIRY_TIER_META.map((meta) => (
           <ExpiringByDaysCard
@@ -647,15 +640,6 @@ function ExpiringByDaysPanel({
           />
         ))}
       </div>
-      <div className="ced-o3-expiring-panel__timeline" aria-hidden>
-        <div className="ced-o3-expiring-panel__timeline-track" />
-        <div className="ced-o3-expiring-panel__timeline-labels">
-          <span>Today</span>
-          <span>30d</span>
-          <span>60d</span>
-          <span>90d</span>
-        </div>
-      </div>
     </section>
   )
 }
@@ -666,12 +650,14 @@ function ProgressRing({
   size = 44,
   stroke = 5,
   ariaLabel,
+  centerLabel,
 }: {
   pct: number
   color: string
   size?: number
   stroke?: number
   ariaLabel: string
+  centerLabel?: string
 }) {
   const radius = (size - stroke) / 2
   const circumference = 2 * Math.PI * radius
@@ -679,34 +665,41 @@ function ProgressRing({
   const dash = (clamped / 100) * circumference
 
   return (
-    <svg
-      className="ced-o3-progress-ring"
-      width={size}
-      height={size}
-      viewBox={`0 0 ${size} ${size}`}
-      role="img"
-      aria-label={ariaLabel}
-    >
-      <circle
-        cx={size / 2}
-        cy={size / 2}
-        r={radius}
-        fill="none"
-        stroke="var(--border-color)"
-        strokeWidth={stroke}
-      />
-      <circle
-        cx={size / 2}
-        cy={size / 2}
-        r={radius}
-        fill="none"
-        stroke={color}
-        strokeWidth={stroke}
-        strokeLinecap="round"
-        strokeDasharray={`${dash} ${circumference - dash}`}
-        transform={`rotate(-90 ${size / 2} ${size / 2})`}
-      />
-    </svg>
+    <div className="ced-o3-progress-ring-wrap">
+      <svg
+        className="ced-o3-progress-ring"
+        width={size}
+        height={size}
+        viewBox={`0 0 ${size} ${size}`}
+        role="img"
+        aria-label={ariaLabel}
+      >
+        <circle
+          cx={size / 2}
+          cy={size / 2}
+          r={radius}
+          fill="none"
+          stroke="var(--border-color)"
+          strokeWidth={stroke}
+        />
+        <circle
+          cx={size / 2}
+          cy={size / 2}
+          r={radius}
+          fill="none"
+          stroke={color}
+          strokeWidth={stroke}
+          strokeLinecap="round"
+          strokeDasharray={`${dash} ${circumference - dash}`}
+          transform={`rotate(-90 ${size / 2} ${size / 2})`}
+        />
+      </svg>
+      {centerLabel != null ? (
+        <span className="ced-o3-progress-ring__center" aria-hidden>
+          {centerLabel}
+        </span>
+      ) : null}
+    </div>
   )
 }
 
@@ -742,16 +735,11 @@ function FundingRiskCard({
         }
       }}
     >
-      <div className="ced-o3-funding-card__accent" aria-hidden />
       <div className="ced-o3-funding-card__body">
-        <header className="ced-o3-funding-card__header">
-          <h2 className="ced-o3-funding-card__title">Funding risk</h2>
+        <div className="ced-o3-funding-card__top">
           <Icon name="chevron-right" size="xs" className="ced-o3-funding-card__chevron" aria-hidden />
-        </header>
+        </div>
         <div className="ced-o3-funding-card__main">
-          <span className="ced-o3-funding-card__icon-wrap" aria-hidden>
-            <Icon name="gauge" size="sm" />
-          </span>
           <div className="ced-o3-funding-card__metric">
             <p className="ced-o3-funding-card__count">{count}</p>
             <p className="ced-o3-funding-card__label">Funding used &gt; 65%</p>
@@ -761,7 +749,8 @@ function FundingRiskCard({
           <footer className="ced-o3-funding-card__footer">
             <ProgressRing
               pct={highestPct}
-              color="var(--data-viz-critical)"
+              color="var(--ced-o3-funding)"
+              centerLabel={`${highestPct}%`}
               ariaLabel={`Highest funding used ${highestPct} percent`}
             />
             <div className="ced-o3-funding-card__footer-text">
@@ -772,6 +761,30 @@ function FundingRiskCard({
         ) : null}
       </div>
     </article>
+  )
+}
+
+function FundingRiskPanel({
+  count,
+  fundingLine,
+  selected,
+  onSelect,
+}: {
+  count: number
+  fundingLine: HighFundingLine
+  selected: boolean
+  onSelect: () => void
+}) {
+  return (
+    <section className="ced-o3-panel ced-o3-funding-panel" aria-label="Funding risk">
+      <h2 className="ced-o3-panel__title">Funding risk</h2>
+      <FundingRiskCard
+        count={count}
+        fundingLine={fundingLine}
+        selected={selected}
+        onSelect={onSelect}
+      />
+    </section>
   )
 }
 
@@ -799,7 +812,7 @@ function Option3Visualization({
         selectedTier={selectedTier}
         onSelectTier={handleExpirySelect}
       />
-      <FundingRiskCard
+      <FundingRiskPanel
         count={highFundingCount}
         fundingLine={highFundingLine}
         selected={selectedTier === 'highFunding'}
