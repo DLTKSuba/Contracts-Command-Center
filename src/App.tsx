@@ -703,6 +703,7 @@ function summarizeExpirationTierContracts(rows: RequisitionRow[]): {
   const toContract = (row: RequisitionRow): ExpiryTierContract => ({
     name: row.vendor,
     expirationDate: row.contractEnd,
+    daysRemaining: row.daysUntilContractExpiry,
   })
   const sortByExpiry = (tierRows: RequisitionRow[]) =>
     [...tierRows].sort((a, b) => a.daysUntilContractExpiry - b.daysUntilContractExpiry).map(toContract)

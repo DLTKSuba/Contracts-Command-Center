@@ -90,6 +90,8 @@ export type TierExpiryLine = {
 export type ExpiryTierContract = {
   name: string
   expirationDate: string
+  /** Days until this contract expires (used to position the histogram bar on the axis). */
+  daysRemaining: number
 }
 
 /** Derived from grid data — null when no contracts exceed the funding threshold. */
@@ -575,18 +577,15 @@ function ExpiryBarTooltipContent({
   )
 }
 
-function miniVizBarHeights(tier: ExpiryTierKey, count: number): number[] {
-  const barCount = Math.min(Math.max(count, 1), 7)
-  if (tier === 'critical') {
-    return Array.from({ length: barCount }, () => 55)
-  }
-  if (tier === 'warning') {
-    const pattern = [38, 62, 48, 72, 55, 68, 44]
-    return Array.from({ length: barCount }, (_, i) => pattern[i % pattern.length])
-  }
-  const pattern = [52, 68]
-  return Array.from({ length: Math.min(barCount, 2) }, (_, i) => pattern[i % pattern.length])
+/** Inclusive day range for each expiry tier — drives the histogram x-axis. */
+const O3_TIER_RANGE: Record<ExpiryTierKey, { min: number; max: number }> = {
+  critical: { min: 0, max: 30 },
+  warning: { min: 31, max: 60 },
+  upcoming: { min: 61, max: 90 },
 }
+
+/** Deterministic bar heights (%) so the histogram reads with organic variation. */
+const O3_BAR_HEIGHTS = [82, 46, 88, 60, 74, 52, 90]
 
 function MiniTierViz({
   tier,
@@ -597,52 +596,55 @@ function MiniTierViz({
   count: number
   contracts: ExpiryTierContract[]
 }) {
-  const heights = useMemo(() => miniVizBarHeights(tier, count), [tier, count])
+  const range = O3_TIER_RANGE[tier]
+  const span = range.max - range.min || 1
+
   if (count === 0) return <div className="ced-o3-mini-viz ced-o3-mini-viz--empty" aria-hidden />
 
   return (
     <div
       className={clsx('ced-o3-mini-viz', `ced-o3-mini-viz--${tier}`)}
       role="group"
-      aria-label={`${count} contracts in histogram`}
+      aria-label={`${count} contracts, expiring between ${range.min} and ${range.max} days`}
     >
-      {heights.map((height, index) => {
-        const contract = contracts[index]
-        const bar = (
-          <span className="ced-o3-mini-viz__bar" style={{ height: `${height}%` }} aria-hidden />
-        )
+      <div className="ced-o3-mini-viz__plot">
+        {contracts.map((contract, index) => {
+          const clampedDay = Math.min(range.max, Math.max(range.min, contract.daysRemaining))
+          const left = ((clampedDay - range.min) / span) * 100
+          const height = O3_BAR_HEIGHTS[index % O3_BAR_HEIGHTS.length]
 
-        if (!contract) {
           return (
-            <span key={`${tier}-${index}`} className="ced-o3-mini-viz__bar-slot">
-              {bar}
-            </span>
-          )
-        }
-
-        return (
-          <Tooltip
-            key={`${tier}-${index}`}
-            position="top"
-            className="ced-o3-mini-viz__bar-tooltip"
-            content={
-              <ExpiryBarTooltipContent
-                name={contract.name}
-                expirationDate={contract.expirationDate}
-              />
-            }
-          >
             <span
+              key={`${tier}-${index}`}
               className="ced-o3-mini-viz__bar-hit"
-              role="img"
-              aria-label={`${contract.name}, expires ${contract.expirationDate}`}
+              style={{ left: `${left}%` }}
               onClick={(e) => e.stopPropagation()}
             >
-              {bar}
+              <Tooltip
+                position="top"
+                className="ced-o3-mini-viz__bar-tooltip"
+                content={
+                  <ExpiryBarTooltipContent
+                    name={contract.name}
+                    expirationDate={contract.expirationDate}
+                  />
+                }
+              >
+                <span
+                  className="ced-o3-mini-viz__bar"
+                  style={{ height: `${height}%` }}
+                  role="img"
+                  aria-label={`${contract.name}, expires ${contract.expirationDate}`}
+                />
+              </Tooltip>
             </span>
-          </Tooltip>
-        )
-      })}
+          )
+        })}
+      </div>
+      <div className="ced-o3-mini-viz__axis-labels" aria-hidden>
+        <span>{range.min}d</span>
+        <span>{range.max}d</span>
+      </div>
     </div>
   )
 }
