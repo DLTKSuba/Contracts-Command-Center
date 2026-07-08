@@ -22,6 +22,7 @@ import {
   ContractsExpirationDashboard,
   VizDesignOptionPicker,
   type ExpirationTierKey,
+  type ExpiryTierContract,
   type FundingUtilizationSummary,
   type HighFundingLine,
   type TierExpiryLine,
@@ -283,7 +284,7 @@ const REQUISITION_ROWS: RequisitionRow[] = [
     startDate: 'Mar 28, 2025',
     fundedValue: '$12,000.00',
     itdCost: '$6,240.00',
-    fundingPercent: 52,
+    fundingPercent: 64,
     statusLabel: 'Pending Approval',
     stageIndices: [0, 2],
     overdue: '1/6',
@@ -306,7 +307,7 @@ const REQUISITION_ROWS: RequisitionRow[] = [
         contractValue: '$3,890.25',
         fundedValue: '$12,000.00',
         itdCost: '$6,240.00',
-        fundingPercent: 52,
+        fundingPercent: 64,
       },
     ],
     daysUntilContractExpiry: 18,
@@ -537,7 +538,7 @@ const REQUISITION_ROWS: RequisitionRow[] = [
     startDate: 'Feb 10, 2025',
     fundedValue: '$4,200.00',
     itdCost: '$2,310.00',
-    fundingPercent: 55,
+    fundingPercent: 62,
     statusLabel: 'Rejected',
     stageIndices: [0, 1],
     overdue: '1/2',
@@ -560,7 +561,7 @@ const REQUISITION_ROWS: RequisitionRow[] = [
         contractValue: '$640.00',
         fundedValue: '$4,200.00',
         itdCost: '$2,310.00',
-        fundingPercent: 55,
+        fundingPercent: 62,
       },
     ],
     daysUntilContractExpiry: 85,
@@ -637,6 +638,15 @@ function matchesHighFunding(row: RequisitionRow): boolean {
   return row.fundingPercent >= 65
 }
 
+type FundingBucketKey = 'fundLow' | 'fundMid' | 'fundHigh'
+
+function matchesFundingBucket(row: RequisitionRow, bucket: FundingBucketKey): boolean {
+  const p = row.fundingPercent
+  if (bucket === 'fundLow') return p <= 59
+  if (bucket === 'fundMid') return p >= 60 && p <= 75
+  return p >= 76
+}
+
 function parseDisplayDate(value: string): number {
   const t = Date.parse(value)
   return Number.isFinite(t) ? t : 0
@@ -649,10 +659,12 @@ function filterRowsByKpiSelection(
   const withinDefault = rows.filter((r) => r.daysUntilContractExpiry <= DEFAULT_EXPIRY_MAX_DAYS)
   if (selectedTier == null) return withinDefault
   if (selectedTier === 'highFunding') return withinDefault.filter((r) => matchesHighFunding(r))
+  if (selectedTier === 'fundLow' || selectedTier === 'fundMid' || selectedTier === 'fundHigh') {
+    return withinDefault.filter((r) => matchesFundingBucket(r, selectedTier))
+  }
   // Expiry tiers include every contract in the window, regardless of funding used.
   return withinDefault.filter((r) => matchesExpiryTier(r, selectedTier))
 }
-
 
 function summarizeFundingUtilization(rows: RequisitionRow[]): FundingUtilizationSummary {
   const base = rows.filter((r) => r.daysUntilContractExpiry <= DEFAULT_EXPIRY_MAX_DAYS)
@@ -679,6 +691,26 @@ function summarizeExpirationTierCounts(rows: RequisitionRow[]): {
     critical: base.filter((r) => r.daysUntilContractExpiry <= 30).length,
     warning: base.filter((r) => r.daysUntilContractExpiry >= 31 && r.daysUntilContractExpiry <= 60).length,
     upcoming: base.filter((r) => r.daysUntilContractExpiry >= 61 && r.daysUntilContractExpiry <= 90).length,
+  }
+}
+
+function summarizeExpirationTierContracts(rows: RequisitionRow[]): {
+  critical: ExpiryTierContract[]
+  warning: ExpiryTierContract[]
+  upcoming: ExpiryTierContract[]
+} {
+  const base = rows.filter((r) => r.daysUntilContractExpiry <= DEFAULT_EXPIRY_MAX_DAYS)
+  const toContract = (row: RequisitionRow): ExpiryTierContract => ({
+    name: row.vendor,
+    expirationDate: row.contractEnd,
+  })
+  const sortByExpiry = (tierRows: RequisitionRow[]) =>
+    [...tierRows].sort((a, b) => a.daysUntilContractExpiry - b.daysUntilContractExpiry).map(toContract)
+
+  return {
+    critical: sortByExpiry(base.filter((r) => matchesExpiryTier(r, 'critical'))),
+    warning: sortByExpiry(base.filter((r) => matchesExpiryTier(r, 'warning'))),
+    upcoming: sortByExpiry(base.filter((r) => matchesExpiryTier(r, 'upcoming'))),
   }
 }
 
@@ -814,7 +846,11 @@ const REQ_STATUS_STAGE_LABELS = [
 
 function contractInfoCell(
   row: RequisitionRow,
-  opts: { expanded: boolean; onToggleExpand: (e: MouseEvent<HTMLButtonElement>) => void },
+  opts: {
+    expanded: boolean
+    onToggleExpand: (e: MouseEvent<HTMLButtonElement>) => void
+    onSelectContract: (e: MouseEvent<HTMLButtonElement>) => void
+  },
 ) {
   const hasProjects = row.projects.length > 0
   return (
@@ -837,7 +873,14 @@ function contractInfoCell(
           <span className="command-center-contract-info__expand-spacer" aria-hidden />
         )}
         <div className="command-center-contract-info__stack">
-          <span className="command-center-contract-info__id">{row.contractNumber}</span>
+          <button
+            type="button"
+            className="command-center-contract-info__id"
+            aria-label={`Open contract ${row.contractNumber}`}
+            onClick={opts.onSelectContract}
+          >
+            {row.contractNumber}
+          </button>
           <span className="command-center-contract-info__vendor">{row.vendor}</span>
         </div>
       </div>
@@ -991,6 +1034,10 @@ function RequisitionTableBody({
                   e.stopPropagation()
                   onToggleContractExpanded(row.id)
                 },
+                onSelectContract: (e) => {
+                  e.stopPropagation()
+                  onSelectRow(row.id)
+                },
               })}
               <td>{row.nextImportantDate}</td>
               <td>{row.startDate}</td>
@@ -1026,7 +1073,17 @@ function RequisitionTableBody({
                     id={projIdx === 0 ? `contract-projects-${row.id}` : undefined}
                   >
                     <div className="command-center-contract-project-row__indent">
-                      <span className="command-center-contract-project-row__id">{proj.id}</span>
+                      <button
+                        type="button"
+                        className="command-center-contract-project-row__id"
+                        aria-label={`Open project ${proj.id}`}
+                        onClick={(e) => {
+                          e.stopPropagation()
+                          onSelectRow(row.id)
+                        }}
+                      >
+                        {proj.id}
+                      </button>
                     </div>
                   </td>
                   <td>{proj.nextImportantDate}</td>
@@ -1600,6 +1657,11 @@ function HomeShell() {
 
   const expirationTierCounts = useMemo(() => summarizeExpirationTierCounts(REQUISITION_ROWS), [])
 
+  const expirationTierContracts = useMemo(
+    () => summarizeExpirationTierContracts(REQUISITION_ROWS),
+    [],
+  )
+
   const expirationTierExpiryLines = useMemo(
     () => summarizeExpirationTierFirstExpiry(REQUISITION_ROWS),
     [],
@@ -1784,6 +1846,7 @@ function HomeShell() {
                   key={refreshTick}
                   designOption={vizDesignOption}
                   tierCounts={expirationTierCounts}
+                  tierContracts={expirationTierContracts}
                   tierExpiryLines={expirationTierExpiryLines}
                   highFundingCount={highFundingSummary.count}
                   highFundingLine={highFundingSummary.line}

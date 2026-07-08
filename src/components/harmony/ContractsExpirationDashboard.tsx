@@ -2,11 +2,19 @@ import clsx from 'clsx'
 import { useMemo, type ReactNode } from 'react'
 import { Card } from './Card'
 import { Icon } from './Icon'
+import { Tooltip } from './Tooltip'
 import './ContractsExpirationDashboard.css'
 
-export type ExpirationTierKey = 'critical' | 'warning' | 'upcoming' | 'highFunding'
+export type ExpirationTierKey =
+  | 'critical'
+  | 'warning'
+  | 'upcoming'
+  | 'highFunding'
+  | 'fundLow'
+  | 'fundMid'
+  | 'fundHigh'
 
-export type VizDesignOption = 'option1' | 'option2' | 'option3'
+export type VizDesignOption = 'option1' | 'option2' | 'option3' | 'option4'
 
 type ExpiryTierKey = 'critical' | 'warning' | 'upcoming'
 
@@ -14,6 +22,7 @@ export const VIZ_DESIGN_OPTIONS = [
   { value: 'option1', label: 'Option 1 - Card Design' },
   { value: 'option2', label: 'Option 2 - Dual Visualization' },
   { value: 'option3', label: 'Option 3 - Timeline & Funding Risk' },
+  { value: 'option4', label: 'Option 4 - Pie Chart' },
 ] as const
 
 export function VizDesignOptionPicker({
@@ -77,6 +86,12 @@ export type TierExpiryLine = {
   daysUntilShort: string
 } | null
 
+/** One contract represented by a mini histogram bar in Option 3. */
+export type ExpiryTierContract = {
+  name: string
+  expirationDate: string
+}
+
 /** Derived from grid data — null when no contracts exceed the funding threshold. */
 export type HighFundingLine = {
   highestPct: number
@@ -93,6 +108,11 @@ export type FundingUtilizationSummary = {
 export type ContractsExpirationDashboardProps = {
   designOption: VizDesignOption
   tierCounts: { critical: number; warning: number; upcoming: number }
+  tierContracts: {
+    critical: ExpiryTierContract[]
+    warning: ExpiryTierContract[]
+    upcoming: ExpiryTierContract[]
+  }
   tierExpiryLines: {
     critical: TierExpiryLine
     warning: TierExpiryLine
@@ -536,6 +556,25 @@ const O3_EXPIRY_TIER_META = [
   },
 ] as const
 
+function ExpiryBarTooltipContent({
+  name,
+  expirationDate,
+}: {
+  name: string
+  expirationDate: string
+}) {
+  return (
+    <div className="ced-o3-bar-tooltip">
+      <div className="ced-o3-bar-tooltip__row">
+        <span>Name: {name}</span>
+      </div>
+      <div className="ced-o3-bar-tooltip__row">
+        <span>Expiration date: {expirationDate}</span>
+      </div>
+    </div>
+  )
+}
+
 function miniVizBarHeights(tier: ExpiryTierKey, count: number): number[] {
   const barCount = Math.min(Math.max(count, 1), 7)
   if (tier === 'critical') {
@@ -549,19 +588,61 @@ function miniVizBarHeights(tier: ExpiryTierKey, count: number): number[] {
   return Array.from({ length: Math.min(barCount, 2) }, (_, i) => pattern[i % pattern.length])
 }
 
-function MiniTierViz({ tier, count }: { tier: ExpiryTierKey; count: number }) {
+function MiniTierViz({
+  tier,
+  count,
+  contracts,
+}: {
+  tier: ExpiryTierKey
+  count: number
+  contracts: ExpiryTierContract[]
+}) {
   const heights = useMemo(() => miniVizBarHeights(tier, count), [tier, count])
   if (count === 0) return <div className="ced-o3-mini-viz ced-o3-mini-viz--empty" aria-hidden />
 
   return (
-    <div className={clsx('ced-o3-mini-viz', `ced-o3-mini-viz--${tier}`)} aria-hidden>
-      {heights.map((height, index) => (
-        <span
-          key={`${tier}-${index}`}
-          className="ced-o3-mini-viz__bar"
-          style={{ height: `${height}%` }}
-        />
-      ))}
+    <div
+      className={clsx('ced-o3-mini-viz', `ced-o3-mini-viz--${tier}`)}
+      role="group"
+      aria-label={`${count} contracts in histogram`}
+    >
+      {heights.map((height, index) => {
+        const contract = contracts[index]
+        const bar = (
+          <span className="ced-o3-mini-viz__bar" style={{ height: `${height}%` }} aria-hidden />
+        )
+
+        if (!contract) {
+          return (
+            <span key={`${tier}-${index}`} className="ced-o3-mini-viz__bar-slot">
+              {bar}
+            </span>
+          )
+        }
+
+        return (
+          <Tooltip
+            key={`${tier}-${index}`}
+            position="top"
+            className="ced-o3-mini-viz__bar-tooltip"
+            content={
+              <ExpiryBarTooltipContent
+                name={contract.name}
+                expirationDate={contract.expirationDate}
+              />
+            }
+          >
+            <span
+              className="ced-o3-mini-viz__bar-hit"
+              role="img"
+              aria-label={`${contract.name}, expires ${contract.expirationDate}`}
+              onClick={(e) => e.stopPropagation()}
+            >
+              {bar}
+            </span>
+          </Tooltip>
+        )
+      })}
     </div>
   )
 }
@@ -569,11 +650,13 @@ function MiniTierViz({ tier, count }: { tier: ExpiryTierKey; count: number }) {
 function ExpiringByDaysCard({
   meta,
   count,
+  contracts,
   selected,
   onSelect,
 }: {
   meta: (typeof O3_EXPIRY_TIER_META)[number]
   count: number
+  contracts: ExpiryTierContract[]
   selected: boolean
   onSelect: () => void
 }) {
@@ -611,7 +694,7 @@ function ExpiringByDaysCard({
         <p className="ced-o3-expiry-card__label" id={headingId}>
           {meta.label}
         </p>
-        <MiniTierViz tier={meta.tier} count={count} />
+        <MiniTierViz tier={meta.tier} count={count} contracts={contracts} />
       </div>
     </article>
   )
@@ -619,10 +702,16 @@ function ExpiringByDaysCard({
 
 function ExpiringByDaysPanel({
   tierCounts,
+  tierContracts,
   selectedTier,
   onSelectTier,
 }: {
   tierCounts: { critical: number; warning: number; upcoming: number }
+  tierContracts: {
+    critical: ExpiryTierContract[]
+    warning: ExpiryTierContract[]
+    upcoming: ExpiryTierContract[]
+  }
   selectedTier: ExpirationTierKey | null
   onSelectTier: (tier: ExpiryTierKey) => void
 }) {
@@ -635,6 +724,7 @@ function ExpiringByDaysPanel({
             key={meta.tier}
             meta={meta}
             count={tierCounts[meta.tier]}
+            contracts={tierContracts[meta.tier]}
             selected={selectedTier === meta.tier}
             onSelect={() => onSelectTier(meta.tier)}
           />
@@ -790,12 +880,18 @@ function FundingRiskPanel({
 
 function Option3Visualization({
   tierCounts,
+  tierContracts,
   highFundingCount,
   highFundingLine,
   selectedTier,
   onSelectTier,
 }: {
   tierCounts: { critical: number; warning: number; upcoming: number }
+  tierContracts: {
+    critical: ExpiryTierContract[]
+    warning: ExpiryTierContract[]
+    upcoming: ExpiryTierContract[]
+  }
   highFundingCount: number
   highFundingLine: HighFundingLine
   selectedTier: ExpirationTierKey | null
@@ -809,6 +905,7 @@ function Option3Visualization({
     <div className="ced-o3-row">
       <ExpiringByDaysPanel
         tierCounts={tierCounts}
+        tierContracts={tierContracts}
         selectedTier={selectedTier}
         onSelectTier={handleExpirySelect}
       />
@@ -822,9 +919,236 @@ function Option3Visualization({
   )
 }
 
+const O4_TIER_META = [
+  { key: 'critical' as const, label: '0–30 days', colorVar: 'var(--ced-o4-critical)' },
+  { key: 'warning' as const, label: '31–60 days', colorVar: 'var(--ced-o4-warning)' },
+  { key: 'upcoming' as const, label: '61–90 days', colorVar: 'var(--ced-o4-upcoming)' },
+] as const
+
+function polarToCartesian(cx: number, cy: number, r: number, angleDeg: number) {
+  const rad = ((angleDeg - 90) * Math.PI) / 180
+  return { x: cx + r * Math.cos(rad), y: cy + r * Math.sin(rad) }
+}
+
+function pieSlicePath(cx: number, cy: number, r: number, startAngle: number, endAngle: number) {
+  const start = polarToCartesian(cx, cy, r, endAngle)
+  const end = polarToCartesian(cx, cy, r, startAngle)
+  const largeArc = endAngle - startAngle <= 180 ? 0 : 1
+  return `M ${cx} ${cy} L ${start.x} ${start.y} A ${r} ${r} 0 ${largeArc} 0 ${end.x} ${end.y} Z`
+}
+
+type PieSlice = {
+  key: ExpiryTierKey
+  label: string
+  colorVar: string
+  count: number
+  pct: number
+  startAngle: number
+  endAngle: number
+  midAngle: number
+}
+
+function ExpiryPieChart({
+  slices,
+  total,
+  selectedTier,
+  onSelectTier,
+}: {
+  slices: PieSlice[]
+  total: number
+  selectedTier: ExpirationTierKey | null
+  onSelectTier: (tier: ExpiryTierKey) => void
+}) {
+  const cx = 150
+  const cy = 130
+  const r = 92
+  const explode = 12
+  const labelR = r * 0.6
+  const drawable = slices.filter((s) => s.count > 0)
+  const isSingleFull = drawable.length === 1 && total > 0
+
+  const renderLeader = (s: PieSlice, ox: number, oy: number) => {
+    const onArc = polarToCartesian(cx + ox, cy + oy, r, s.midAngle)
+    const elbow = polarToCartesian(cx + ox, cy + oy, r + 14, s.midAngle)
+    const isRight = s.midAngle % 360 < 180
+    const endX = isRight ? elbow.x + 26 : elbow.x - 26
+    const textX = isRight ? endX + 5 : endX - 5
+    return (
+      <g className="ced-o4-pie__leader" aria-hidden>
+        <polyline
+          points={`${onArc.x},${onArc.y} ${elbow.x},${elbow.y} ${endX},${elbow.y}`}
+          fill="none"
+          stroke="var(--text-secondary)"
+          strokeWidth={1}
+        />
+        <text
+          x={textX}
+          y={elbow.y}
+          className="ced-o4-pie__leader-text"
+          textAnchor={isRight ? 'start' : 'end'}
+          dominantBaseline="central"
+        >
+          {s.count} {s.count === 1 ? 'contract' : 'contracts'}
+        </text>
+      </g>
+    )
+  }
+
+  const renderSlice = (s: PieSlice) => {
+    const selected = selectedTier === s.key
+    const dimmed = selectedTier != null && !selected
+    const offset = selected ? explode : 0
+    const ox = offset * Math.cos(((s.midAngle - 90) * Math.PI) / 180)
+    const oy = offset * Math.sin(((s.midAngle - 90) * Math.PI) / 180)
+    const labelPos = polarToCartesian(cx + ox, cy + oy, labelR, s.midAngle)
+
+    return (
+      <g
+        key={s.key}
+        className={clsx(
+          'ced-o4-pie__slice',
+          selected && 'ced-o4-pie__slice--selected',
+          dimmed && 'ced-o4-pie__slice--dimmed',
+        )}
+        role="button"
+        tabIndex={0}
+        aria-pressed={selected}
+        aria-label={`Expiring ${s.label}: ${s.count} contracts, ${s.pct}%`}
+        onClick={() => onSelectTier(s.key)}
+        onKeyDown={(e) => {
+          if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault()
+            onSelectTier(s.key)
+          }
+        }}
+      >
+        {isSingleFull ? (
+          <circle cx={cx + ox} cy={cy + oy} r={r} fill={s.colorVar} className="ced-o4-pie__slice-path" />
+        ) : (
+          <path
+            className="ced-o4-pie__slice-path"
+            d={pieSlicePath(cx + ox, cy + oy, r, s.startAngle, s.endAngle)}
+            fill={s.colorVar}
+          />
+        )}
+        {s.pct >= 6 ? (
+          <text
+            x={labelPos.x}
+            y={labelPos.y}
+            className="ced-o4-pie__slice-label"
+            textAnchor="middle"
+            dominantBaseline="central"
+          >
+            {s.pct}%
+          </text>
+        ) : null}
+        {renderLeader(s, ox, oy)}
+      </g>
+    )
+  }
+
+  return (
+    <svg
+      className="ced-o4-pie"
+      width={300}
+      height={260}
+      viewBox="0 0 300 260"
+      role="img"
+      aria-label={`Contracts by expiration window: ${slices.map((s) => `${s.label} ${s.count} contracts`).join(', ')}`}
+    >
+      {total === 0 ? (
+        <circle cx={cx} cy={cy} r={r} fill="none" stroke="var(--border-color)" strokeWidth={2} />
+      ) : (
+        drawable.map(renderSlice)
+      )}
+    </svg>
+  )
+}
+
+function Option4Visualization({
+  tierCounts,
+  highFundingCount,
+  highFundingLine,
+  selectedTier,
+  onSelectTier,
+}: {
+  tierCounts: { critical: number; warning: number; upcoming: number }
+  highFundingCount: number
+  highFundingLine: HighFundingLine
+  selectedTier: ExpirationTierKey | null
+  onSelectTier: (tier: ExpirationTierKey) => void
+}) {
+  const total = tierCounts.critical + tierCounts.warning + tierCounts.upcoming
+
+  const slices = useMemo<PieSlice[]>(() => {
+    let cursor = 0
+    return O4_TIER_META.map((meta) => {
+      const count = tierCounts[meta.key]
+      const fraction = total > 0 ? count / total : 0
+      const startAngle = cursor * 360
+      cursor += fraction
+      const endAngle = cursor * 360
+      return {
+        key: meta.key,
+        label: meta.label,
+        colorVar: meta.colorVar,
+        count,
+        pct: Math.round(fraction * 100),
+        startAngle,
+        endAngle,
+        midAngle: (startAngle + endAngle) / 2,
+      }
+    })
+  }, [tierCounts, total])
+
+  return (
+    <div className="ced-o4-row">
+      <section className="ced-o4-panel" aria-label="Contracts by expiration window">
+        <div className="ced-o4-panel__head">
+          <h2 className="ced-o4-panel__title">Contracts by expiration window</h2>
+          <p className="ced-o4-panel__hint">Click a slice to filter the roster below.</p>
+        </div>
+        <div className="ced-o4-chart-wrap">
+          <ExpiryPieChart
+            slices={slices}
+            total={total}
+            selectedTier={selectedTier}
+            onSelectTier={onSelectTier}
+          />
+        </div>
+        <ul className="ced-o4-legend" role="group" aria-label="Expiration windows">
+          {slices.map((s) => {
+            const selected = selectedTier === s.key
+            return (
+              <li key={s.key}>
+                <button
+                  type="button"
+                  className={clsx('ced-o4-legend__item', selected && 'ced-o4-legend__item--selected')}
+                  aria-pressed={selected}
+                  onClick={() => onSelectTier(s.key)}
+                >
+                  <span className="ced-o4-legend__swatch" style={{ backgroundColor: s.colorVar }} aria-hidden />
+                  <span className="ced-o4-legend__label">{s.label}</span>
+                </button>
+              </li>
+            )
+          })}
+        </ul>
+      </section>
+      <FundingRiskPanel
+        count={highFundingCount}
+        fundingLine={highFundingLine}
+        selected={selectedTier === 'highFunding'}
+        onSelect={() => onSelectTier('highFunding')}
+      />
+    </div>
+  )
+}
+
 export function ContractsExpirationDashboard({
   designOption,
   tierCounts,
+  tierContracts,
   tierExpiryLines,
   highFundingCount,
   highFundingLine,
@@ -855,6 +1179,21 @@ export function ContractsExpirationDashboard({
     return (
       <section className="contracts-expiration-dashboard ced-layout-option3" aria-label="Command center timeline and funding risk">
         <Option3Visualization
+          tierCounts={tierCounts}
+          tierContracts={tierContracts}
+          highFundingCount={highFundingCount}
+          highFundingLine={highFundingLine}
+          selectedTier={selectedTier}
+          onSelectTier={onSelectTier}
+        />
+      </section>
+    )
+  }
+
+  if (designOption === 'option4') {
+    return (
+      <section className="contracts-expiration-dashboard ced-layout-option4" aria-label="Command center contracts by expiration window and funding risk">
+        <Option4Visualization
           tierCounts={tierCounts}
           highFundingCount={highFundingCount}
           highFundingLine={highFundingLine}

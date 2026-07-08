@@ -59,9 +59,10 @@
   isolation: isolate;
 }
 
-/* Option 2/3 nested cards: don't clip Harmony card radius/shadow on the home shell */
+/* Option 2/3/4 nested cards: don't clip Harmony card radius/shadow on the home shell */
 .command-center-home.card:has(.ced-layout-option2),
-.command-center-home.card:has(.ced-layout-option3) {
+.command-center-home.card:has(.ced-layout-option3),
+.command-center-home.card:has(.ced-layout-option4) {
   overflow: visible;
 }
 
@@ -254,9 +255,26 @@
 }
 
 .command-center-contract-info__id {
-  display: block;
+  display: inline-block;
+  padding: 0;
+  border: none;
+  background: none;
+  font: inherit;
   font-weight: 600;
-  color: var(--text-primary, #111827);
+  white-space: nowrap;
+  color: var(--theme-primary, #1e3a5f);
+  text-align: left;
+  cursor: pointer;
+}
+
+.command-center-contract-info__id:hover {
+  text-decoration: underline;
+}
+
+.command-center-contract-info__id:focus-visible {
+  outline: 2px solid var(--theme-primary);
+  outline-offset: 2px;
+  border-radius: var(--radius-sm, 4px);
 }
 
 .command-center-contract-info__vendor {
@@ -323,9 +341,25 @@
 }
 
 .command-center-contract-project-row__id {
+  padding: 0;
+  border: none;
+  background: none;
+  font: inherit;
   font-variant-numeric: tabular-nums;
   font-weight: 600;
-  color: var(--text-secondary, #4b5563);
+  white-space: nowrap;
+  color: var(--theme-primary, #1e3a5f);
+  cursor: pointer;
+}
+
+.command-center-contract-project-row__id:hover {
+  text-decoration: underline;
+}
+
+.command-center-contract-project-row__id:focus-visible {
+  outline: 2px solid var(--theme-primary);
+  outline-offset: 2px;
+  border-radius: var(--radius-sm, 4px);
 }
 
 /* Command Center contracts grid: no blue hover tint; selection = brand main frame */
@@ -522,6 +556,13 @@
 .command-center-contracts-table-wrap .command-center-data-table tbody td {
   overflow-wrap: break-word;
   word-wrap: break-word;
+}
+
+/* Wider first column so contract IDs (e.g. CTR-2025-002) fit on one line */
+.command-center-contracts-table-wrap .command-center-data-table thead th:first-child,
+.command-center-contracts-table-wrap .command-center-data-table tbody td:first-child {
+  width: 18%;
+  min-width: 13rem;
 }
 
 /* Requisition detail column (non-modal companion pane) — wider for single-line summary rows */
