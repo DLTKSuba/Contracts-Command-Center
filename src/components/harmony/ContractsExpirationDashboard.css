@@ -724,7 +724,7 @@
   flex-direction: column;
   flex: 1 1 auto;
   min-width: 0;
-  min-height: 148px;
+  min-height: 220px;
   border-radius: var(--radius-lg, 0.5rem);
   border: 1px solid var(--border-color);
   background: var(--surface-bg, #fff);
@@ -792,58 +792,91 @@
   color: var(--text-secondary);
 }
 
-.ced-o3-funding-card__footer {
-  display: flex;
-  align-items: center;
-  gap: var(--space-3, 0.75rem);
+.ced-o3-funding-card__breakdown {
   margin-top: auto;
   padding-top: var(--space-3, 0.75rem);
   border-top: 1px solid var(--border-color);
 }
 
-.ced-o3-progress-ring-wrap {
+.ced-o3-funding-card__breakdown-layout {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3, 0.75rem);
+  min-width: 0;
+}
+
+.ced-o3-funding-card__pie-wrap {
   position: relative;
-  display: inline-flex;
+  display: flex;
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
 }
 
-.ced-o3-progress-ring {
+.ced-o3-funding-pie {
   display: block;
 }
 
-.ced-o3-progress-ring__center {
+.ced-o3-funding-pie__center {
   position: absolute;
   inset: 0;
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
-  font-size: 0.625rem;
-  font-weight: var(--font-semibold, 600);
-  line-height: 1;
-  font-variant-numeric: tabular-nums;
-  color: var(--text-primary);
+  gap: 1px;
   pointer-events: none;
 }
 
-.ced-o3-funding-card__footer-text {
+.ced-o3-funding-pie__center-value {
+  font-size: 1rem;
+  font-weight: var(--font-semibold, 600);
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+  color: var(--ced-o3-funding);
+}
+
+.ced-o3-funding-pie__center-label {
+  font-size: 0.625rem;
+  font-weight: var(--font-medium, 500);
+  line-height: 1;
+  color: var(--text-secondary);
+  text-transform: lowercase;
+}
+
+.ced-o3-funding-card__legend {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1, 0.25rem);
   min-width: 0;
 }
 
-.ced-o3-funding-card__highest {
-  margin: 0;
-  font-size: var(--text-sm, 0.875rem);
-  font-weight: var(--font-semibold, 600);
-  line-height: 1.35;
-  color: var(--text-primary);
+.ced-o3-funding-card__legend-item {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2, 0.5rem);
+  min-width: 0;
 }
 
-.ced-o3-funding-card__vendor {
-  margin: 0.125rem 0 0;
+.ced-o3-funding-card__legend-swatch {
+  width: 0.625rem;
+  height: 0.625rem;
+  border-radius: 2px;
+  flex-shrink: 0;
+}
+
+.ced-o3-funding-card__legend-text {
   font-size: var(--text-xs, 0.75rem);
   line-height: 1.35;
   color: var(--text-secondary);
+}
+
+.ced-o3-funding-card__legend-text strong {
+  font-weight: var(--font-semibold, 600);
+  color: var(--text-primary);
 }
 
 /* ── Option 4 — expiration-window pie chart + funding risk ── */
