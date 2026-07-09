@@ -117,6 +117,7 @@ type ContractProjectLine = {
   endDate: string
   contractValue: string
   fundedValue: string
+  itdRevenue: string
   itdCost: string
   fundingPercent: number
 }
@@ -143,6 +144,8 @@ type RequisitionRow = {
   startDate: string
   /** Funded (commitment) value. */
   fundedValue: string
+  /** Incurred to date revenue. */
+  itdRevenue: string
   /** Incurred to date cost. */
   itdCost: string
   /** Funding used — ITD as % of funded (0–100+). */
@@ -224,10 +227,11 @@ const REQUISITION_ROWS: RequisitionRow[] = [
     contractEnd: DEMO_CONTRACT_END.d48,
     vendorId: 'VND-900101',
     vendor: 'Acme Office Supplies',
-    amount: '$1,250.00',
+    amount: '$6,500.00',
     nextImportantDate: 'Apr 12, 2025',
     startDate: 'Apr 2, 2025',
     fundedValue: '$5,000.00',
+    itdRevenue: '$2,400.00',
     itdCost: '$1,900.00',
     fundingPercent: 38,
     statusLabel: 'Pending Approval',
@@ -249,8 +253,9 @@ const REQUISITION_ROWS: RequisitionRow[] = [
         nextImportantDate: 'Apr 12, 2025',
         startDate: 'Apr 2, 2025',
         endDate: DEMO_CONTRACT_END.d48,
-        contractValue: '$625.00',
+        contractValue: '$3,250.00',
         fundedValue: '$2,500.00',
+        itdRevenue: '$1,200.00',
         itdCost: '$950.00',
         fundingPercent: 38,
       },
@@ -259,8 +264,9 @@ const REQUISITION_ROWS: RequisitionRow[] = [
         nextImportantDate: 'Apr 14, 2025',
         startDate: 'Apr 2, 2025',
         endDate: DEMO_CONTRACT_END.d48,
-        contractValue: '$625.00',
+        contractValue: '$3,250.00',
         fundedValue: '$2,500.00',
+        itdRevenue: '$1,200.00',
         itdCost: '$950.00',
         fundingPercent: 38,
       },
@@ -279,10 +285,11 @@ const REQUISITION_ROWS: RequisitionRow[] = [
     contractEnd: DEMO_CONTRACT_END.d18,
     vendorId: 'VND-900205',
     vendor: 'Litware Medical Devices',
-    amount: '$3,890.25',
+    amount: '$15,000.00',
     nextImportantDate: 'Apr 16, 2025',
     startDate: 'Mar 28, 2025',
     fundedValue: '$12,000.00',
+    itdRevenue: '$7,800.00',
     itdCost: '$6,240.00',
     fundingPercent: 64,
     statusLabel: 'Pending Approval',
@@ -304,8 +311,9 @@ const REQUISITION_ROWS: RequisitionRow[] = [
         nextImportantDate: 'Apr 16, 2025',
         startDate: 'Mar 28, 2025',
         endDate: DEMO_CONTRACT_END.d18,
-        contractValue: '$3,890.25',
+        contractValue: '$15,000.00',
         fundedValue: '$12,000.00',
+        itdRevenue: '$7,800.00',
         itdCost: '$6,240.00',
         fundingPercent: 64,
       },
@@ -324,10 +332,11 @@ const REQUISITION_ROWS: RequisitionRow[] = [
     contractEnd: DEMO_CONTRACT_END.d52,
     vendorId: 'VND-900302',
     vendor: 'Northwind Logistics LLC',
-    amount: '$8,420.50',
+    amount: '$32,000.00',
     nextImportantDate: 'Apr 8, 2025',
     startDate: 'Mar 15, 2025',
     fundedValue: '$25,000.00',
+    itdRevenue: '$24,200.00',
     itdCost: '$22,000.00',
     fundingPercent: 88,
     statusLabel: 'Pending PO Creation',
@@ -349,8 +358,9 @@ const REQUISITION_ROWS: RequisitionRow[] = [
         nextImportantDate: 'Apr 8, 2025',
         startDate: 'Mar 15, 2025',
         endDate: DEMO_CONTRACT_END.d52,
-        contractValue: '$4,210.25',
+        contractValue: '$16,000.00',
         fundedValue: '$12,500.00',
+        itdRevenue: '$12,100.00',
         itdCost: '$11,000.00',
         fundingPercent: 88,
       },
@@ -359,8 +369,9 @@ const REQUISITION_ROWS: RequisitionRow[] = [
         nextImportantDate: 'Apr 10, 2025',
         startDate: 'Mar 15, 2025',
         endDate: DEMO_CONTRACT_END.d52,
-        contractValue: '$4,210.25',
+        contractValue: '$16,000.00',
         fundedValue: '$12,500.00',
+        itdRevenue: '$12,100.00',
         itdCost: '$11,000.00',
         fundingPercent: 88,
       },
@@ -379,10 +390,11 @@ const REQUISITION_ROWS: RequisitionRow[] = [
     contractEnd: DEMO_CONTRACT_END.d12,
     vendorId: 'VND-900448',
     vendor: 'Wide World Importers',
-    amount: '$22,150.00',
+    amount: '$58,000.00',
     nextImportantDate: 'Apr 3, 2025',
     startDate: 'Mar 20, 2025',
     fundedValue: '$48,000.00',
+    itdRevenue: '$44,000.00',
     itdCost: '$39,360.00',
     fundingPercent: 82,
     statusLabel: 'Pending PO Creation',
@@ -404,8 +416,9 @@ const REQUISITION_ROWS: RequisitionRow[] = [
         nextImportantDate: 'Apr 3, 2025',
         startDate: 'Mar 20, 2025',
         endDate: DEMO_CONTRACT_END.d12,
-        contractValue: '$22,150.00',
+        contractValue: '$58,000.00',
         fundedValue: '$48,000.00',
+        itdRevenue: '$44,000.00',
         itdCost: '$39,360.00',
         fundingPercent: 82,
       },
@@ -424,10 +437,11 @@ const REQUISITION_ROWS: RequisitionRow[] = [
     contractEnd: DEMO_CONTRACT_END.d44,
     vendorId: 'VND-900503',
     vendor: 'Contoso Training Group',
-    amount: '$2,100.00',
+    amount: '$10,500.00',
     nextImportantDate: 'Apr 18, 2025',
     startDate: 'Apr 8, 2025',
     fundedValue: '$8,000.00',
+    itdRevenue: '$4,500.00',
     itdCost: '$3,600.00',
     fundingPercent: 45,
     statusLabel: 'Pending Submittal',
@@ -449,8 +463,9 @@ const REQUISITION_ROWS: RequisitionRow[] = [
         nextImportantDate: 'Apr 18, 2025',
         startDate: 'Apr 8, 2025',
         endDate: DEMO_CONTRACT_END.d44,
-        contractValue: '$700.00',
+        contractValue: '$3,500.00',
         fundedValue: '$2,666.67',
+        itdRevenue: '$1,500.00',
         itdCost: '$1,200.00',
         fundingPercent: 45,
       },
@@ -459,8 +474,9 @@ const REQUISITION_ROWS: RequisitionRow[] = [
         nextImportantDate: 'Apr 19, 2025',
         startDate: 'Apr 8, 2025',
         endDate: DEMO_CONTRACT_END.d44,
-        contractValue: '$700.00',
+        contractValue: '$3,500.00',
         fundedValue: '$2,666.67',
+        itdRevenue: '$1,500.00',
         itdCost: '$1,200.00',
         fundingPercent: 45,
       },
@@ -469,8 +485,9 @@ const REQUISITION_ROWS: RequisitionRow[] = [
         nextImportantDate: 'Apr 20, 2025',
         startDate: 'Apr 8, 2025',
         endDate: DEMO_CONTRACT_END.d44,
-        contractValue: '$700.00',
+        contractValue: '$3,500.00',
         fundedValue: '$2,666.66',
+        itdRevenue: '$1,500.00',
         itdCost: '$1,200.00',
         fundingPercent: 45,
       },
@@ -489,10 +506,11 @@ const REQUISITION_ROWS: RequisitionRow[] = [
     contractEnd: DEMO_CONTRACT_END.d75,
     vendorId: 'VND-900606',
     vendor: 'Adventure Works IT',
-    amount: '$475.90',
+    amount: '$4,500.00',
     nextImportantDate: 'Apr 22, 2025',
     startDate: 'Apr 1, 2025',
     fundedValue: '$3,500.00',
+    itdRevenue: '$1,200.00',
     itdCost: '$980.00',
     fundingPercent: 28,
     statusLabel: 'Pending Submittal',
@@ -513,8 +531,9 @@ const REQUISITION_ROWS: RequisitionRow[] = [
         nextImportantDate: 'Apr 22, 2025',
         startDate: 'Apr 1, 2025',
         endDate: DEMO_CONTRACT_END.d75,
-        contractValue: '$475.90',
+        contractValue: '$4,500.00',
         fundedValue: '$3,500.00',
+        itdRevenue: '$1,200.00',
         itdCost: '$980.00',
         fundingPercent: 28,
       },
@@ -533,10 +552,11 @@ const REQUISITION_ROWS: RequisitionRow[] = [
     contractEnd: DEMO_CONTRACT_END.d85,
     vendorId: 'VND-900704',
     vendor: 'Fabrikam Facilities Inc.',
-    amount: '$640.00',
+    amount: '$5,500.00',
     nextImportantDate: 'Feb 28, 2025',
     startDate: 'Feb 10, 2025',
     fundedValue: '$4,200.00',
+    itdRevenue: '$2,900.00',
     itdCost: '$2,310.00',
     fundingPercent: 62,
     statusLabel: 'Rejected',
@@ -558,8 +578,9 @@ const REQUISITION_ROWS: RequisitionRow[] = [
         nextImportantDate: 'Feb 28, 2025',
         startDate: 'Feb 10, 2025',
         endDate: DEMO_CONTRACT_END.d85,
-        contractValue: '$640.00',
+        contractValue: '$5,500.00',
         fundedValue: '$4,200.00',
+        itdRevenue: '$2,900.00',
         itdCost: '$2,310.00',
         fundingPercent: 62,
       },
@@ -578,10 +599,11 @@ const REQUISITION_ROWS: RequisitionRow[] = [
     contractEnd: DEMO_CONTRACT_END.d8,
     vendorId: 'VND-900807',
     vendor: 'Armstrong Labs',
-    amount: '$9,999.00',
+    amount: '$42,000.00',
     nextImportantDate: 'Feb 15, 2025',
     startDate: 'Jan 22, 2025',
     fundedValue: '$35,000.00',
+    itdRevenue: '$36,000.00',
     itdCost: '$32,200.00',
     fundingPercent: 92,
     statusLabel: 'Rejected',
@@ -603,8 +625,9 @@ const REQUISITION_ROWS: RequisitionRow[] = [
         nextImportantDate: 'Feb 15, 2025',
         startDate: 'Jan 22, 2025',
         endDate: DEMO_CONTRACT_END.d8,
-        contractValue: '$4,999.50',
+        contractValue: '$21,000.00',
         fundedValue: '$17,500.00',
+        itdRevenue: '$18,000.00',
         itdCost: '$16,100.00',
         fundingPercent: 92,
       },
@@ -613,8 +636,9 @@ const REQUISITION_ROWS: RequisitionRow[] = [
         nextImportantDate: 'Feb 18, 2025',
         startDate: 'Jan 22, 2025',
         endDate: DEMO_CONTRACT_END.d8,
-        contractValue: '$4,999.50',
+        contractValue: '$21,000.00',
         fundedValue: '$17,500.00',
+        itdRevenue: '$18,000.00',
         itdCost: '$16,100.00',
         fundingPercent: 92,
       },
@@ -927,6 +951,7 @@ const REQUISITION_TABLE_HEADER = (
       {commandCenterHeaderTh('End Date')}
       {commandCenterHeaderTh('Contract Value', 'right')}
       {commandCenterHeaderTh('Funded Value', 'right')}
+      {commandCenterHeaderTh('ITD Revenue', 'right')}
       {commandCenterHeaderTh('ITD Cost', 'right')}
       {commandCenterHeaderTh('Funding Used', 'right')}
     </tr>
@@ -1045,6 +1070,7 @@ function RequisitionTableBody({
               <td>{row.needBy}</td>
               <td className="text-right">{row.amount}</td>
               <td className="text-right">{row.fundedValue}</td>
+              <td className="text-right">{row.itdRevenue}</td>
               <td className="text-right">{row.itdCost}</td>
               <td
                 className={clsx(
@@ -1092,6 +1118,7 @@ function RequisitionTableBody({
                   <td>{proj.endDate}</td>
                   <td className="text-right">{proj.contractValue}</td>
                   <td className="text-right">{proj.fundedValue}</td>
+                  <td className="text-right">{proj.itdRevenue}</td>
                   <td className="text-right">{proj.itdCost}</td>
                   <td
                     className={clsx(
@@ -1338,7 +1365,7 @@ function RequisitionDetailSummary({
         <div className="command-center-requisition-summary__grid">
           <ContractSummaryField label="Contract ID" value={row.contractNumber} />
           <ContractSummaryField
-            label="Vendor"
+            label="Customer"
             value={row.vendor}
             onValueClick={onVendorClick}
             emailLink
@@ -1352,6 +1379,7 @@ function RequisitionDetailSummary({
           <ContractSummaryField label="Contract End" value={row.contractEnd} />
           <ContractSummaryField label="Contract Value" value={row.amount} />
           <ContractSummaryField label="Funded Value" value={row.fundedValue} />
+          <ContractSummaryField label="ITD Revenue" value={row.itdRevenue} />
           <ContractSummaryField label="ITD Cost" value={row.itdCost} />
         </div>
       </div>
