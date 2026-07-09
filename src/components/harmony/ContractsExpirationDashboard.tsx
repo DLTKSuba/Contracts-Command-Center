@@ -981,18 +981,19 @@ function FundingBreakdownPie({ summary }: { summary: FundingUtilizationSummary }
       ? 'No contracts at or above 65% funding used'
       : drawable.map((slice) => `${slice.label}: ${slice.count}`).join('; ')
 
-  const cx = 60
-  const cy = 60
-  const r = 48
+  const cx = 22
+  const cy = 22
+  const r = 17
+  const pieSize = 44
 
   return (
     <div className="ced-o3-funding-card__breakdown-layout">
       <div className="ced-o3-funding-card__pie-wrap">
         <svg
           className="ced-o3-funding-pie"
-          width={120}
-          height={120}
-          viewBox="0 0 120 120"
+          width={pieSize}
+          height={pieSize}
+          viewBox={`0 0 ${pieSize} ${pieSize}`}
           role="img"
           aria-label={
             total === 0
@@ -1014,12 +1015,6 @@ function FundingBreakdownPie({ summary }: { summary: FundingUtilizationSummary }
             ))
           )}
         </svg>
-        {total > 0 ? (
-          <div className="ced-o3-funding-pie__center" aria-hidden>
-            <span className="ced-o3-funding-pie__center-value">{summary.aboveThresholdCount}</span>
-            <span className="ced-o3-funding-pie__center-label">at risk</span>
-          </div>
-        ) : null}
       </div>
       <ul className="ced-o3-funding-card__legend" aria-label="Funding risk breakdown">
         {FUNDING_BREAKDOWN_SEGMENTS.filter((meta) => meta.countFrom(summary) > 0).map((meta) => {

@@ -724,7 +724,7 @@
   flex-direction: column;
   flex: 1 1 auto;
   min-width: 0;
-  min-height: 220px;
+  min-height: 148px;
   border-radius: var(--radius-lg, 0.5rem);
   border: 1px solid var(--border-color);
   background: var(--surface-bg, #fff);
@@ -794,14 +794,14 @@
 
 .ced-o3-funding-card__breakdown {
   margin-top: auto;
-  padding-top: var(--space-3, 0.75rem);
+  padding-top: var(--space-2, 0.5rem);
   border-top: 1px solid var(--border-color);
 }
 
 .ced-o3-funding-card__breakdown-layout {
   display: flex;
   align-items: center;
-  gap: var(--space-3, 0.75rem);
+  gap: var(--space-2, 0.5rem);
   min-width: 0;
 }
 
@@ -815,33 +815,8 @@
 
 .ced-o3-funding-pie {
   display: block;
-}
-
-.ced-o3-funding-pie__center {
-  position: absolute;
-  inset: 0;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 1px;
-  pointer-events: none;
-}
-
-.ced-o3-funding-pie__center-value {
-  font-size: 1rem;
-  font-weight: var(--font-semibold, 600);
-  line-height: 1;
-  font-variant-numeric: tabular-nums;
-  color: var(--ced-o3-funding);
-}
-
-.ced-o3-funding-pie__center-label {
-  font-size: 0.625rem;
-  font-weight: var(--font-medium, 500);
-  line-height: 1;
-  color: var(--text-secondary);
-  text-transform: lowercase;
+  width: 44px;
+  height: 44px;
 }
 
 .ced-o3-funding-card__legend {
