@@ -1464,7 +1464,6 @@ function Option5Visualization({
         fundingUtilization={fundingUtilization}
         selected={selectedTier === 'highFunding'}
         onSelect={() => onSelectTier('highFunding')}
-        layout="option4"
       />
     </div>
   )

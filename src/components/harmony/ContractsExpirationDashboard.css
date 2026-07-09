@@ -1191,7 +1191,7 @@
 
 .ced-o5-row {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(280px, 360px);
+  grid-template-columns: minmax(0, 1fr) minmax(240px, 320px);
   gap: var(--space-4, 1rem);
   align-items: stretch;
   width: 100%;
