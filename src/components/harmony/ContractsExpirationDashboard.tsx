@@ -908,11 +908,13 @@ function FundingRiskCard({
   const isOption4 = layout === 'option4'
   const ringSize = isOption4 ? 88 : 44
 
+  const legendSegments = FUNDING_RISK_RING_SEGMENTS.filter(
+    (segment) => segment.countFrom(fundingUtilization) > 0,
+  )
+
   const legend = fundingLine != null ? (
     <ul className="ced-o3-funding-card__legend" aria-label="Funding tier colors">
-      {FUNDING_RISK_RING_SEGMENTS.filter(
-        (segment) => segment.countFrom(fundingUtilization) > 0,
-      ).map((segment) => (
+      {legendSegments.map((segment) => (
         <li key={segment.key} className="ced-o3-funding-card__legend-item">
           <span
             className="ced-o3-funding-card__legend-bullet"
@@ -925,10 +927,41 @@ function FundingRiskCard({
     </ul>
   ) : null
 
+  const option4Legend = fundingLine != null ? (
+    <ul
+      className="ced-o3-funding-card__legend ced-o3-funding-card__legend--horizontal"
+      aria-label="Funding tier colors"
+    >
+      {FUNDING_RISK_RING_SEGMENTS.filter(
+        (segment) => segment.key === 'elevated' || segment.key === 'critical',
+      )
+        .filter((segment) => segment.countFrom(fundingUtilization) > 0)
+        .map((segment) => (
+          <li key={segment.key} className="ced-o3-funding-card__legend-item">
+            <span
+              className="ced-o3-funding-card__legend-bullet"
+              style={{ backgroundColor: segment.color }}
+              aria-hidden
+            />
+            <span className="ced-o3-funding-card__legend-label">{segment.label}</span>
+          </li>
+        ))}
+    </ul>
+  ) : null
+
   const details = fundingLine != null ? (
     <div className="ced-o3-funding-card__details">
       <p className="ced-o3-funding-card__highest">Highest {highestPct}%</p>
       {legend}
+      <p className="ced-o3-funding-card__vendor">{vendorName}</p>
+    </div>
+  ) : null
+
+  const option4Details = fundingLine != null ? (
+    <div className="ced-o3-funding-card__details ced-o3-funding-card__details--option4">
+      {option4Legend}
+      <div className="ced-o3-funding-card__details-divider" role="presentation" />
+      <p className="ced-o3-funding-card__highest">Highest {highestPct}%</p>
       <p className="ced-o3-funding-card__vendor">{vendorName}</p>
     </div>
   ) : null
@@ -974,7 +1007,7 @@ function FundingRiskCard({
                 size={ringSize}
               />
             </div>
-            {details}
+            {option4Details}
           </div>
         ) : null}
         {fundingLine != null && !isOption4 ? (
@@ -1128,18 +1161,17 @@ function ExpiryPieChart({
   variant?: 'default' | 'option4'
 }) {
   const isOption4 = variant === 'option4'
-  const cx = isOption4 ? 110 : 150
-  const cy = isOption4 ? 110 : 130
-  const r = isOption4 ? 88 : 92
+  const cx = 150
+  const cy = 130
+  const r = 92
   const explode = 12
   const labelR = r * 0.6
-  const svgWidth = isOption4 ? 220 : 300
-  const svgHeight = isOption4 ? 220 : 260
+  const svgWidth = 300
+  const svgHeight = 260
   const drawable = slices.filter((s) => s.count > 0)
   const isSingleFull = drawable.length === 1 && total > 0
 
   const renderLeader = (s: PieSlice, ox: number, oy: number) => {
-    if (isOption4) return null
     const onArc = polarToCartesian(cx + ox, cy + oy, r, s.midAngle)
     const elbow = polarToCartesian(cx + ox, cy + oy, r + 14, s.midAngle)
     const isRight = s.midAngle % 360 < 180
@@ -1304,10 +1336,7 @@ function Option4Visualization({
                     onClick={() => onSelectTier(s.key)}
                   >
                     <span className="ced-o4-legend__swatch" style={{ backgroundColor: s.colorVar }} aria-hidden />
-                    <span className="ced-o4-legend__label">
-                      {s.label}
-                      <span className="ced-o4-legend__count"> ({s.count})</span>
-                    </span>
+                    <span className="ced-o4-legend__label">{s.label}</span>
                   </button>
                 </li>
               )
