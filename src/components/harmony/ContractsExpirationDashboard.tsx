@@ -14,7 +14,7 @@ export type ExpirationTierKey =
   | 'fundMid'
   | 'fundHigh'
 
-export type VizDesignOption = 'option1' | 'option2' | 'option3' | 'option4'
+export type VizDesignOption = 'option1' | 'option2' | 'option3' | 'option4' | 'option5'
 
 type ExpiryTierKey = 'critical' | 'warning' | 'upcoming'
 
@@ -23,6 +23,7 @@ export const VIZ_DESIGN_OPTIONS = [
   { value: 'option2', label: 'Option 2 - Dual Visualization' },
   { value: 'option3', label: 'Option 3 - Timeline & Funding Risk' },
   { value: 'option4', label: 'Option 4 - Pie Chart' },
+  { value: 'option5', label: 'Option 5 - Timeline Histogram' },
 ] as const
 
 export function VizDesignOptionPicker({
@@ -1356,6 +1357,119 @@ function Option4Visualization({
   )
 }
 
+function ExpirationTimelinePanel({
+  tierCounts,
+  tierContracts,
+  selectedTier,
+  onSelectTier,
+}: {
+  tierCounts: { critical: number; warning: number; upcoming: number }
+  tierContracts: {
+    critical: ExpiryTierContract[]
+    warning: ExpiryTierContract[]
+    upcoming: ExpiryTierContract[]
+  }
+  selectedTier: ExpirationTierKey | null
+  onSelectTier: (tier: ExpiryTierKey) => void
+}) {
+  return (
+    <section className="ced-o3-panel ced-o5-timeline-panel" aria-label="Expiring by days remaining">
+      <div className="ced-o5-timeline-panel__head">
+        <h2 className="ced-o3-panel__title">Expiring — by days remaining</h2>
+        <Icon name="chevron-right" size="xs" className="ced-o5-timeline-panel__chevron" aria-hidden />
+      </div>
+      <div className="ced-o5-timeline-columns" role="group" aria-label="Expiration windows">
+        {O3_EXPIRY_TIER_META.map((meta) => {
+          const count = tierCounts[meta.tier]
+          const selected = selectedTier === meta.tier
+          const headingId = `ced-o5-${meta.tier}-heading`
+
+          return (
+            <button
+              key={meta.tier}
+              type="button"
+              className={clsx(
+                'ced-o5-timeline-column',
+                `ced-o5-timeline-column--${meta.tier}`,
+                selected && 'ced-o5-timeline-column--selected',
+              )}
+              aria-labelledby={headingId}
+              aria-pressed={selected}
+              onClick={() => onSelectTier(meta.tier)}
+            >
+              <div className="ced-o5-timeline-column__kpi">
+                <p className="ced-o5-timeline-column__count" aria-label={`${count} contracts`}>
+                  {count}
+                </p>
+                <p className="ced-o5-timeline-column__label" id={headingId}>
+                  {meta.label}
+                </p>
+              </div>
+              <div
+                className={clsx(
+                  'ced-o5-timeline-column__segment',
+                  `ced-o5-timeline-column__segment--${meta.tier}`,
+                )}
+              >
+                <MiniTierViz
+                  tier={meta.tier}
+                  count={count}
+                  contracts={tierContracts[meta.tier]}
+                />
+              </div>
+            </button>
+          )
+        })}
+      </div>
+    </section>
+  )
+}
+
+function Option5Visualization({
+  tierCounts,
+  tierContracts,
+  highFundingCount,
+  highFundingLine,
+  fundingUtilization,
+  selectedTier,
+  onSelectTier,
+}: {
+  tierCounts: { critical: number; warning: number; upcoming: number }
+  tierContracts: {
+    critical: ExpiryTierContract[]
+    warning: ExpiryTierContract[]
+    upcoming: ExpiryTierContract[]
+  }
+  highFundingCount: number
+  highFundingLine: HighFundingLine
+  fundingUtilization: FundingUtilizationSummary
+  selectedTier: ExpirationTierKey | null
+  onSelectTier: (tier: ExpirationTierKey) => void
+}) {
+  const handleExpirySelect = (tier: ExpiryTierKey) => {
+    onSelectTier(tier)
+  }
+
+  return (
+    <div className="ced-o5-row">
+      <ExpirationTimelinePanel
+        tierCounts={tierCounts}
+        tierContracts={tierContracts}
+        selectedTier={selectedTier}
+        onSelectTier={handleExpirySelect}
+      />
+      <FundingRiskPanel
+        count={highFundingCount}
+        fundingLine={highFundingLine}
+        fundingUtilization={fundingUtilization}
+        selected={selectedTier === 'highFunding'}
+        onSelect={() => onSelectTier('highFunding')}
+        layout="option4"
+      />
+    </div>
+  )
+}
+
 export function ContractsExpirationDashboard({
   designOption,
   tierCounts,
@@ -1407,6 +1521,22 @@ export function ContractsExpirationDashboard({
       <section className="contracts-expiration-dashboard ced-layout-option4" aria-label="Command center contracts by expiration window and funding risk">
         <Option4Visualization
           tierCounts={tierCounts}
+          highFundingCount={highFundingCount}
+          highFundingLine={highFundingLine}
+          fundingUtilization={fundingUtilization}
+          selectedTier={selectedTier}
+          onSelectTier={onSelectTier}
+        />
+      </section>
+    )
+  }
+
+  if (designOption === 'option5') {
+    return (
+      <section className="contracts-expiration-dashboard ced-layout-option5" aria-label="Command center expiration timeline and funding risk">
+        <Option5Visualization
+          tierCounts={tierCounts}
+          tierContracts={tierContracts}
           highFundingCount={highFundingCount}
           highFundingLine={highFundingLine}
           fundingUtilization={fundingUtilization}

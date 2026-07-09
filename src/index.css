@@ -62,7 +62,8 @@
 /* Option 2/3/4 nested cards: don't clip Harmony card radius/shadow on the home shell */
 .command-center-home.card:has(.ced-layout-option2),
 .command-center-home.card:has(.ced-layout-option3),
-.command-center-home.card:has(.ced-layout-option4) {
+.command-center-home.card:has(.ced-layout-option4),
+.command-center-home.card:has(.ced-layout-option5) {
   overflow: visible;
 }
 
