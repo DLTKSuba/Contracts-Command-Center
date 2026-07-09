@@ -1042,6 +1042,43 @@
   color: var(--text-secondary);
 }
 
+/* Option 4 funding risk — content-height panel; footer divider sits under metrics */
+.ced-layout-option4 .ced-o3-funding-panel {
+  align-self: start;
+}
+
+.ced-layout-option4 .ced-o3-funding-card {
+  flex: none;
+  min-height: 0;
+  position: relative;
+}
+
+.ced-layout-option4 .ced-o3-funding-card__body {
+  flex: none;
+  gap: var(--space-2, 0.5rem);
+}
+
+.ced-layout-option4 .ced-o3-funding-card__top {
+  position: absolute;
+  top: var(--space-3, 0.75rem);
+  right: var(--space-3, 0.75rem);
+  line-height: 1;
+}
+
+.ced-layout-option4 .ced-o3-funding-card__main {
+  padding-right: 1.25rem;
+}
+
+.ced-layout-option4 .ced-o3-funding-card__footer {
+  margin-top: 0;
+  padding-top: var(--space-2, 0.5rem);
+}
+
+.ced-layout-option4 .ced-o3-progress-ring {
+  width: 52px;
+  height: 52px;
+}
+
 @media (max-width: 1024px) {
   .ced-dual-viz-grid {
     grid-template-columns: 1fr;
