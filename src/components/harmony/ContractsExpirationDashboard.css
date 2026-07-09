@@ -890,7 +890,7 @@
 
 .ced-o4-row {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(240px, 320px);
+  grid-template-columns: minmax(0, 1fr) minmax(280px, 360px);
   gap: var(--space-4, 1rem);
   align-items: stretch;
   width: 100%;
@@ -900,10 +900,11 @@
 .ced-o4-panel {
   display: flex;
   flex-direction: column;
-  align-items: center;
-  gap: var(--space-4, 1rem);
+  align-items: stretch;
+  gap: var(--space-3, 0.75rem);
   width: 100%;
   min-width: 0;
+  min-height: 100%;
   padding: var(--space-4, 1rem) var(--space-5, 1.5rem);
   border-radius: var(--radius-xl, 0.75rem);
   border: 1px solid var(--border-color);
@@ -914,7 +915,18 @@
   display: flex;
   flex-direction: column;
   gap: 2px;
-  align-self: flex-start;
+  flex-shrink: 0;
+}
+
+.ced-o4-panel__viz {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-3, 0.75rem);
+  min-height: 0;
+  width: 100%;
 }
 
 .ced-o4-panel__title,
@@ -937,13 +949,22 @@
 
 .ced-o4-chart-wrap {
   display: flex;
+  flex: 1;
+  align-items: center;
   justify-content: center;
   width: 100%;
+  min-height: 0;
 }
 
 .ced-o4-pie {
   display: block;
   overflow: visible;
+  max-width: 100%;
+  height: auto;
+}
+
+.ced-o4-pie--centered {
+  flex-shrink: 0;
 }
 
 .ced-o4-pie__slice {
@@ -1000,6 +1021,8 @@
   margin: 0;
   padding: 0;
   list-style: none;
+  flex-shrink: 0;
+  width: 100%;
 }
 
 .ced-o4-legend__item {
@@ -1042,41 +1065,97 @@
   color: var(--text-secondary);
 }
 
-/* Option 4 funding risk — content-height panel; footer divider sits under metrics */
-.ced-layout-option4 .ced-o3-funding-panel {
-  align-self: start;
+.ced-o4-legend__count {
+  font-weight: var(--font-semibold, 600);
+  color: var(--text-primary);
 }
 
-.ced-layout-option4 .ced-o3-funding-card {
-  flex: none;
+/* Option 4 — funding risk panel matches expiration panel height */
+.ced-o4-funding-panel {
+  min-width: 0;
+}
+
+.ced-o4-funding-panel:has(.ced-o3-funding-card--selected) {
+  border-color: var(--theme-primary);
+  box-shadow: 0 0 0 1px var(--theme-primary);
+}
+
+.ced-o4-funding-panel .ced-o3-funding-card__main {
+  padding-right: 1.25rem;
+  flex-shrink: 0;
+}
+
+.ced-o4-funding-panel .ced-o3-funding-card {
+  flex: 1;
   min-height: 0;
-  position: relative;
+  border: none;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
 }
 
-.ced-layout-option4 .ced-o3-funding-card__body {
-  flex: none;
+.ced-o4-funding-panel .ced-o3-funding-card--selected {
+  box-shadow: none;
+}
+
+.ced-o4-funding-panel .ced-o3-funding-card__body {
+  flex: 1;
+  min-height: 0;
+  padding: 0;
   gap: var(--space-2, 0.5rem);
 }
 
-.ced-layout-option4 .ced-o3-funding-card__top {
+.ced-o4-funding-panel .ced-o3-funding-card__top {
   position: absolute;
-  top: var(--space-3, 0.75rem);
-  right: var(--space-3, 0.75rem);
+  top: 0;
+  right: 0;
   line-height: 1;
 }
 
-.ced-layout-option4 .ced-o3-funding-card__main {
-  padding-right: 1.25rem;
+.ced-o4-funding-panel .ced-o3-funding-card--option4 {
+  position: relative;
 }
 
-.ced-layout-option4 .ced-o3-funding-card__footer {
-  margin-top: 0;
-  padding-top: var(--space-2, 0.5rem);
+.ced-o4-funding-panel .ced-o3-funding-card__viz-stack {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-3, 0.75rem);
+  min-height: 0;
+  width: 100%;
 }
 
-.ced-layout-option4 .ced-o3-progress-ring {
-  width: 52px;
-  height: 52px;
+.ced-o4-funding-panel .ced-o3-funding-card__viz-center {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: 1;
+  min-height: 0;
+  width: 100%;
+}
+
+.ced-o4-funding-panel .ced-o3-funding-card__details {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 0.125rem;
+  width: 100%;
+  flex-shrink: 0;
+}
+
+.ced-o4-funding-panel .ced-o3-funding-card__highest {
+  text-align: center;
+}
+
+.ced-o4-funding-panel .ced-o3-funding-card__legend {
+  align-items: center;
+}
+
+.ced-o4-funding-panel .ced-o3-funding-card__vendor {
+  text-align: center;
 }
 
 @media (max-width: 1024px) {
