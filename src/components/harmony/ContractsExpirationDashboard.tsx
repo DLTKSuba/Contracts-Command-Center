@@ -792,21 +792,121 @@ function ExpiringByDaysPanel({
   )
 }
 
+const FUNDING_RISK_RING_SEGMENTS = [
+  {
+    key: 'normal',
+    label: '65–79%',
+    color: 'var(--ced-o3-funding)',
+    countFrom: (summary: FundingUtilizationSummary) => summary.tiers.normal,
+  },
+  {
+    key: 'elevated',
+    label: '80–89%',
+    color: 'var(--data-viz-warning)',
+    countFrom: (summary: FundingUtilizationSummary) => summary.tiers.elevated,
+  },
+  {
+    key: 'critical',
+    label: '90%+',
+    color: 'var(--data-viz-critical)',
+    countFrom: (summary: FundingUtilizationSummary) => summary.tiers.critical,
+  },
+] as const
+
+function FundingRiskTierRing({
+  summary,
+  highestPct,
+}: {
+  summary: FundingUtilizationSummary
+  highestPct: number
+}) {
+  const size = 44
+  const stroke = 5
+  const radius = (size - stroke) / 2
+  const circumference = 2 * Math.PI * radius
+  const total = summary.aboveThresholdCount
+  const segments = FUNDING_RISK_RING_SEGMENTS.map((meta) => ({
+    ...meta,
+    count: meta.countFrom(summary),
+  })).filter((segment) => segment.count > 0)
+
+  const ariaParts = segments.map((segment) => `${segment.count} at ${segment.label}`)
+  const ariaLabel =
+    total === 0
+      ? 'No contracts at or above 65% funding used'
+      : `Highest funding used ${highestPct} percent; ${ariaParts.join(', ')}`
+
+  let offset = 0
+  const arcs =
+    total > 0
+      ? segments.map((segment) => {
+          const dash = (segment.count / total) * circumference
+          const arc = (
+            <circle
+              key={segment.key}
+              cx={size / 2}
+              cy={size / 2}
+              r={radius}
+              fill="none"
+              stroke={segment.color}
+              strokeWidth={stroke}
+              strokeDasharray={`${dash} ${circumference - dash}`}
+              strokeDashoffset={-offset}
+              transform={`rotate(-90 ${size / 2} ${size / 2})`}
+            />
+          )
+          offset += dash
+          return arc
+        })
+      : []
+
+  return (
+    <div className="ced-o3-progress-ring-wrap">
+      <svg
+        className="ced-o3-progress-ring"
+        width={size}
+        height={size}
+        viewBox={`0 0 ${size} ${size}`}
+        role="img"
+        aria-label={ariaLabel}
+      >
+        <circle
+          cx={size / 2}
+          cy={size / 2}
+          r={radius}
+          fill="none"
+          stroke="var(--border-color)"
+          strokeWidth={stroke}
+        />
+        {arcs}
+      </svg>
+      <span className="ced-o3-progress-ring__center" aria-hidden>
+        {highestPct}%
+      </span>
+    </div>
+  )
+}
+
 function FundingRiskCard({
   count,
+  fundingLine,
   fundingUtilization,
   selected,
   onSelect,
 }: {
   count: number
+  fundingLine: HighFundingLine
   fundingUtilization: FundingUtilizationSummary
   selected: boolean
   onSelect: () => void
 }) {
+  const highestPct = fundingLine?.highestPct ?? 0
+  const vendorName = fundingLine?.vendorName ?? '—'
+
   return (
     <article
       className={clsx('ced-o3-funding-card', selected && 'ced-o3-funding-card--selected')}
-      aria-label={`Funding risk: ${count} contracts at or above 65% funding used`}
+      aria-label={`Funding risk: ${count} contracts above 65% funding used`}
       role="button"
       tabIndex={0}
       aria-pressed={selected}
@@ -831,9 +931,29 @@ function FundingRiskCard({
             <p className="ced-o3-funding-card__label">Funding used 65% or more</p>
           </div>
         </div>
-        <footer className="ced-o3-funding-card__breakdown">
-          <FundingBreakdownPie summary={fundingUtilization} />
-        </footer>
+        {fundingLine != null ? (
+          <footer className="ced-o3-funding-card__footer">
+            <FundingRiskTierRing summary={fundingUtilization} highestPct={highestPct} />
+            <div className="ced-o3-funding-card__footer-text">
+              <p className="ced-o3-funding-card__highest">Highest {highestPct}%</p>
+              <ul className="ced-o3-funding-card__legend" aria-label="Funding tier colors">
+                {FUNDING_RISK_RING_SEGMENTS.filter(
+                  (segment) => segment.countFrom(fundingUtilization) > 0,
+                ).map((segment) => (
+                  <li key={segment.key} className="ced-o3-funding-card__legend-item">
+                    <span
+                      className="ced-o3-funding-card__legend-bullet"
+                      style={{ backgroundColor: segment.color }}
+                      aria-hidden
+                    />
+                    <span className="ced-o3-funding-card__legend-label">{segment.label}</span>
+                  </li>
+                ))}
+              </ul>
+              <p className="ced-o3-funding-card__vendor">{vendorName}</p>
+            </div>
+          </footer>
+        ) : null}
       </div>
     </article>
   )
@@ -841,11 +961,13 @@ function FundingRiskCard({
 
 function FundingRiskPanel({
   count,
+  fundingLine,
   fundingUtilization,
   selected,
   onSelect,
 }: {
   count: number
+  fundingLine: HighFundingLine
   fundingUtilization: FundingUtilizationSummary
   selected: boolean
   onSelect: () => void
@@ -855,6 +977,7 @@ function FundingRiskPanel({
       <h2 className="ced-o3-panel__title">Funding risk</h2>
       <FundingRiskCard
         count={count}
+        fundingLine={fundingLine}
         fundingUtilization={fundingUtilization}
         selected={selected}
         onSelect={onSelect}
@@ -867,6 +990,7 @@ function Option3Visualization({
   tierCounts,
   tierContracts,
   highFundingCount,
+  highFundingLine,
   fundingUtilization,
   selectedTier,
   onSelectTier,
@@ -878,6 +1002,7 @@ function Option3Visualization({
     upcoming: ExpiryTierContract[]
   }
   highFundingCount: number
+  highFundingLine: HighFundingLine
   fundingUtilization: FundingUtilizationSummary
   selectedTier: ExpirationTierKey | null
   onSelectTier: (tier: ExpirationTierKey) => void
@@ -896,6 +1021,7 @@ function Option3Visualization({
       />
       <FundingRiskPanel
         count={highFundingCount}
+        fundingLine={highFundingLine}
         fundingUtilization={fundingUtilization}
         selected={selectedTier === 'highFunding'}
         onSelect={() => onSelectTier('highFunding')}
@@ -920,121 +1046,6 @@ function pieSlicePath(cx: number, cy: number, r: number, startAngle: number, end
   const end = polarToCartesian(cx, cy, r, startAngle)
   const largeArc = endAngle - startAngle <= 180 ? 0 : 1
   return `M ${cx} ${cy} L ${start.x} ${start.y} A ${r} ${r} 0 ${largeArc} 0 ${end.x} ${end.y} Z`
-}
-
-const FUNDING_BREAKDOWN_SEGMENTS = [
-  {
-    key: 'normal',
-    label: '65–79%',
-    colorVar: 'var(--color-info, #2563eb)',
-    countFrom: (summary: FundingUtilizationSummary) => summary.tiers.normal,
-  },
-  {
-    key: 'elevated',
-    label: '80–89%',
-    colorVar: 'var(--data-viz-warning)',
-    countFrom: (summary: FundingUtilizationSummary) => summary.tiers.elevated,
-  },
-  {
-    key: 'critical',
-    label: '90%+',
-    colorVar: 'var(--data-viz-critical)',
-    countFrom: (summary: FundingUtilizationSummary) => summary.tiers.critical,
-  },
-] as const
-
-type FundingBreakdownSlice = {
-  key: string
-  label: string
-  colorVar: string
-  count: number
-  pct: number
-  startAngle: number
-  endAngle: number
-}
-
-function FundingBreakdownPie({ summary }: { summary: FundingUtilizationSummary }) {
-  const total = summary.aboveThresholdCount
-  const slices = useMemo<FundingBreakdownSlice[]>(() => {
-    let cursor = 0
-    return FUNDING_BREAKDOWN_SEGMENTS.map((meta) => {
-      const count = meta.countFrom(summary)
-      const fraction = total > 0 ? count / total : 0
-      const startAngle = cursor * 360
-      cursor += fraction
-      const endAngle = cursor * 360
-      return {
-        key: meta.key,
-        label: meta.label,
-        colorVar: meta.colorVar,
-        count,
-        pct: Math.round(fraction * 100),
-        startAngle,
-        endAngle,
-      }
-    })
-  }, [summary, total])
-
-  const drawable = slices.filter((slice) => slice.count > 0)
-  const ariaLabel =
-    total === 0
-      ? 'No contracts at or above 65% funding used'
-      : drawable.map((slice) => `${slice.label}: ${slice.count}`).join('; ')
-
-  const cx = 22
-  const cy = 22
-  const r = 17
-  const pieSize = 44
-
-  return (
-    <div className="ced-o3-funding-card__breakdown-layout">
-      <div className="ced-o3-funding-card__pie-wrap">
-        <svg
-          className="ced-o3-funding-pie"
-          width={pieSize}
-          height={pieSize}
-          viewBox={`0 0 ${pieSize} ${pieSize}`}
-          role="img"
-          aria-label={
-            total === 0
-              ? 'No contracts at or above 65% funding used'
-              : `Funding risk breakdown among contracts at 65% or more: ${ariaLabel}`
-          }
-        >
-          {total === 0 ? (
-            <circle cx={cx} cy={cy} r={r} fill="none" stroke="var(--border-color)" strokeWidth={2} />
-          ) : (
-            drawable.map((slice) => (
-              <path
-                key={slice.key}
-                d={pieSlicePath(cx, cy, r, slice.startAngle, slice.endAngle)}
-                fill={slice.colorVar}
-                stroke="#fff"
-                strokeWidth={1}
-              />
-            ))
-          )}
-        </svg>
-      </div>
-      <ul className="ced-o3-funding-card__legend" aria-label="Funding risk breakdown">
-        {FUNDING_BREAKDOWN_SEGMENTS.filter((meta) => meta.countFrom(summary) > 0).map((meta) => {
-          const count = meta.countFrom(summary)
-          return (
-            <li key={meta.key} className="ced-o3-funding-card__legend-item">
-              <span
-                className="ced-o3-funding-card__legend-swatch"
-                style={{ backgroundColor: meta.colorVar }}
-                aria-hidden
-              />
-              <span className="ced-o3-funding-card__legend-text">
-                <strong>{count}</strong> {meta.label}
-              </span>
-            </li>
-          )
-        })}
-      </ul>
-    </div>
-  )
 }
 
 type PieSlice = {
@@ -1168,12 +1179,14 @@ function ExpiryPieChart({
 function Option4Visualization({
   tierCounts,
   highFundingCount,
+  highFundingLine,
   fundingUtilization,
   selectedTier,
   onSelectTier,
 }: {
   tierCounts: { critical: number; warning: number; upcoming: number }
   highFundingCount: number
+  highFundingLine: HighFundingLine
   fundingUtilization: FundingUtilizationSummary
   selectedTier: ExpirationTierKey | null
   onSelectTier: (tier: ExpirationTierKey) => void
@@ -1237,6 +1250,7 @@ function Option4Visualization({
       </section>
       <FundingRiskPanel
         count={highFundingCount}
+        fundingLine={highFundingLine}
         fundingUtilization={fundingUtilization}
         selected={selectedTier === 'highFunding'}
         onSelect={() => onSelectTier('highFunding')}
@@ -1282,6 +1296,7 @@ export function ContractsExpirationDashboard({
           tierCounts={tierCounts}
           tierContracts={tierContracts}
           highFundingCount={highFundingCount}
+          highFundingLine={highFundingLine}
           fundingUtilization={fundingUtilization}
           selectedTier={selectedTier}
           onSelectTier={onSelectTier}
@@ -1296,6 +1311,7 @@ export function ContractsExpirationDashboard({
         <Option4Visualization
           tierCounts={tierCounts}
           highFundingCount={highFundingCount}
+          highFundingLine={highFundingLine}
           fundingUtilization={fundingUtilization}
           selectedTier={selectedTier}
           onSelectTier={onSelectTier}
