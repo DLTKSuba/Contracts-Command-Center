@@ -1044,7 +1044,7 @@ function FundingRiskPanel({
     return (
       <section className="ced-o4-panel ced-o4-funding-panel" aria-label="Funding risk">
         <div className="ced-o4-panel__head">
-          <h2 className="ced-o4-panel__title">Funding risk</h2>
+          <h2 className="ced-o3-panel__title">Funding risk</h2>
         </div>
         <div className="ced-o4-panel__viz">
           <FundingRiskCard
@@ -1311,7 +1311,7 @@ function Option4Visualization({
     <div className="ced-o4-row">
       <section className="ced-o4-panel" aria-label="Contracts by expiration window">
         <div className="ced-o4-panel__head">
-          <h2 className="ced-o4-panel__title">Contracts by expiration window</h2>
+          <h2 className="ced-o3-panel__title">Contracts by expiration window</h2>
           <p className="ced-o4-panel__hint">Click a slice to filter the roster below.</p>
         </div>
         <div className="ced-o4-panel__viz">
