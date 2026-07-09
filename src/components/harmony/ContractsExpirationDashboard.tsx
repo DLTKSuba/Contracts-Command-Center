@@ -558,34 +558,68 @@ const O3_EXPIRY_TIER_META = [
   },
 ] as const
 
-function ExpiryBarTooltipContent({
-  name,
-  expirationDate,
-}: {
-  name: string
-  expirationDate: string
-}) {
+type ExpiryDayBin = { min: number; max: number }
+
+function ExpiryBarTooltipContent({ contracts }: { contracts: ExpiryTierContract[] }) {
   return (
     <div className="ced-o3-bar-tooltip">
-      <div className="ced-o3-bar-tooltip__row">
-        <span>Name: {name}</span>
-      </div>
-      <div className="ced-o3-bar-tooltip__row">
-        <span>Expiration date: {expirationDate}</span>
-      </div>
+      {contracts.map((contract, index) => (
+        <div
+          key={`${contract.name}-${contract.expirationDate}-${index}`}
+          className={clsx('ced-o3-bar-tooltip__contract', index > 0 && 'ced-o3-bar-tooltip__contract--sep')}
+        >
+          <div className="ced-o3-bar-tooltip__row">
+            <span>Name: {contract.name}</span>
+          </div>
+          <div className="ced-o3-bar-tooltip__row">
+            <span>Expiration date: {contract.expirationDate}</span>
+          </div>
+        </div>
+      ))}
     </div>
   )
 }
 
-/** Inclusive day range for each expiry tier — drives the histogram x-axis. */
-const O3_TIER_RANGE: Record<ExpiryTierKey, { min: number; max: number }> = {
-  critical: { min: 0, max: 30 },
-  warning: { min: 31, max: 60 },
-  upcoming: { min: 61, max: 90 },
+function formatExpiryBinLabel(bin: ExpiryDayBin): string {
+  return `${bin.min}-${bin.max}`
 }
 
-/** Deterministic bar heights (%) so the histogram reads with organic variation. */
-const O3_BAR_HEIGHTS = [82, 46, 88, 60, 74, 52, 90]
+/** Six bins per tier: first spans 6 days, then five 5-day bins (same pattern as 0–30). */
+function getExpiryTierBins(tier: ExpiryTierKey): ExpiryDayBin[] {
+  const tierStart = tier === 'critical' ? 0 : tier === 'warning' ? 31 : 61
+  return [
+    { min: tierStart, max: tierStart + 5 },
+    { min: tierStart + 6, max: tierStart + 10 },
+    { min: tierStart + 11, max: tierStart + 15 },
+    { min: tierStart + 16, max: tierStart + 20 },
+    { min: tierStart + 21, max: tierStart + 25 },
+    { min: tierStart + 26, max: tierStart + 30 },
+  ]
+}
+
+function binIndexForDay(day: number, bins: ExpiryDayBin[]): number {
+  return bins.findIndex((bin) => day >= bin.min && day <= bin.max)
+}
+
+function groupContractsByBin(contracts: ExpiryTierContract[], bins: ExpiryDayBin[]) {
+  return bins.map((bin, index) => {
+    const inBin = contracts.filter((c) => binIndexForDay(c.daysRemaining, bins) === index)
+    return { index, bin, contracts: inBin, count: inBin.length }
+  })
+}
+
+const O3_BIN_BAR_DEFAULT_PCT = 50
+const O3_BIN_BAR_PEAK_PCT = 100
+
+/** Default height for empty bins and single-contract bins; taller only when count > 1 in a bin. */
+function expiryBinBarHeightPercent(binCount: number, maxBinCount: number): number {
+  if (binCount <= 1) return O3_BIN_BAR_DEFAULT_PCT
+  if (maxBinCount <= 1) return O3_BIN_BAR_DEFAULT_PCT
+  return (
+    O3_BIN_BAR_DEFAULT_PCT +
+    ((binCount - 1) / (maxBinCount - 1)) * (O3_BIN_BAR_PEAK_PCT - O3_BIN_BAR_DEFAULT_PCT)
+  )
+}
 
 function MiniTierViz({
   tier,
@@ -596,54 +630,76 @@ function MiniTierViz({
   count: number
   contracts: ExpiryTierContract[]
 }) {
-  const range = O3_TIER_RANGE[tier]
-  const span = range.max - range.min || 1
+  const bins = useMemo(() => getExpiryTierBins(tier), [tier])
+  const grouped = useMemo(() => groupContractsByBin(contracts, bins), [contracts, bins])
+  const maxBinCount = useMemo(
+    () => Math.max(1, ...grouped.map((g) => g.count)),
+    [grouped],
+  )
 
   if (count === 0) return <div className="ced-o3-mini-viz ced-o3-mini-viz--empty" aria-hidden />
+
+  const rangeMin = bins[0].min
+  const rangeMax = bins[bins.length - 1].max
 
   return (
     <div
       className={clsx('ced-o3-mini-viz', `ced-o3-mini-viz--${tier}`)}
       role="group"
-      aria-label={`${count} contracts, expiring between ${range.min} and ${range.max} days`}
+      aria-label={`${count} contracts, expiring between ${rangeMin} and ${rangeMax} days`}
     >
       <div className="ced-o3-mini-viz__plot">
-        {contracts.map((contract, index) => {
-          const clampedDay = Math.min(range.max, Math.max(range.min, contract.daysRemaining))
-          const left = ((clampedDay - range.min) / span) * 100
-          const height = O3_BAR_HEIGHTS[index % O3_BAR_HEIGHTS.length]
+        {grouped.map(({ index, bin, contracts: binContracts, count: binCount }) => {
+          const barHeight = expiryBinBarHeightPercent(binCount, maxBinCount)
+          const emptyBarHeight = expiryBinBarHeightPercent(0, maxBinCount)
 
           return (
-            <span
-              key={`${tier}-${index}`}
-              className="ced-o3-mini-viz__bar-hit"
-              style={{ left: `${left}%` }}
-              onClick={(e) => e.stopPropagation()}
-            >
-              <Tooltip
-                position="top"
-                className="ced-o3-mini-viz__bar-tooltip"
-                content={
-                  <ExpiryBarTooltipContent
-                    name={contract.name}
-                    expirationDate={contract.expirationDate}
-                  />
-                }
-              >
-                <span
-                  className="ced-o3-mini-viz__bar"
-                  style={{ height: `${height}%` }}
-                  role="img"
-                  aria-label={`${contract.name}, expires ${contract.expirationDate}`}
-                />
-              </Tooltip>
-            </span>
+            <div key={`${tier}-bin-${index}`} className="ced-o3-mini-viz__bin-column">
+              <div className="ced-o3-mini-viz__bin-slot">
+                {binCount > 0 ? (
+                  <Tooltip
+                    position="top"
+                    className="ced-o3-mini-viz__bar-tooltip"
+                    content={<ExpiryBarTooltipContent contracts={binContracts} />}
+                  >
+                    <span
+                      className="ced-o3-mini-viz__bar-hit"
+                      role="img"
+                      aria-label={`${binCount} ${binCount === 1 ? 'contract' : 'contracts'}, days ${bin.min}-${bin.max}`}
+                      onClick={(e) => e.stopPropagation()}
+                    >
+                      <span
+                        className="ced-o3-mini-viz__bar"
+                        style={{ height: `${barHeight}%` }}
+                        aria-hidden
+                      />
+                    </span>
+                  </Tooltip>
+                ) : (
+                  <Tooltip
+                    position="top"
+                    className="ced-o3-mini-viz__bar-tooltip"
+                    text="No contracts expiring"
+                  >
+                    <span
+                      className="ced-o3-mini-viz__bar-hit ced-o3-mini-viz__bar-hit--empty"
+                      role="img"
+                      aria-label={`No contracts expiring, days ${bin.min}-${bin.max}`}
+                      onClick={(e) => e.stopPropagation()}
+                    >
+                      <span
+                        className="ced-o3-mini-viz__bar ced-o3-mini-viz__bar--empty"
+                        style={{ height: `${emptyBarHeight}%` }}
+                        aria-hidden
+                      />
+                    </span>
+                  </Tooltip>
+                )}
+              </div>
+              <span className="ced-o3-mini-viz__axis-label">{formatExpiryBinLabel(bin)}</span>
+            </div>
           )
         })}
-      </div>
-      <div className="ced-o3-mini-viz__axis-labels" aria-hidden>
-        <span>{range.min}d</span>
-        <span>{range.max}d</span>
       </div>
     </div>
   )
