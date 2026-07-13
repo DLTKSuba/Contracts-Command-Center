@@ -1,5 +1,5 @@
 import clsx from 'clsx'
-import { createContext, useContext, useMemo, type ReactNode } from 'react'
+import { createContext, useContext, useMemo, type MouseEvent, type ReactNode } from 'react'
 import { Card } from './Card'
 import { Icon } from './Icon'
 import { Tooltip } from './Tooltip'
@@ -14,7 +14,7 @@ export type ExpirationTierKey =
   | 'fundMid'
   | 'fundHigh'
 
-export type VizDesignOption = 'option1' | 'option2' | 'option3' | 'option4' | 'option5'
+export type VizDesignOption = 'option1' | 'option2' | 'option3' | 'option4' | 'option5' | 'option6'
 
 type ExpiryTierKey = 'critical' | 'warning' | 'upcoming'
 
@@ -24,6 +24,7 @@ export const VIZ_DESIGN_OPTIONS = [
   { value: 'option3', label: 'Option 3 - Timeline & Funding Risk' },
   { value: 'option4', label: 'Option 4 - Pie Chart' },
   { value: 'option5', label: 'Option 5 - Timeline Histogram' },
+  { value: 'option6', label: 'Option 6 - Bar Chart' },
 ] as const
 
 export function VizDesignOptionPicker({
@@ -126,6 +127,8 @@ export type ContractsExpirationDashboardProps = {
   fundingUtilization: FundingUtilizationSummary
   selectedTier: ExpirationTierKey | null
   onSelectTier: (tier: ExpirationTierKey) => void
+  /** Clears the active expiration-window filter (e.g. click outside toggles). */
+  onClearTier?: () => void
   /** Reference date for work-week histogram bins (defaults to today). */
   asOfDate?: Date
 }
@@ -609,12 +612,10 @@ function formatWorkWeekLabel(weekStart: Date, weekEnd: Date): string {
   return `${start}–${end}`
 }
 
-/** Work-week bins (Mon–Fri) that overlap each expiration tier window. */
-function getExpiryTierBins(tier: ExpiryTierKey, asOf: Date): ExpiryDayBin[] {
-  const tierDayMin = tier === 'critical' ? 0 : tier === 'warning' ? 31 : 61
-  const tierDayMax = tierDayMin + 30
-  const windowStart = addCalendarDays(asOf, tierDayMin)
-  const windowEnd = addCalendarDays(asOf, tierDayMax)
+/** Work-week bins (Mon–Fri) that overlap a day range from as-of (inclusive). */
+function getExpiryRangeBins(dayMin: number, dayMax: number, asOf: Date): ExpiryDayBin[] {
+  const windowStart = addCalendarDays(asOf, dayMin)
+  const windowEnd = addCalendarDays(asOf, dayMax)
 
   const bins: ExpiryDayBin[] = []
   let weekMon = mondayOfWorkWeekContaining(windowStart)
@@ -636,6 +637,75 @@ function getExpiryTierBins(tier: ExpiryTierKey, asOf: Date): ExpiryDayBin[] {
   }
 
   return bins
+}
+
+/** Work-week bins (Mon–Fri) that overlap each expiration tier window. */
+function getExpiryTierBins(tier: ExpiryTierKey, asOf: Date): ExpiryDayBin[] {
+  const tierDayMin = tier === 'critical' ? 0 : tier === 'warning' ? 31 : 61
+  const tierDayMax = tierDayMin + 30
+  return getExpiryRangeBins(tierDayMin, tierDayMax, asOf)
+}
+
+function getExpiryChartRange(selectedTier: ExpirationTierKey | null): {
+  dayMin: number
+  dayMax: number
+  rangeLabel: string
+} {
+  if (selectedTier === 'critical') {
+    return { dayMin: 0, dayMax: 30, rangeLabel: '0–30 days' }
+  }
+  if (selectedTier === 'warning') {
+    return { dayMin: 31, dayMax: 60, rangeLabel: '31–60 days' }
+  }
+  if (selectedTier === 'upcoming') {
+    return { dayMin: 61, dayMax: 90, rangeLabel: '61–90 days' }
+  }
+  return { dayMin: 0, dayMax: 90, rangeLabel: 'Next 90 days' }
+}
+
+function contractsForChartRange(
+  tierContracts: {
+    critical: ExpiryTierContract[]
+    warning: ExpiryTierContract[]
+    upcoming: ExpiryTierContract[]
+  },
+  dayMin: number,
+  dayMax: number,
+): ExpiryTierContract[] {
+  return [...tierContracts.critical, ...tierContracts.warning, ...tierContracts.upcoming].filter(
+    (contract) => contract.daysRemaining >= dayMin && contract.daysRemaining <= dayMax,
+  )
+}
+
+function niceChartMax(maxCount: number): number {
+  if (maxCount <= 0) return 4
+  if (maxCount <= 4) return maxCount
+  const step = Math.ceil(maxCount / 4)
+  return step * 4
+}
+
+function buildChartYTicks(yMax: number): number[] {
+  if (yMax <= 0) return [0]
+  const step = Math.max(1, Math.ceil(yMax / 4))
+  const ticks: number[] = []
+  for (let value = 0; value <= yMax; value += step) {
+    ticks.push(value)
+  }
+  if (ticks[ticks.length - 1] !== yMax) {
+    ticks.push(yMax)
+  }
+  return [...new Set(ticks)]
+}
+
+function formatAxisDate(d: Date): string {
+  return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
+}
+
+function activeExpiryTierFromSelection(selectedTier: ExpirationTierKey | null): ExpiryTierKey | null {
+  if (selectedTier === 'critical' || selectedTier === 'warning' || selectedTier === 'upcoming') {
+    return selectedTier
+  }
+  return null
 }
 
 function binIndexForDay(day: number, bins: ExpiryDayBin[], asOf: Date): number {
@@ -686,22 +756,113 @@ function expiryBinBarHeightPercent(binCount: number, maxBinCount: number): numbe
   )
 }
 
+function tierKeyForBin(bin: ExpiryDayBin): ExpiryTierKey {
+  if (bin.min <= 30) return 'critical'
+  if (bin.min <= 60) return 'warning'
+  return 'upcoming'
+}
+
+function WorkWeekBarPlot({
+  grouped,
+  fixedTier,
+  plotClassName,
+  slotClassName,
+  axisMarkers = false,
+  axisLabelClassName,
+}: {
+  grouped: ReturnType<typeof groupContractsByBin>
+  fixedTier?: ExpiryTierKey | null
+  plotClassName?: string
+  slotClassName?: string
+  axisMarkers?: boolean
+  axisLabelClassName?: string
+}) {
+  const maxBinCount = useMemo(
+    () => Math.max(1, ...grouped.map((group) => group.count)),
+    [grouped],
+  )
+
+  return (
+    <div className={clsx('ced-o3-mini-viz__plot', plotClassName)}>
+      {grouped.map(({ index, bin, contracts: binContracts, count: binCount }) => {
+        const tier = fixedTier ?? tierKeyForBin(bin)
+        const barHeight = expiryBinBarHeightPercent(binCount, maxBinCount)
+        const emptyBarHeight = expiryBinBarHeightPercent(0, maxBinCount)
+        const weekAria = `work week ${bin.label}`
+
+        return (
+          <div
+            key={`bin-${index}`}
+            className={clsx('ced-o3-mini-viz__bin-column', `ced-o3-mini-viz--${tier}`)}
+          >
+            <div className={clsx('ced-o3-mini-viz__bin-slot', slotClassName)}>
+              {binCount > 0 ? (
+                <Tooltip
+                  position="top"
+                  className="ced-o3-mini-viz__bar-tooltip"
+                  content={<ExpiryBarTooltipContent contracts={binContracts} />}
+                >
+                  <span
+                    className="ced-o3-mini-viz__bar-hit"
+                    role="img"
+                    aria-label={`${binCount} ${binCount === 1 ? 'contract' : 'contracts'}, ${weekAria}`}
+                    onClick={(e) => e.stopPropagation()}
+                  >
+                    <span
+                      className="ced-o3-mini-viz__bar"
+                      style={{ height: `${barHeight}%` }}
+                      aria-hidden
+                    />
+                  </span>
+                </Tooltip>
+              ) : (
+                <Tooltip
+                  position="top"
+                  className="ced-o3-mini-viz__bar-tooltip"
+                  text="No contracts expiring"
+                >
+                  <span
+                    className="ced-o3-mini-viz__bar-hit ced-o3-mini-viz__bar-hit--empty"
+                    role="img"
+                    aria-label={`No contracts expiring, ${weekAria}`}
+                    onClick={(e) => e.stopPropagation()}
+                  >
+                    <span
+                      className="ced-o3-mini-viz__bar ced-o3-mini-viz__bar--empty"
+                      style={{ height: `${emptyBarHeight}%` }}
+                      aria-hidden
+                    />
+                  </span>
+                </Tooltip>
+              )}
+            </div>
+            {axisMarkers ? (
+              <div className="ced-week-bar-marker-slot" aria-hidden>
+                <span className="ced-week-bar-marker" />
+              </div>
+            ) : null}
+            <span className={clsx('ced-o3-mini-viz__axis-label', axisLabelClassName)}>{bin.label}</span>
+          </div>
+        )
+      })}
+    </div>
+  )
+}
+
 function MiniTierViz({
   tier,
   count,
   contracts,
+  axisMarkers = false,
 }: {
   tier: ExpiryTierKey
   count: number
   contracts: ExpiryTierContract[]
+  axisMarkers?: boolean
 }) {
   const asOf = useExpiryVizAsOf()
   const bins = useMemo(() => getExpiryTierBins(tier, asOf), [tier, asOf])
   const grouped = useMemo(() => groupContractsByBin(contracts, bins, asOf), [contracts, bins, asOf])
-  const maxBinCount = useMemo(
-    () => Math.max(1, ...grouped.map((g) => g.count)),
-    [grouped],
-  )
 
   if (count === 0) return <div className="ced-o3-mini-viz ced-o3-mini-viz--empty" aria-hidden />
 
@@ -716,60 +877,7 @@ function MiniTierViz({
       role="group"
       aria-label={`${count} contracts, expiring across work weeks ${rangeLabel}`}
     >
-      <div className="ced-o3-mini-viz__plot">
-        {grouped.map(({ index, bin, contracts: binContracts, count: binCount }) => {
-          const barHeight = expiryBinBarHeightPercent(binCount, maxBinCount)
-          const emptyBarHeight = expiryBinBarHeightPercent(0, maxBinCount)
-          const weekAria = `work week ${bin.label}`
-
-          return (
-            <div key={`${tier}-bin-${index}`} className="ced-o3-mini-viz__bin-column">
-              <div className="ced-o3-mini-viz__bin-slot">
-                {binCount > 0 ? (
-                  <Tooltip
-                    position="top"
-                    className="ced-o3-mini-viz__bar-tooltip"
-                    content={<ExpiryBarTooltipContent contracts={binContracts} />}
-                  >
-                    <span
-                      className="ced-o3-mini-viz__bar-hit"
-                      role="img"
-                      aria-label={`${binCount} ${binCount === 1 ? 'contract' : 'contracts'}, ${weekAria}`}
-                      onClick={(e) => e.stopPropagation()}
-                    >
-                      <span
-                        className="ced-o3-mini-viz__bar"
-                        style={{ height: `${barHeight}%` }}
-                        aria-hidden
-                      />
-                    </span>
-                  </Tooltip>
-                ) : (
-                  <Tooltip
-                    position="top"
-                    className="ced-o3-mini-viz__bar-tooltip"
-                    text="No contracts expiring"
-                  >
-                    <span
-                      className="ced-o3-mini-viz__bar-hit ced-o3-mini-viz__bar-hit--empty"
-                      role="img"
-                      aria-label={`No contracts expiring, ${weekAria}`}
-                      onClick={(e) => e.stopPropagation()}
-                    >
-                      <span
-                        className="ced-o3-mini-viz__bar ced-o3-mini-viz__bar--empty"
-                        style={{ height: `${emptyBarHeight}%` }}
-                        aria-hidden
-                      />
-                    </span>
-                  </Tooltip>
-                )}
-              </div>
-              <span className="ced-o3-mini-viz__axis-label">{bin.label}</span>
-            </div>
-          )
-        })}
-      </div>
+      <WorkWeekBarPlot grouped={grouped} fixedTier={tier} axisMarkers={axisMarkers} />
     </div>
   )
 }
@@ -843,8 +951,8 @@ function ExpiringByDaysPanel({
   onSelectTier: (tier: ExpiryTierKey) => void
 }) {
   return (
-    <section className="ced-o3-panel ced-o3-expiring-panel" aria-label="Expiring by days remaining">
-      <h2 className="ced-o3-panel__title">Expiring — by days remaining</h2>
+    <section className="ced-o3-panel ced-o3-expiring-panel" aria-label="Contracts Expiration Window">
+      <h2 className="ced-o3-panel__title">Contracts Expiration Window</h2>
       <div className="ced-o3-expiring-panel__cards" role="group" aria-label="Expiration windows">
         {O3_EXPIRY_TIER_META.map((meta) => (
           <ExpiringByDaysCard
@@ -1457,9 +1565,9 @@ function ExpirationTimelinePanel({
   onSelectTier: (tier: ExpiryTierKey) => void
 }) {
   return (
-    <section className="ced-o3-panel ced-o5-timeline-panel" aria-label="Expiring by days remaining">
+    <section className="ced-o3-panel ced-o5-timeline-panel" aria-label="Contracts Expiration Window">
       <div className="ced-o5-timeline-panel__head">
-        <h2 className="ced-o3-panel__title">Expiring — by days remaining</h2>
+        <h2 className="ced-o3-panel__title">Contracts Expiration Window</h2>
         <Icon name="chevron-right" size="xs" className="ced-o5-timeline-panel__chevron" aria-hidden />
       </div>
       <div className="ced-o5-timeline-columns" role="group" aria-label="Expiration windows">
@@ -1499,6 +1607,7 @@ function ExpirationTimelinePanel({
                   tier={meta.tier}
                   count={count}
                   contracts={tierContracts[meta.tier]}
+                  axisMarkers
                 />
               </div>
             </button>
@@ -1553,6 +1662,209 @@ function Option5Visualization({
   )
 }
 
+function ExpiryBarChart({
+  contracts,
+  dayMin,
+  dayMax,
+  rangeLabel,
+  activeExpiryTier,
+}: {
+  contracts: ExpiryTierContract[]
+  dayMin: number
+  dayMax: number
+  rangeLabel: string
+  activeExpiryTier: ExpiryTierKey | null
+}) {
+  const asOf = useExpiryVizAsOf()
+  const bins = useMemo(() => getExpiryRangeBins(dayMin, dayMax, asOf), [dayMin, dayMax, asOf])
+  const grouped = useMemo(() => groupContractsByBin(contracts, bins, asOf), [contracts, bins, asOf])
+  const maxBinCount = useMemo(() => Math.max(0, ...grouped.map((g) => g.count)), [grouped])
+  const yMax = useMemo(() => niceChartMax(maxBinCount), [maxBinCount])
+  const yTicks = useMemo(() => buildChartYTicks(yMax), [yMax])
+  const rangeStartDate = addCalendarDays(asOf, dayMin)
+  const rangeEndDate = addCalendarDays(asOf, dayMax)
+
+  return (
+    <div className="ced-o6-chart-wrap">
+      <p className="ced-o6-chart-range" aria-live="polite">
+        Showing <strong>{rangeLabel}</strong> ({formatAxisDate(rangeStartDate)} – {formatAxisDate(rangeEndDate)})
+      </p>
+      <div
+        className="ced-o6-chart-with-axes"
+        role="img"
+        aria-label={`Contracts expiring by work week, ${rangeLabel}: ${grouped.map((g) => `${g.bin.label} ${g.count}`).join(', ')}`}
+      >
+        <div className="ced-o6-chart__y-axis" aria-hidden>
+          <span className="ced-o6-chart__axis-title ced-o6-chart__axis-title--y">Contracts expiring</span>
+          <div className="ced-o6-chart__y-ticks">
+            {[...yTicks].reverse().map((tick, tickIndex) => (
+              <span key={`y-tick-${tickIndex}-${tick}`} className="ced-o6-chart__tick-label">
+                {tick}
+              </span>
+            ))}
+          </div>
+        </div>
+
+        <div className="ced-o6-chart__body">
+          <div className="ced-o6-chart__plot-area">
+            <div className="ced-o6-chart__y-axis-line" aria-hidden />
+            <div className="ced-o6-chart__plot ced-o3-mini-viz ced-o6-bar-plot">
+            <WorkWeekBarPlot
+              grouped={grouped}
+              fixedTier={activeExpiryTier}
+              plotClassName="ced-o6-bar-plot__plot"
+              slotClassName="ced-o6-bar-plot__slot"
+              axisMarkers
+              axisLabelClassName="ced-o6-bar-plot__axis-label"
+            />
+          </div>
+          </div>
+          <p className="ced-o6-chart__x-axis-title">Expiration date (by work week)</p>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+function ExpirationBarChartPanel({
+  tierCounts,
+  tierContracts,
+  selectedTier,
+  onSelectTier,
+  onClearTier,
+}: {
+  tierCounts: { critical: number; warning: number; upcoming: number }
+  tierContracts: {
+    critical: ExpiryTierContract[]
+    warning: ExpiryTierContract[]
+    upcoming: ExpiryTierContract[]
+  }
+  selectedTier: ExpirationTierKey | null
+  onSelectTier: (tier: ExpiryTierKey) => void
+  onClearTier?: () => void
+}) {
+  const activeExpiryTier = activeExpiryTierFromSelection(selectedTier)
+  const { dayMin, dayMax, rangeLabel } = getExpiryChartRange(activeExpiryTier)
+  const chartContracts = useMemo(
+    () => contractsForChartRange(tierContracts, dayMin, dayMax),
+    [tierContracts, dayMin, dayMax],
+  )
+
+  const handlePanelBackdropClick = (e: MouseEvent<HTMLElement>) => {
+    if (!onClearTier || activeExpiryTier == null) return
+    const target = e.target as HTMLElement
+    if (target.closest('.ced-o6-window-toggle')) return
+    if (target.closest('.ced-o3-mini-viz__bar-hit')) return
+    if (target.closest('.tooltip')) return
+    onClearTier()
+  }
+
+  return (
+    <section
+      className="ced-o3-panel ced-o6-bar-panel"
+      aria-label="Contracts Expiration Window"
+      onClick={handlePanelBackdropClick}
+    >
+      <div className="ced-o6-bar-panel__head">
+        <div>
+          <h2 className="ced-o3-panel__title">Contracts Expiration Window</h2>
+          <p className="ced-o6-bar-panel__hint">
+            Default shows the next 90 days. Click a window to zoom the chart; click outside to reset.
+          </p>
+        </div>
+      </div>
+
+      <div className="ced-o6-window-toggles" role="group" aria-label="Expiration windows">
+        {O3_EXPIRY_TIER_META.map((meta) => {
+          const count = tierCounts[meta.tier]
+          const selected = selectedTier === meta.tier
+          const headingId = `ced-o6-${meta.tier}-heading`
+
+          return (
+            <button
+              key={meta.tier}
+              type="button"
+              className={clsx(
+                'ced-o6-window-toggle',
+                `ced-o6-window-toggle--${meta.tier}`,
+                selected && 'ced-o6-window-toggle--selected',
+              )}
+              aria-labelledby={headingId}
+              aria-pressed={selected}
+              onClick={(e) => {
+                e.stopPropagation()
+                onSelectTier(meta.tier)
+              }}
+            >
+              <span className="ced-o6-window-toggle__count" aria-label={`${count} contracts`}>
+                {count}
+              </span>
+              <span className="ced-o6-window-toggle__label" id={headingId}>
+                {meta.label}
+              </span>
+            </button>
+          )
+        })}
+      </div>
+
+      <ExpiryBarChart
+        contracts={chartContracts}
+        dayMin={dayMin}
+        dayMax={dayMax}
+        rangeLabel={rangeLabel}
+        activeExpiryTier={activeExpiryTier}
+      />
+    </section>
+  )
+}
+
+function Option6Visualization({
+  tierCounts,
+  tierContracts,
+  highFundingCount,
+  highFundingLine,
+  fundingUtilization,
+  selectedTier,
+  onSelectTier,
+  onClearTier,
+}: {
+  tierCounts: { critical: number; warning: number; upcoming: number }
+  tierContracts: {
+    critical: ExpiryTierContract[]
+    warning: ExpiryTierContract[]
+    upcoming: ExpiryTierContract[]
+  }
+  highFundingCount: number
+  highFundingLine: HighFundingLine
+  fundingUtilization: FundingUtilizationSummary
+  selectedTier: ExpirationTierKey | null
+  onSelectTier: (tier: ExpirationTierKey) => void
+  onClearTier?: () => void
+}) {
+  const handleExpirySelect = (tier: ExpiryTierKey) => {
+    onSelectTier(tier)
+  }
+
+  return (
+    <div className="ced-o6-row">
+      <ExpirationBarChartPanel
+        tierCounts={tierCounts}
+        tierContracts={tierContracts}
+        selectedTier={selectedTier}
+        onSelectTier={handleExpirySelect}
+        onClearTier={onClearTier}
+      />
+      <FundingRiskPanel
+        count={highFundingCount}
+        fundingLine={highFundingLine}
+        fundingUtilization={fundingUtilization}
+        selected={selectedTier === 'highFunding'}
+        onSelect={() => onSelectTier('highFunding')}
+      />
+    </div>
+  )
+}
+
 export function ContractsExpirationDashboard({
   designOption,
   tierCounts,
@@ -1563,6 +1875,7 @@ export function ContractsExpirationDashboard({
   fundingUtilization,
   selectedTier,
   onSelectTier,
+  onClearTier,
   asOfDate,
 }: ContractsExpirationDashboardProps) {
   const asOf = useMemo(() => asOfDate ?? new Date(), [asOfDate])
@@ -1579,6 +1892,7 @@ export function ContractsExpirationDashboard({
         fundingUtilization={fundingUtilization}
         selectedTier={selectedTier}
         onSelectTier={onSelectTier}
+        onClearTier={onClearTier}
       />
     </ExpiryVizAsOfContext.Provider>
   )
@@ -1594,6 +1908,7 @@ function ContractsExpirationDashboardBody({
   fundingUtilization,
   selectedTier,
   onSelectTier,
+  onClearTier,
 }: Omit<ContractsExpirationDashboardProps, 'asOfDate'>) {
   const handleExpirySelect = (tier: ExpiryTierKey) => {
     onSelectTier(tier)
@@ -1656,6 +1971,23 @@ function ContractsExpirationDashboardBody({
           fundingUtilization={fundingUtilization}
           selectedTier={selectedTier}
           onSelectTier={onSelectTier}
+        />
+      </section>
+    )
+  }
+
+  if (designOption === 'option6') {
+    return (
+      <section className="contracts-expiration-dashboard ced-layout-option6" aria-label="Command center expiration bar chart and funding risk">
+        <Option6Visualization
+          tierCounts={tierCounts}
+          tierContracts={tierContracts}
+          highFundingCount={highFundingCount}
+          highFundingLine={highFundingLine}
+          fundingUtilization={fundingUtilization}
+          selectedTier={selectedTier}
+          onSelectTier={onSelectTier}
+          onClearTier={onClearTier}
         />
       </section>
     )

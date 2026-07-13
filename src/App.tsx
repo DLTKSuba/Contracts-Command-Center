@@ -207,9 +207,9 @@ const DEMO_CONTRACT_END = {
   d8: formatContractEndFromDays(8),
   d12: formatContractEndFromDays(12),
   d18: formatContractEndFromDays(18),
-  d44: formatContractEndFromDays(44),
   d48: formatContractEndFromDays(48),
-  d52: formatContractEndFromDays(52),
+  d68: formatContractEndFromDays(68),
+  d72: formatContractEndFromDays(72),
   d75: formatContractEndFromDays(75),
   d85: formatContractEndFromDays(85),
 } as const
@@ -329,7 +329,7 @@ const REQUISITION_ROWS: RequisitionRow[] = [
     contractVehicle: 'GWAC',
     primeContractNo: 'PRIME-2024-0042',
     managerName: 'Jordan Smith',
-    contractEnd: DEMO_CONTRACT_END.d52,
+    contractEnd: DEMO_CONTRACT_END.d72,
     vendorId: 'VND-900302',
     vendor: 'Northwind Logistics LLC',
     amount: '$32,000.00',
@@ -346,7 +346,7 @@ const REQUISITION_ROWS: RequisitionRow[] = [
     requestedBy: 'Jordan Smith',
     organization: 'HQ — Finance',
     createdDate: 'Mar 15, 2025',
-    needBy: DEMO_CONTRACT_END.d52,
+    needBy: DEMO_CONTRACT_END.d72,
     bannerMessage: '',
     buyerAssignedLineCount: 3,
     lateItemsStageCounts: [0, 0, 0, 1],
@@ -357,7 +357,7 @@ const REQUISITION_ROWS: RequisitionRow[] = [
         id: 'PR-1001-310',
         nextImportantDate: 'Apr 8, 2025',
         startDate: 'Mar 15, 2025',
-        endDate: DEMO_CONTRACT_END.d52,
+        endDate: DEMO_CONTRACT_END.d72,
         contractValue: '$16,000.00',
         fundedValue: '$12,500.00',
         itdRevenue: '$12,100.00',
@@ -368,7 +368,7 @@ const REQUISITION_ROWS: RequisitionRow[] = [
         id: 'PR-1001-311',
         nextImportantDate: 'Apr 10, 2025',
         startDate: 'Mar 15, 2025',
-        endDate: DEMO_CONTRACT_END.d52,
+        endDate: DEMO_CONTRACT_END.d72,
         contractValue: '$16,000.00',
         fundedValue: '$12,500.00',
         itdRevenue: '$12,100.00',
@@ -376,7 +376,7 @@ const REQUISITION_ROWS: RequisitionRow[] = [
         fundingPercent: 88,
       },
     ],
-    daysUntilContractExpiry: 52,
+    daysUntilContractExpiry: 72,
   },
   {
     id: 'PR-2048',
@@ -434,7 +434,7 @@ const REQUISITION_ROWS: RequisitionRow[] = [
     contractVehicle: 'GWAC',
     primeContractNo: 'PRIME-2024-0199',
     managerName: 'Morgan Chen',
-    contractEnd: DEMO_CONTRACT_END.d44,
+    contractEnd: DEMO_CONTRACT_END.d68,
     vendorId: 'VND-900503',
     vendor: 'Contoso Training Group',
     amount: '$10,500.00',
@@ -451,7 +451,7 @@ const REQUISITION_ROWS: RequisitionRow[] = [
     requestedBy: 'Morgan Chen',
     organization: 'HQ — L&D',
     createdDate: 'Apr 8, 2025',
-    needBy: DEMO_CONTRACT_END.d44,
+    needBy: DEMO_CONTRACT_END.d68,
     bannerMessage: '',
     buyerAssignedLineCount: 2,
     lateItemsStageCounts: [1, 0, 0, 0],
@@ -462,7 +462,7 @@ const REQUISITION_ROWS: RequisitionRow[] = [
         id: 'PR-1003-520',
         nextImportantDate: 'Apr 18, 2025',
         startDate: 'Apr 8, 2025',
-        endDate: DEMO_CONTRACT_END.d44,
+        endDate: DEMO_CONTRACT_END.d68,
         contractValue: '$3,500.00',
         fundedValue: '$2,666.67',
         itdRevenue: '$1,500.00',
@@ -473,7 +473,7 @@ const REQUISITION_ROWS: RequisitionRow[] = [
         id: 'PR-1003-521',
         nextImportantDate: 'Apr 19, 2025',
         startDate: 'Apr 8, 2025',
-        endDate: DEMO_CONTRACT_END.d44,
+        endDate: DEMO_CONTRACT_END.d68,
         contractValue: '$3,500.00',
         fundedValue: '$2,666.67',
         itdRevenue: '$1,500.00',
@@ -484,7 +484,7 @@ const REQUISITION_ROWS: RequisitionRow[] = [
         id: 'PR-1003-522',
         nextImportantDate: 'Apr 20, 2025',
         startDate: 'Apr 8, 2025',
-        endDate: DEMO_CONTRACT_END.d44,
+        endDate: DEMO_CONTRACT_END.d68,
         contractValue: '$3,500.00',
         fundedValue: '$2,666.66',
         itdRevenue: '$1,500.00',
@@ -492,7 +492,7 @@ const REQUISITION_ROWS: RequisitionRow[] = [
         fundingPercent: 45,
       },
     ],
-    daysUntilContractExpiry: 44,
+    daysUntilContractExpiry: 68,
   },
   {
     id: 'PR-2046',
@@ -1882,6 +1882,7 @@ function HomeShell() {
                   fundingUtilization={fundingUtilization}
                   selectedTier={expirationTierFilter}
                   onSelectTier={handleSelectKpiTier}
+                  onClearTier={() => setExpirationTierFilter(null)}
                   asOfDate={COMMAND_CENTER_AS_OF}
                 />
               </div>
