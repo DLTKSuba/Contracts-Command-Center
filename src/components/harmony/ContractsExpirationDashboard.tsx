@@ -1,5 +1,5 @@
 import clsx from 'clsx'
-import { useMemo, type ReactNode } from 'react'
+import { createContext, useContext, useMemo, type ReactNode } from 'react'
 import { Card } from './Card'
 import { Icon } from './Icon'
 import { Tooltip } from './Tooltip'
@@ -126,6 +126,14 @@ export type ContractsExpirationDashboardProps = {
   fundingUtilization: FundingUtilizationSummary
   selectedTier: ExpirationTierKey | null
   onSelectTier: (tier: ExpirationTierKey) => void
+  /** Reference date for work-week histogram bins (defaults to today). */
+  asOfDate?: Date
+}
+
+const ExpiryVizAsOfContext = createContext<Date>(new Date())
+
+function useExpiryVizAsOf(): Date {
+  return useContext(ExpiryVizAsOfContext)
 }
 
 const CRITICAL_META = {
@@ -559,7 +567,91 @@ const O3_EXPIRY_TIER_META = [
   },
 ] as const
 
-type ExpiryDayBin = { min: number; max: number }
+type ExpiryDayBin = {
+  min: number
+  max: number
+  weekStart: Date
+  weekEnd: Date
+  label: string
+}
+
+function stripToCalendarDate(d: Date): Date {
+  return new Date(d.getFullYear(), d.getMonth(), d.getDate())
+}
+
+function addCalendarDays(d: Date, days: number): Date {
+  const next = new Date(d)
+  next.setDate(next.getDate() + days)
+  return stripToCalendarDate(next)
+}
+
+function calendarDaysBetween(from: Date, to: Date): number {
+  const ms = stripToCalendarDate(to).getTime() - stripToCalendarDate(from).getTime()
+  return Math.round(ms / (24 * 60 * 60 * 1000))
+}
+
+/** Monday of the Mon–Fri work week used for histogram bucketing (weekends map to that week). */
+function mondayOfWorkWeekContaining(d: Date): Date {
+  const date = stripToCalendarDate(d)
+  const day = date.getDay()
+  if (day === 6) return addCalendarDays(date, -5)
+  if (day === 0) return addCalendarDays(date, -6)
+  return addCalendarDays(date, 1 - day)
+}
+
+function formatWorkWeekLabel(weekStart: Date, weekEnd: Date): string {
+  const monthDay: Intl.DateTimeFormatOptions = { month: 'short', day: 'numeric' }
+  const start = weekStart.toLocaleDateString('en-US', monthDay)
+  if (weekStart.getMonth() === weekEnd.getMonth()) {
+    return `${start}–${weekEnd.getDate()}`
+  }
+  const end = weekEnd.toLocaleDateString('en-US', monthDay)
+  return `${start}–${end}`
+}
+
+/** Work-week bins (Mon–Fri) that overlap each expiration tier window. */
+function getExpiryTierBins(tier: ExpiryTierKey, asOf: Date): ExpiryDayBin[] {
+  const tierDayMin = tier === 'critical' ? 0 : tier === 'warning' ? 31 : 61
+  const tierDayMax = tierDayMin + 30
+  const windowStart = addCalendarDays(asOf, tierDayMin)
+  const windowEnd = addCalendarDays(asOf, tierDayMax)
+
+  const bins: ExpiryDayBin[] = []
+  let weekMon = mondayOfWorkWeekContaining(windowStart)
+
+  while (weekMon <= windowEnd) {
+    const weekFri = addCalendarDays(weekMon, 4)
+    if (weekFri >= windowStart && weekMon <= windowEnd) {
+      const overlapStart = weekMon < windowStart ? windowStart : weekMon
+      const overlapEnd = weekFri > windowEnd ? windowEnd : weekFri
+      bins.push({
+        min: calendarDaysBetween(asOf, overlapStart),
+        max: calendarDaysBetween(asOf, overlapEnd),
+        weekStart: weekMon,
+        weekEnd: weekFri,
+        label: formatWorkWeekLabel(weekMon, weekFri),
+      })
+    }
+    weekMon = addCalendarDays(weekMon, 7)
+  }
+
+  return bins
+}
+
+function binIndexForDay(day: number, bins: ExpiryDayBin[], asOf: Date): number {
+  const expiry = addCalendarDays(asOf, day)
+  const weekMon = mondayOfWorkWeekContaining(expiry)
+  return bins.findIndex(
+    (bin) => stripToCalendarDate(bin.weekStart).getTime() === stripToCalendarDate(weekMon).getTime(),
+  )
+}
+
+function groupContractsByBin(contracts: ExpiryTierContract[], bins: ExpiryDayBin[], asOf: Date) {
+  return bins.map((bin, index) => {
+    const inBin = contracts.filter((c) => binIndexForDay(c.daysRemaining, bins, asOf) === index)
+    return { index, bin, contracts: inBin, count: inBin.length }
+  })
+}
 
 function ExpiryBarTooltipContent({ contracts }: { contracts: ExpiryTierContract[] }) {
   return (
@@ -579,34 +671,6 @@ function ExpiryBarTooltipContent({ contracts }: { contracts: ExpiryTierContract[
       ))}
     </div>
   )
-}
-
-function formatExpiryBinLabel(bin: ExpiryDayBin): string {
-  return `${bin.min}-${bin.max}`
-}
-
-/** Six bins per tier: first spans 6 days, then five 5-day bins (same pattern as 0–30). */
-function getExpiryTierBins(tier: ExpiryTierKey): ExpiryDayBin[] {
-  const tierStart = tier === 'critical' ? 0 : tier === 'warning' ? 31 : 61
-  return [
-    { min: tierStart, max: tierStart + 5 },
-    { min: tierStart + 6, max: tierStart + 10 },
-    { min: tierStart + 11, max: tierStart + 15 },
-    { min: tierStart + 16, max: tierStart + 20 },
-    { min: tierStart + 21, max: tierStart + 25 },
-    { min: tierStart + 26, max: tierStart + 30 },
-  ]
-}
-
-function binIndexForDay(day: number, bins: ExpiryDayBin[]): number {
-  return bins.findIndex((bin) => day >= bin.min && day <= bin.max)
-}
-
-function groupContractsByBin(contracts: ExpiryTierContract[], bins: ExpiryDayBin[]) {
-  return bins.map((bin, index) => {
-    const inBin = contracts.filter((c) => binIndexForDay(c.daysRemaining, bins) === index)
-    return { index, bin, contracts: inBin, count: inBin.length }
-  })
 }
 
 const O3_BIN_BAR_DEFAULT_PCT = 50
@@ -631,8 +695,9 @@ function MiniTierViz({
   count: number
   contracts: ExpiryTierContract[]
 }) {
-  const bins = useMemo(() => getExpiryTierBins(tier), [tier])
-  const grouped = useMemo(() => groupContractsByBin(contracts, bins), [contracts, bins])
+  const asOf = useExpiryVizAsOf()
+  const bins = useMemo(() => getExpiryTierBins(tier, asOf), [tier, asOf])
+  const grouped = useMemo(() => groupContractsByBin(contracts, bins, asOf), [contracts, bins, asOf])
   const maxBinCount = useMemo(
     () => Math.max(1, ...grouped.map((g) => g.count)),
     [grouped],
@@ -640,19 +705,22 @@ function MiniTierViz({
 
   if (count === 0) return <div className="ced-o3-mini-viz ced-o3-mini-viz--empty" aria-hidden />
 
-  const rangeMin = bins[0].min
-  const rangeMax = bins[bins.length - 1].max
+  const rangeLabel =
+    bins.length > 0
+      ? `${bins[0].label} through ${bins[bins.length - 1].label}`
+      : 'no work weeks in range'
 
   return (
     <div
       className={clsx('ced-o3-mini-viz', `ced-o3-mini-viz--${tier}`)}
       role="group"
-      aria-label={`${count} contracts, expiring between ${rangeMin} and ${rangeMax} days`}
+      aria-label={`${count} contracts, expiring across work weeks ${rangeLabel}`}
     >
       <div className="ced-o3-mini-viz__plot">
         {grouped.map(({ index, bin, contracts: binContracts, count: binCount }) => {
           const barHeight = expiryBinBarHeightPercent(binCount, maxBinCount)
           const emptyBarHeight = expiryBinBarHeightPercent(0, maxBinCount)
+          const weekAria = `work week ${bin.label}`
 
           return (
             <div key={`${tier}-bin-${index}`} className="ced-o3-mini-viz__bin-column">
@@ -666,7 +734,7 @@ function MiniTierViz({
                     <span
                       className="ced-o3-mini-viz__bar-hit"
                       role="img"
-                      aria-label={`${binCount} ${binCount === 1 ? 'contract' : 'contracts'}, days ${bin.min}-${bin.max}`}
+                      aria-label={`${binCount} ${binCount === 1 ? 'contract' : 'contracts'}, ${weekAria}`}
                       onClick={(e) => e.stopPropagation()}
                     >
                       <span
@@ -685,7 +753,7 @@ function MiniTierViz({
                     <span
                       className="ced-o3-mini-viz__bar-hit ced-o3-mini-viz__bar-hit--empty"
                       role="img"
-                      aria-label={`No contracts expiring, days ${bin.min}-${bin.max}`}
+                      aria-label={`No contracts expiring, ${weekAria}`}
                       onClick={(e) => e.stopPropagation()}
                     >
                       <span
@@ -697,7 +765,7 @@ function MiniTierViz({
                   </Tooltip>
                 )}
               </div>
-              <span className="ced-o3-mini-viz__axis-label">{formatExpiryBinLabel(bin)}</span>
+              <span className="ced-o3-mini-viz__axis-label">{bin.label}</span>
             </div>
           )
         })}
@@ -1479,7 +1547,38 @@ export function ContractsExpirationDashboard({
   fundingUtilization,
   selectedTier,
   onSelectTier,
+  asOfDate,
 }: ContractsExpirationDashboardProps) {
+  const asOf = useMemo(() => asOfDate ?? new Date(), [asOfDate])
+
+  return (
+    <ExpiryVizAsOfContext.Provider value={asOf}>
+      <ContractsExpirationDashboardBody
+        designOption={designOption}
+        tierCounts={tierCounts}
+        tierContracts={tierContracts}
+        tierExpiryLines={tierExpiryLines}
+        highFundingCount={highFundingCount}
+        highFundingLine={highFundingLine}
+        fundingUtilization={fundingUtilization}
+        selectedTier={selectedTier}
+        onSelectTier={onSelectTier}
+      />
+    </ExpiryVizAsOfContext.Provider>
+  )
+}
+
+function ContractsExpirationDashboardBody({
+  designOption,
+  tierCounts,
+  tierContracts,
+  tierExpiryLines,
+  highFundingCount,
+  highFundingLine,
+  fundingUtilization,
+  selectedTier,
+  onSelectTier,
+}: Omit<ContractsExpirationDashboardProps, 'asOfDate'>) {
   const handleExpirySelect = (tier: ExpiryTierKey) => {
     onSelectTier(tier)
   }

@@ -618,20 +618,18 @@
 }
 
 .ced-o3-mini-viz__axis-label {
-  min-height: 1rem;
+  min-height: 1.5rem;
   padding-top: var(--space-1, 0.25rem);
-  font-size: 0.625rem;
+  font-size: 0.5625rem;
   font-variant-numeric: tabular-nums;
   line-height: 1.2;
   text-align: center;
   color: var(--text-secondary);
-  white-space: nowrap;
-  opacity: 0;
-  transition: opacity var(--transition-fast, 0.15s ease);
+  white-space: normal;
+  opacity: 1;
 }
 
 .ced-o3-mini-viz__bin-column:hover .ced-o3-mini-viz__axis-label {
-  opacity: 1;
   font-weight: var(--font-semibold, 600);
   color: var(--text-primary);
 }

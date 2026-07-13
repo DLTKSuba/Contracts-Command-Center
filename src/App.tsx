@@ -1882,6 +1882,7 @@ function HomeShell() {
                   fundingUtilization={fundingUtilization}
                   selectedTier={expirationTierFilter}
                   onSelectTier={handleSelectKpiTier}
+                  asOfDate={COMMAND_CENTER_AS_OF}
                 />
               </div>
               <div className="lifecycle-bar-chart__table command-center-table-detail-anchor">
