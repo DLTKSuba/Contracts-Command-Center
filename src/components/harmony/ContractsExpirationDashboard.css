@@ -717,6 +717,47 @@
   min-width: 0;
 }
 
+.ced-o3-funding-panel__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2, 0.5rem);
+}
+
+.ced-o3-funding-panel__chevron {
+  flex-shrink: 0;
+  color: var(--text-secondary);
+  opacity: 0.55;
+}
+
+.ced-o3-funding-panel--embedded.ced-o3-funding-panel--selected {
+  border-color: var(--theme-primary);
+  box-shadow: 0 0 0 1px var(--theme-primary);
+}
+
+.ced-o3-funding-panel--embedded .ced-o3-funding-card {
+  min-height: 0;
+  border: none;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+}
+
+.ced-o3-funding-panel--embedded .ced-o3-funding-card--selected {
+  border-color: transparent;
+  box-shadow: none;
+}
+
+.ced-o3-funding-panel--embedded .ced-o3-funding-card__body {
+  padding: 0;
+  gap: var(--space-2, 0.5rem);
+}
+
+.ced-o3-funding-panel--embedded .ced-o3-funding-card__footer {
+  margin-top: 0;
+  padding-top: var(--space-2, 0.5rem);
+}
+
 .ced-o3-funding-card {
   display: flex;
   flex-direction: column;

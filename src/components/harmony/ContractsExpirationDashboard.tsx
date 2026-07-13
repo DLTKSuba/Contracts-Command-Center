@@ -970,11 +970,12 @@ function FundingRiskCard({
   fundingUtilization: FundingUtilizationSummary
   selected: boolean
   onSelect: () => void
-  layout?: 'default' | 'option4'
+  layout?: 'default' | 'option4' | 'embedded'
 }) {
   const highestPct = fundingLine?.highestPct ?? 0
   const vendorName = fundingLine?.vendorName ?? '—'
   const isOption4 = layout === 'option4'
+  const isEmbedded = layout === 'embedded'
   const ringSize = isOption4 ? 88 : 44
 
   const legendSegments = FUNDING_RISK_RING_SEGMENTS.filter(
@@ -1039,8 +1040,9 @@ function FundingRiskCard({
     <article
       className={clsx(
         'ced-o3-funding-card',
+        isEmbedded && 'ced-o3-funding-card--embedded',
         isOption4 && 'ced-o3-funding-card--option4',
-        selected && 'ced-o3-funding-card--selected',
+        selected && !isEmbedded && 'ced-o3-funding-card--selected',
       )}
       aria-label={`Funding risk: ${count} contracts above 65% funding used`}
       role="button"
@@ -1058,9 +1060,11 @@ function FundingRiskCard({
       }}
     >
       <div className="ced-o3-funding-card__body">
-        <div className="ced-o3-funding-card__top">
-          <Icon name="chevron-right" size="xs" className="ced-o3-funding-card__chevron" aria-hidden />
-        </div>
+        {!isEmbedded ? (
+          <div className="ced-o3-funding-card__top">
+            <Icon name="chevron-right" size="xs" className="ced-o3-funding-card__chevron" aria-hidden />
+          </div>
+        ) : null}
         <div className="ced-o3-funding-card__main">
           <div className="ced-o3-funding-card__metric">
             <p className="ced-o3-funding-card__count">{count}</p>
@@ -1107,7 +1111,7 @@ function FundingRiskPanel({
   fundingUtilization: FundingUtilizationSummary
   selected: boolean
   onSelect: () => void
-  layout?: 'default' | 'option4'
+  layout?: 'default' | 'option4' | 'embedded'
 }) {
   if (layout === 'option4') {
     return (
@@ -1130,14 +1134,26 @@ function FundingRiskPanel({
   }
 
   return (
-    <section className="ced-o3-panel ced-o3-funding-panel" aria-label="Funding risk">
-      <h2 className="ced-o3-panel__title">Funding risk</h2>
+    <section
+      className={clsx(
+        'ced-o3-panel',
+        'ced-o3-funding-panel',
+        'ced-o3-funding-panel--embedded',
+        selected && 'ced-o3-funding-panel--selected',
+      )}
+      aria-label="Funding risk"
+    >
+      <div className="ced-o3-funding-panel__head">
+        <h2 className="ced-o3-panel__title">Funding risk</h2>
+        <Icon name="chevron-right" size="xs" className="ced-o3-funding-panel__chevron" aria-hidden />
+      </div>
       <FundingRiskCard
         count={count}
         fundingLine={fundingLine}
         fundingUtilization={fundingUtilization}
         selected={selected}
         onSelect={onSelect}
+        layout="embedded"
       />
     </section>
   )
