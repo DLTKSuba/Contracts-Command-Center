@@ -2018,9 +2018,25 @@ function ExpiryBarChart({
           </div>
           <p className="ced-o6-chart__x-axis-title">
             {isDaily
-              ? `Expiration date (${rangeLabel === 'Next 90 days' ? '0-90 days' : rangeLabel})`
+              ? `Expiration date (${rangeLabel === 'Next 90 days' ? '0-90 days' : rangeLabel.replace(/\u2013/g, '-')})`
               : 'Expiration date (by work week)'}
           </p>
+          {isDaily ? (
+            <ul className="ced-o6-chart__legend" aria-label="Expiration window colors">
+              {O3_EXPIRY_TIER_META.map((meta) => (
+                <li key={meta.tier} className="ced-o6-chart__legend-item">
+                  <span
+                    className={clsx(
+                      'ced-o6-chart__legend-swatch',
+                      `ced-o6-chart__legend-swatch--${meta.tier}`,
+                    )}
+                    aria-hidden
+                  />
+                  <span className="ced-o6-chart__legend-label">{meta.label.replace(/\u2013/g, '-')}</span>
+                </li>
+              ))}
+            </ul>
+          ) : null}
         </div>
       </div>
     </div>
@@ -2065,7 +2081,7 @@ function ExpirationBarChartPanel({
 
   return (
     <section
-      className="ced-o3-panel ced-o6-bar-panel"
+      className={clsx('ced-o3-panel', 'ced-o6-bar-panel', isDaily && 'ced-o6-bar-panel--daily')}
       aria-label="Contracts Expiration Window"
       onClick={handlePanelBackdropClick}
     >

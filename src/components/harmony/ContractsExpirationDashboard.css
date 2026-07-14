@@ -1794,6 +1794,60 @@
   text-align: center;
 }
 
+.ced-o6-chart__legend {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-4, 1rem);
+  margin: var(--space-2, 0.5rem) 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.ced-o6-chart__legend-item {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2, 0.5rem);
+}
+
+.ced-o6-chart__legend-swatch {
+  flex-shrink: 0;
+  width: 0.75rem;
+  height: 0.75rem;
+  border-radius: 3px;
+}
+
+.ced-o6-chart__legend-swatch--critical {
+  background: var(--ced-o3-critical);
+}
+
+.ced-o6-chart__legend-swatch--warning {
+  background: var(--ced-o3-warning);
+}
+
+.ced-o6-chart__legend-swatch--upcoming {
+  background: var(--ced-o3-upcoming);
+}
+
+.ced-o6-chart__legend-label {
+  font-size: var(--text-sm, 0.875rem);
+  font-weight: var(--font-medium, 500);
+  line-height: 1.2;
+  color: var(--text-primary);
+}
+
+.ced-o6-bar-panel--daily .ced-o6-window-toggle--selected {
+  border-color: #4c92d9;
+  box-shadow: none;
+  background: #dce8f8;
+}
+
+.ced-o6-bar-panel--daily .ced-o6-window-toggle--selected .ced-o6-window-toggle__count,
+.ced-o6-bar-panel--daily .ced-o6-window-toggle--selected .ced-o6-window-toggle__label {
+  color: #333f4f;
+}
+
 .ced-o6-chart-wrap--daily {
   overflow: visible;
 }
