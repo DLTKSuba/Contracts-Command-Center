@@ -1535,7 +1535,6 @@ function FundingRiskPanel({
     >
       <div className="ced-o3-funding-panel__head">
         <h2 className="ced-o3-panel__title">Funding risk</h2>
-        <Icon name="chevron-right" size="xs" className="ced-o3-funding-panel__chevron" aria-hidden />
       </div>
       <FundingRiskCard
         count={count}
@@ -1850,7 +1849,6 @@ function ExpirationTimelinePanel({
     <section className="ced-o3-panel ced-o5-timeline-panel" aria-label="Contracts Expiration Window">
       <div className="ced-o5-timeline-panel__head">
         <h2 className="ced-o3-panel__title">Contracts Expiration Window</h2>
-        <Icon name="chevron-right" size="xs" className="ced-o5-timeline-panel__chevron" aria-hidden />
       </div>
       <div className="ced-o5-timeline-columns" role="group" aria-label="Expiration windows">
         {O3_EXPIRY_TIER_META.map((meta) => {
