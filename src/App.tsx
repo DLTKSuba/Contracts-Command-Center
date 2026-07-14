@@ -1082,11 +1082,9 @@ function VendorEmailDialog({
 
   useEffect(() => {
     if (!open) return
-    setSubject(`RE: ${row.contractNumber} — ${row.vendor}`)
-    setBody(
-      `Hello,\n\nI am following up regarding contract ${row.contractNumber}.\n\nThank you,`,
-    )
-  }, [open, row.contractNumber, row.vendor])
+    setSubject('')
+    setBody('')
+  }, [open, row.id])
 
   return (
     <Dialog
