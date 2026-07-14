@@ -1498,7 +1498,7 @@ function HomeShell() {
   const [selectedRequisitionId, setSelectedRequisitionId] = useState<string | null>(null)
   const [reqPanelSummaryOpen, setReqPanelSummaryOpen] = useState(true)
   const [expirationTierFilter, setExpirationTierFilter] = useState<ExpirationTierKey | null>(null)
-  const [vizDesignOption, setVizDesignOption] = useState<VizDesignOption>('option1')
+  const [vizDesignOption, setVizDesignOption] = useState<VizDesignOption>('option7')
   const [expandedContractIds, setExpandedContractIds] = useState<string[]>([])
   const [interactionRulesOpen, setInteractionRulesOpen] = useState(false)
   const kpiFilterZoneRef = useRef<HTMLDivElement>(null)

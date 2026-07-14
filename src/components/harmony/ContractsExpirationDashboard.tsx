@@ -1,9 +1,17 @@
 import clsx from 'clsx'
-import { createContext, useContext, useMemo, useRef, useState, type MouseEvent, type ReactNode } from 'react'
+import {
+  createContext,
+  useContext,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+  type MouseEvent,
+  type ReactNode,
+} from 'react'
 import { createPortal } from 'react-dom'
 import { Card } from './Card'
 import { Icon } from './Icon'
-import { Tooltip } from './Tooltip'
 import './ContractsExpirationDashboard.css'
 
 export type ExpirationTierKey =
@@ -19,15 +27,26 @@ export type VizDesignOption = 'option1' | 'option2' | 'option3' | 'option4' | 'o
 
 type ExpiryTierKey = 'critical' | 'warning' | 'upcoming'
 
-export const VIZ_DESIGN_OPTIONS = [
-  { value: 'option1', label: 'Option 1 - Card Design' },
-  { value: 'option2', label: 'Option 2 - Dual Visualization' },
-  { value: 'option3', label: 'Option 3 - Timeline & Funding Risk' },
-  { value: 'option4', label: 'Option 4 - Pie Chart' },
-  { value: 'option5', label: 'Option 5 - Timeline Histogram' },
-  { value: 'option6', label: 'Option 6 - Bar Chart' },
-  { value: 'option7', label: 'Option 7 - Daily Bar Chart' },
-] as const
+/** Primary options shown at the top of the View menu (display order). */
+const VIZ_PRIMARY_OPTIONS = [
+  { value: 'option7' as const, label: 'Option 1 - Daily Bar Chart' },
+  { value: 'option5' as const, label: 'Option 2 - Timeline Histogram' },
+]
+
+/** Secondary options under the collapsed “Other explorations” group. */
+const VIZ_OTHER_OPTIONS = [
+  { value: 'option6' as const, label: 'Option 6 - Bar Chart' },
+  { value: 'option4' as const, label: 'Option 4 - Pie Chart' },
+  { value: 'option3' as const, label: 'Option 3 - Timeline & Funding Risk' },
+  { value: 'option2' as const, label: 'Option 2 - Dual Visualization' },
+  { value: 'option1' as const, label: 'Option 1 - Card Design' },
+]
+
+export const VIZ_DESIGN_OPTIONS = [...VIZ_PRIMARY_OPTIONS, ...VIZ_OTHER_OPTIONS] as const
+
+function labelForVizOption(value: VizDesignOption): string {
+  return VIZ_DESIGN_OPTIONS.find((opt) => opt.value === value)?.label ?? value
+}
 
 export function VizDesignOptionPicker({
   value,
@@ -38,24 +57,136 @@ export function VizDesignOptionPicker({
   onChange: (value: VizDesignOption) => void
   variant?: 'default' | 'header'
 }) {
+  const [menuOpen, setMenuOpen] = useState(false)
+  const [otherOpen, setOtherOpen] = useState(() =>
+    VIZ_OTHER_OPTIONS.some((opt) => opt.value === value),
+  )
+  const rootRef = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    if (!menuOpen) return
+    const onPointerDown = (e: PointerEvent) => {
+      if (rootRef.current != null && !rootRef.current.contains(e.target as Node)) {
+        setMenuOpen(false)
+      }
+    }
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') setMenuOpen(false)
+    }
+    document.addEventListener('pointerdown', onPointerDown)
+    document.addEventListener('keydown', onKeyDown)
+    return () => {
+      document.removeEventListener('pointerdown', onPointerDown)
+      document.removeEventListener('keydown', onKeyDown)
+    }
+  }, [menuOpen])
+
+  useEffect(() => {
+    if (VIZ_OTHER_OPTIONS.some((opt) => opt.value === value)) {
+      setOtherOpen(true)
+    }
+  }, [value])
+
+  const selectOption = (next: VizDesignOption) => {
+    onChange(next)
+    setMenuOpen(false)
+  }
+
   return (
-    <div className={clsx('ced-viz-design-picker', variant === 'header' && 'ced-viz-design-picker--header')}>
-      <label className="ced-viz-design-picker__label" htmlFor="ced-design-option-select">
+    <div
+      ref={rootRef}
+      className={clsx(
+        'ced-viz-design-picker',
+        variant === 'header' && 'ced-viz-design-picker--header',
+        menuOpen && 'ced-viz-design-picker--open',
+      )}
+    >
+      <span className="ced-viz-design-picker__label" id="ced-design-option-label">
         View
-      </label>
-      <select
-        id="ced-design-option-select"
-        className="select ced-viz-design-picker__select"
-        value={value}
-        aria-label="Visualization design option"
-        onChange={(e) => onChange(e.target.value as VizDesignOption)}
-      >
-        {VIZ_DESIGN_OPTIONS.map((opt) => (
-          <option key={opt.value} value={opt.value}>
-            {opt.label}
-          </option>
-        ))}
-      </select>
+      </span>
+      <div className="ced-viz-design-picker__control">
+        <button
+          type="button"
+          className="select ced-viz-design-picker__trigger"
+          aria-labelledby="ced-design-option-label"
+          aria-haspopup="listbox"
+          aria-expanded={menuOpen}
+          aria-controls="ced-design-option-menu"
+          onClick={() => setMenuOpen((open) => !open)}
+        >
+          <span className="ced-viz-design-picker__trigger-text">{labelForVizOption(value)}</span>
+          <Icon
+            name={menuOpen ? 'chevron-up' : 'chevron-down'}
+            size="xs"
+            className="ced-viz-design-picker__trigger-icon"
+            aria-hidden
+          />
+        </button>
+
+        {menuOpen ? (
+          <div
+            id="ced-design-option-menu"
+            className="ced-viz-design-picker__menu"
+            role="listbox"
+            aria-label="Visualization design option"
+          >
+            {VIZ_PRIMARY_OPTIONS.map((opt) => (
+              <button
+                key={opt.value}
+                type="button"
+                role="option"
+                aria-selected={value === opt.value}
+                className={clsx(
+                  'ced-viz-design-picker__option',
+                  value === opt.value && 'ced-viz-design-picker__option--selected',
+                )}
+                onClick={() => selectOption(opt.value)}
+              >
+                {opt.label}
+              </button>
+            ))}
+
+            <div className="ced-viz-design-picker__divider" role="separator" />
+
+            <button
+              type="button"
+              className="ced-viz-design-picker__group-toggle"
+              aria-expanded={otherOpen}
+              aria-controls="ced-design-option-other"
+              onClick={() => setOtherOpen((open) => !open)}
+            >
+              <span>Other explorations</span>
+              <Icon
+                name={otherOpen ? 'chevron-up' : 'chevron-down'}
+                size="xs"
+                className="ced-viz-design-picker__group-chevron"
+                aria-hidden
+              />
+            </button>
+
+            {otherOpen ? (
+              <div id="ced-design-option-other" className="ced-viz-design-picker__group" role="group">
+                {VIZ_OTHER_OPTIONS.map((opt) => (
+                  <button
+                    key={opt.value}
+                    type="button"
+                    role="option"
+                    aria-selected={value === opt.value}
+                    className={clsx(
+                      'ced-viz-design-picker__option',
+                      'ced-viz-design-picker__option--nested',
+                      value === opt.value && 'ced-viz-design-picker__option--selected',
+                    )}
+                    onClick={() => selectOption(opt.value)}
+                  >
+                    {opt.label}
+                  </button>
+                ))}
+              </div>
+            ) : null}
+          </div>
+        ) : null}
+      </div>
     </div>
   )
 }
@@ -734,7 +865,14 @@ function groupContractsByDayBins(contracts: ExpiryTierContract[], bins: ExpiryDa
   })
 }
 
-function ExpiryBarTooltipContent({ contracts }: { contracts: ExpiryTierContract[] }) {
+function ExpiryBarTooltipContent({
+  contracts,
+  dateUnderName = false,
+}: {
+  contracts: ExpiryTierContract[]
+  /** When true, show each contract’s expiration date directly under its name. */
+  dateUnderName?: boolean
+}) {
   const count = contracts.length
   const uniqueDates = [...new Set(contracts.map((c) => c.expirationDate))]
 
@@ -746,26 +884,39 @@ function ExpiryBarTooltipContent({ contracts }: { contracts: ExpiryTierContract[
       <div className="ced-o3-bar-tooltip__divider" role="presentation" />
       <ul className="ced-o3-bar-tooltip__names">
         {contracts.map((contract, index) => (
-          <li key={`${contract.name}-${contract.expirationDate}-${index}`} className="ced-o3-bar-tooltip__name">
-            {contract.name}
+          <li
+            key={`${contract.name}-${contract.expirationDate}-${index}`}
+            className={clsx(
+              'ced-o3-bar-tooltip__item',
+              dateUnderName && 'ced-o3-bar-tooltip__item--with-date',
+            )}
+          >
+            <span className="ced-o3-bar-tooltip__name">{contract.name}</span>
+            {dateUnderName ? (
+              <span className="ced-o3-bar-tooltip__date">{contract.expirationDate}</span>
+            ) : null}
           </li>
         ))}
       </ul>
-      <div className="ced-o3-bar-tooltip__divider" role="presentation" />
-      <div className="ced-o3-bar-tooltip__dates">
-        {uniqueDates.length === 1 ? (
-          <p className="ced-o3-bar-tooltip__row">Expiration date: {uniqueDates[0]}</p>
-        ) : (
-          <>
-            <p className="ced-o3-bar-tooltip__row">Expiration date:</p>
-            {uniqueDates.map((date) => (
-              <p key={date} className="ced-o3-bar-tooltip__row ced-o3-bar-tooltip__row--indent">
-                {date}
-              </p>
-            ))}
-          </>
-        )}
-      </div>
+      {!dateUnderName ? (
+        <>
+          <div className="ced-o3-bar-tooltip__divider" role="presentation" />
+          <div className="ced-o3-bar-tooltip__dates">
+            {uniqueDates.length === 1 ? (
+              <p className="ced-o3-bar-tooltip__row">Expiration date: {uniqueDates[0]}</p>
+            ) : (
+              <>
+                <p className="ced-o3-bar-tooltip__row">Expiration date:</p>
+                {uniqueDates.map((date) => (
+                  <p key={date} className="ced-o3-bar-tooltip__row ced-o3-bar-tooltip__row--indent">
+                    {date}
+                  </p>
+                ))}
+              </>
+            )}
+          </div>
+        </>
+      ) : null}
     </div>
   )
 }
@@ -892,7 +1043,7 @@ function WorkWeekBarPlot({
         const barHeight = expiryBinBarHeightPercent(binCount, maxBinCount)
         const emptyBarHeight = expiryBinBarHeightPercent(0, maxBinCount)
         const binAria = binLabelKind === 'day' ? `expiration date ${bin.label}` : `work week ${bin.label}`
-        const useStackedSegments = binLabelKind === 'day' && binCount > 1
+        const useStackedSegments = binCount > 1
 
         return (
           <div
@@ -901,60 +1052,46 @@ function WorkWeekBarPlot({
           >
             <div className={clsx('ced-o3-mini-viz__bin-slot', slotClassName)}>
               {binCount > 0 ? (
-                binLabelKind === 'day' ? (
-                  <GraphOverlayTooltip content={<ExpiryBarTooltipContent contracts={binContracts} />}>
-                    <span
-                      className="ced-o3-mini-viz__bar-hit"
-                      role="img"
-                      aria-label={`${binCount} ${binCount === 1 ? 'contract' : 'contracts'}, ${binAria}`}
-                      onClick={(e) => e.stopPropagation()}
-                    >
-                      {useStackedSegments ? (
-                        <span
-                          className="ced-o3-mini-viz__bar ced-o3-mini-viz__bar--stack"
-                          style={{ height: `${barHeight}%` }}
-                          aria-hidden
-                        >
-                          {binContracts.map((contract, segmentIndex) => (
-                            <span
-                              key={`${contract.name}-${contract.expirationDate}-${segmentIndex}`}
-                              className="ced-o3-mini-viz__bar-segment"
-                              style={{
-                                backgroundColor: stackShadeForTier(tier, segmentIndex, binCount),
-                              }}
-                            />
-                          ))}
-                        </span>
-                      ) : (
-                        <span
-                          className="ced-o3-mini-viz__bar"
-                          style={{ height: `${barHeight}%` }}
-                          aria-hidden
-                        />
-                      )}
-                    </span>
-                  </GraphOverlayTooltip>
-                ) : (
-                  <Tooltip
-                    position="top"
-                    className="ced-o3-mini-viz__bar-tooltip"
-                    content={<ExpiryBarTooltipContent contracts={binContracts} />}
+                <GraphOverlayTooltip
+                  content={
+                    <ExpiryBarTooltipContent
+                      contracts={binContracts}
+                      dateUnderName={binLabelKind === 'week'}
+                    />
+                  }
+                >
+                  <span
+                    className="ced-o3-mini-viz__bar-hit"
+                    role="img"
+                    aria-label={`${binCount} ${binCount === 1 ? 'contract' : 'contracts'}, ${binAria}`}
+                    onClick={(e) => e.stopPropagation()}
                   >
-                    <span
-                      className="ced-o3-mini-viz__bar-hit"
-                      role="img"
-                      aria-label={`${binCount} ${binCount === 1 ? 'contract' : 'contracts'}, ${binAria}`}
-                      onClick={(e) => e.stopPropagation()}
-                    >
+                    {useStackedSegments ? (
+                      <span
+                        className="ced-o3-mini-viz__bar ced-o3-mini-viz__bar--stack"
+                        style={{ height: `${barHeight}%` }}
+                        aria-hidden
+                      >
+                        {binContracts.map((contract, segmentIndex) => (
+                          <span
+                            key={`${contract.name}-${contract.expirationDate}-${segmentIndex}`}
+                            className="ced-o3-mini-viz__bar-segment"
+                            style={{
+                              backgroundColor: stackShadeForTier(tier, segmentIndex, binCount),
+                            }}
+                          />
+                        ))}
+                      </span>
+                    ) : (
                       <span
                         className="ced-o3-mini-viz__bar"
                         style={{ height: `${barHeight}%` }}
                         aria-hidden
                       />
-                    </span>
-                  </Tooltip>
-                )
-              ) : binLabelKind === 'day' ? (
+                    )}
+                  </span>
+                </GraphOverlayTooltip>
+              ) : (
                 <GraphOverlayTooltip text="No contracts expiring">
                   <span
                     className={clsx(
@@ -977,25 +1114,6 @@ function WorkWeekBarPlot({
                     />
                   </span>
                 </GraphOverlayTooltip>
-              ) : (
-                <Tooltip
-                  position="top"
-                  className="ced-o3-mini-viz__bar-tooltip"
-                  text="No contracts expiring"
-                >
-                  <span
-                    className="ced-o3-mini-viz__bar-hit ced-o3-mini-viz__bar-hit--empty"
-                    role="img"
-                    aria-label={`No contracts expiring, ${binAria}`}
-                    onClick={(e) => e.stopPropagation()}
-                  >
-                    <span
-                      className="ced-o3-mini-viz__bar ced-o3-mini-viz__bar--empty"
-                      style={{ height: `${emptyBarHeight}%` }}
-                      aria-hidden
-                    />
-                  </span>
-                </Tooltip>
               )}
             </div>
             {axisMarkers ? (
@@ -1026,8 +1144,6 @@ function MiniTierViz({
   const bins = useMemo(() => getExpiryTierBins(tier, asOf), [tier, asOf])
   const grouped = useMemo(() => groupContractsByBin(contracts, bins, asOf), [contracts, bins, asOf])
 
-  if (count === 0) return <div className="ced-o3-mini-viz ced-o3-mini-viz--empty" aria-hidden />
-
   const rangeLabel =
     bins.length > 0
       ? `${bins[0].label} through ${bins[bins.length - 1].label}`
@@ -1035,9 +1151,13 @@ function MiniTierViz({
 
   return (
     <div
-      className={clsx('ced-o3-mini-viz', `ced-o3-mini-viz--${tier}`)}
+      className={clsx('ced-o3-mini-viz', `ced-o3-mini-viz--${tier}`, count === 0 && 'ced-o3-mini-viz--empty')}
       role="group"
-      aria-label={`${count} contracts, expiring across work weeks ${rangeLabel}`}
+      aria-label={
+        count === 0
+          ? `No contracts expiring across work weeks ${rangeLabel}`
+          : `${count} contracts, expiring across work weeks ${rangeLabel}`
+      }
     >
       <WorkWeekBarPlot grouped={grouped} fixedTier={tier} axisMarkers={axisMarkers} />
     </div>
