@@ -959,7 +959,7 @@
 
 .ced-o3-funding-panel--embedded .ced-o3-funding-card__footer {
   margin-top: 20px;
-  padding-top: var(--space-2, 0.5rem);
+  padding-top: calc(var(--space-2, 0.5rem) + 20px);
 }
 
 .ced-o3-funding-card {
@@ -1400,12 +1400,12 @@
   width: 100%;
   height: 1px;
   background: var(--border-color);
-  margin: 0.125rem 0;
+  margin: 0.125rem 0 0;
 }
 
 .ced-o4-funding-panel .ced-o3-funding-card__highest {
   text-align: center;
-  margin: 0;
+  margin: 20px 0 0;
 }
 
 .ced-o4-funding-panel .ced-o3-funding-card__legend {
@@ -1572,6 +1572,14 @@
   width: 1px;
 }
 
+.ced-layout-option5 .ced-o3-mini-viz__axis-label {
+  color: #000;
+}
+
+.ced-layout-option5 .ced-o3-mini-viz__bin-column:hover .ced-o3-mini-viz__axis-label {
+  color: #000;
+}
+
 /* ── Option 6 — bar chart with axes + funding risk ── */
 .ced-layout-option6,
 .ced-layout-option7 {
@@ -1697,30 +1705,10 @@
 .ced-o6-chart-with-axes {
   display: flex;
   align-items: stretch;
-  gap: var(--space-2, 0.5rem);
+  gap: var(--space-1, 0.25rem);
   width: 100%;
   min-width: 0;
   padding-top: var(--space-2, 0.5rem);
-}
-
-.ced-o6-chart__y-axis {
-  display: flex;
-  align-items: stretch;
-  justify-content: center;
-  flex-shrink: 0;
-  width: 2.25rem;
-  padding-bottom: 2.25rem;
-}
-
-.ced-o6-chart__axis-title--y {
-  writing-mode: vertical-rl;
-  transform: rotate(180deg);
-  font-size: 0.625rem;
-  font-weight: var(--font-medium, 500);
-  color: var(--text-secondary);
-  text-align: center;
-  line-height: 1.25;
-  white-space: normal;
 }
 
 .ced-o6-chart__body {
@@ -1729,6 +1717,10 @@
   display: flex;
   flex-direction: column;
   gap: var(--space-1, 0.25rem);
+}
+
+.ced-o6-chart-wrap--daily .ced-o6-chart__body {
+  gap: var(--space-2, 0.5rem);
 }
 
 .ced-o6-chart__plot-area {
@@ -1788,9 +1780,10 @@
 
 .ced-o6-chart__x-axis-title {
   margin: 0;
-  font-size: 0.6875rem;
-  font-weight: var(--font-medium, 500);
-  color: var(--text-secondary);
+  font-family: var(--font-display, 'Lexend', sans-serif);
+  font-size: 14px;
+  font-weight: var(--font-normal, 400);
+  color: var(--text-primary);
   text-align: center;
 }
 

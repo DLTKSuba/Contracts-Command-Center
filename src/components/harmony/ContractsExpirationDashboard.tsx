@@ -1982,15 +1982,6 @@ function ExpiryBarChart({
         role="img"
         aria-label={`Contracts expiring by ${isDaily ? 'day' : 'work week'}, ${rangeLabel}: ${grouped.map((g) => `${g.bin.label} ${g.count}`).join(', ')}`}
       >
-        {isDaily ? (
-          <div className="ced-o6-chart__y-axis" aria-hidden>
-            <span className="ced-o6-chart__axis-title--y">
-              Number of
-              <br />
-              contracts expiring
-            </span>
-          </div>
-        ) : null}
         <div className="ced-o6-chart__body">
           <div className={clsx('ced-o6-chart__plot-area', isDaily && 'ced-o6-chart__plot-area--scroll')}>
             <div className="ced-o6-chart__y-axis-line" aria-hidden />
@@ -2023,7 +2014,9 @@ function ExpiryBarChart({
           </p>
           {isDaily ? (
             <ul className="ced-o6-chart__legend" aria-label="Expiration window colors">
-              {O3_EXPIRY_TIER_META.map((meta) => (
+              {O3_EXPIRY_TIER_META.filter(
+                (meta) => activeExpiryTier == null || activeExpiryTier === meta.tier,
+              ).map((meta) => (
                 <li key={meta.tier} className="ced-o6-chart__legend-item">
                   <span
                     className={clsx(
