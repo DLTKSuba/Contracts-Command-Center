@@ -991,13 +991,19 @@
   text-align: left;
 }
 
-/* Match daily/weekly window KPI numeral size beside Option 6/7 charts */
+/* Match daily/weekly window KPI numeral size & vertical start beside Option 6/7 charts */
 .ced-o6-row .ced-o3-funding-panel--embedded {
   gap: var(--space-4, 1rem);
 }
 
+.ced-o6-row .ced-o3-funding-panel--embedded .ced-o3-funding-card__body {
+  /* Match toggle border + padding so "7" lines up with 6 / 4 / 8 */
+  padding-top: calc(var(--space-3, 0.75rem) + 1px);
+}
+
 .ced-o6-row .ced-o3-funding-panel--embedded .ced-o3-funding-card__count {
   font-size: 1.5rem;
+  line-height: 1;
 }
 
 .ced-o3-funding-card {
