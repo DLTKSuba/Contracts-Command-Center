@@ -1,5 +1,6 @@
 import clsx from 'clsx'
-import { createContext, useContext, useMemo, type MouseEvent, type ReactNode } from 'react'
+import { createContext, useContext, useMemo, useRef, useState, type MouseEvent, type ReactNode } from 'react'
+import { createPortal } from 'react-dom'
 import { Card } from './Card'
 import { Icon } from './Icon'
 import { Tooltip } from './Tooltip'
@@ -769,6 +770,65 @@ function ExpiryBarTooltipContent({ contracts }: { contracts: ExpiryTierContract[
   )
 }
 
+/** Fixed-position overlay tooltip so daily chart scroll containers never clip it. */
+function GraphOverlayTooltip({
+  content,
+  text,
+  children,
+}: {
+  content?: ReactNode
+  text?: string
+  children: ReactNode
+}) {
+  const triggerRef = useRef<HTMLDivElement>(null)
+  const [anchor, setAnchor] = useState<{ left: number; top: number } | null>(null)
+
+  const show = () => {
+    const trigger = triggerRef.current
+    if (!trigger) return
+    // Anchor to the visible bar (not the full column hit area) so short grey
+    // placeholders get a tooltip tight above the bar itself.
+    const bar = trigger.querySelector<HTMLElement>('.ced-o3-mini-viz__bar')
+    const rect = (bar ?? trigger).getBoundingClientRect()
+    setAnchor({
+      left: rect.left + rect.width / 2,
+      top: rect.top,
+    })
+  }
+
+  const hide = () => setAnchor(null)
+
+  const body = content != null ? content : text
+  const isCompact = content == null && typeof text === 'string'
+
+  return (
+    <>
+      <div
+        ref={triggerRef}
+        className="ced-o6-overlay-tooltip-trigger"
+        onMouseEnter={show}
+        onMouseLeave={hide}
+        onFocus={show}
+        onBlur={hide}
+      >
+        {children}
+      </div>
+      {anchor != null && body != null
+        ? createPortal(
+            <div
+              className={clsx('ced-o6-overlay-tooltip', isCompact && 'ced-o6-overlay-tooltip--compact')}
+              style={{ left: anchor.left, top: anchor.top }}
+              role="tooltip"
+            >
+              {body}
+            </div>,
+            document.body,
+          )
+        : null}
+    </>
+  )
+}
+
 const O3_BIN_BAR_DEFAULT_PCT = 50
 const O3_BIN_BAR_PEAK_PCT = 100
 
@@ -841,54 +901,66 @@ function WorkWeekBarPlot({
           >
             <div className={clsx('ced-o3-mini-viz__bin-slot', slotClassName)}>
               {binCount > 0 ? (
-                <Tooltip
-                  position="top"
-                  className="ced-o3-mini-viz__bar-tooltip"
-                  content={<ExpiryBarTooltipContent contracts={binContracts} />}
-                >
-                  <span
-                    className="ced-o3-mini-viz__bar-hit"
-                    role="img"
-                    aria-label={`${binCount} ${binCount === 1 ? 'contract' : 'contracts'}, ${binAria}`}
-                    onClick={(e) => e.stopPropagation()}
+                binLabelKind === 'day' ? (
+                  <GraphOverlayTooltip content={<ExpiryBarTooltipContent contracts={binContracts} />}>
+                    <span
+                      className="ced-o3-mini-viz__bar-hit"
+                      role="img"
+                      aria-label={`${binCount} ${binCount === 1 ? 'contract' : 'contracts'}, ${binAria}`}
+                      onClick={(e) => e.stopPropagation()}
+                    >
+                      {useStackedSegments ? (
+                        <span
+                          className="ced-o3-mini-viz__bar ced-o3-mini-viz__bar--stack"
+                          style={{ height: `${barHeight}%` }}
+                          aria-hidden
+                        >
+                          {binContracts.map((contract, segmentIndex) => (
+                            <span
+                              key={`${contract.name}-${contract.expirationDate}-${segmentIndex}`}
+                              className="ced-o3-mini-viz__bar-segment"
+                              style={{
+                                backgroundColor: stackShadeForTier(tier, segmentIndex, binCount),
+                              }}
+                            />
+                          ))}
+                        </span>
+                      ) : (
+                        <span
+                          className="ced-o3-mini-viz__bar"
+                          style={{ height: `${barHeight}%` }}
+                          aria-hidden
+                        />
+                      )}
+                    </span>
+                  </GraphOverlayTooltip>
+                ) : (
+                  <Tooltip
+                    position="top"
+                    className="ced-o3-mini-viz__bar-tooltip"
+                    content={<ExpiryBarTooltipContent contracts={binContracts} />}
                   >
-                    {useStackedSegments ? (
-                      <span
-                        className="ced-o3-mini-viz__bar ced-o3-mini-viz__bar--stack"
-                        style={{ height: `${barHeight}%` }}
-                        aria-hidden
-                      >
-                        {binContracts.map((contract, segmentIndex) => (
-                          <span
-                            key={`${contract.name}-${contract.expirationDate}-${segmentIndex}`}
-                            className="ced-o3-mini-viz__bar-segment"
-                            style={{
-                              backgroundColor: stackShadeForTier(tier, segmentIndex, binCount),
-                            }}
-                            title={contract.name}
-                          />
-                        ))}
-                      </span>
-                    ) : (
+                    <span
+                      className="ced-o3-mini-viz__bar-hit"
+                      role="img"
+                      aria-label={`${binCount} ${binCount === 1 ? 'contract' : 'contracts'}, ${binAria}`}
+                      onClick={(e) => e.stopPropagation()}
+                    >
                       <span
                         className="ced-o3-mini-viz__bar"
                         style={{ height: `${barHeight}%` }}
                         aria-hidden
                       />
-                    )}
-                  </span>
-                </Tooltip>
-              ) : (
-                <Tooltip
-                  position="top"
-                  className="ced-o3-mini-viz__bar-tooltip"
-                  text="No contracts expiring"
-                >
+                    </span>
+                  </Tooltip>
+                )
+              ) : binLabelKind === 'day' ? (
+                <GraphOverlayTooltip text="No contracts expiring">
                   <span
                     className={clsx(
                       'ced-o3-mini-viz__bar-hit',
                       'ced-o3-mini-viz__bar-hit--empty',
-                      binLabelKind === 'day' && 'ced-o3-mini-viz__bar-hit--empty-grey',
+                      'ced-o3-mini-viz__bar-hit--empty-grey',
                     )}
                     role="img"
                     aria-label={`No contracts expiring, ${binAria}`}
@@ -898,8 +970,27 @@ function WorkWeekBarPlot({
                       className={clsx(
                         'ced-o3-mini-viz__bar',
                         'ced-o3-mini-viz__bar--empty',
-                        binLabelKind === 'day' && 'ced-o3-mini-viz__bar--empty-grey',
+                        'ced-o3-mini-viz__bar--empty-grey',
                       )}
+                      style={{ height: `${emptyBarHeight}%` }}
+                      aria-hidden
+                    />
+                  </span>
+                </GraphOverlayTooltip>
+              ) : (
+                <Tooltip
+                  position="top"
+                  className="ced-o3-mini-viz__bar-tooltip"
+                  text="No contracts expiring"
+                >
+                  <span
+                    className="ced-o3-mini-viz__bar-hit ced-o3-mini-viz__bar-hit--empty"
+                    role="img"
+                    aria-label={`No contracts expiring, ${binAria}`}
+                    onClick={(e) => e.stopPropagation()}
+                  >
+                    <span
+                      className="ced-o3-mini-viz__bar ced-o3-mini-viz__bar--empty"
                       style={{ height: `${emptyBarHeight}%` }}
                       aria-hidden
                     />
