@@ -3,6 +3,7 @@ import {
   createContext,
   useContext,
   useEffect,
+  useLayoutEffect,
   useMemo,
   useRef,
   useState,
@@ -1959,6 +1960,7 @@ function ExpiryBarChart({
 }) {
   const asOf = useExpiryVizAsOf()
   const isDaily = granularity === 'day'
+  const plotAreaRef = useRef<HTMLDivElement>(null)
   const bins = useMemo(
     () => (isDaily ? getExpiryDailyBins(dayMin, dayMax, asOf) : getExpiryRangeBins(dayMin, dayMax, asOf)),
     [dayMin, dayMax, asOf, isDaily],
@@ -1967,6 +1969,19 @@ function ExpiryBarChart({
     () => (isDaily ? groupContractsByDayBins(contracts, bins) : groupContractsByBin(contracts, bins, asOf)),
     [contracts, bins, asOf, isDaily],
   )
+
+  useLayoutEffect(() => {
+    if (!isDaily) return
+    const plotArea = plotAreaRef.current
+    if (plotArea == null) return
+    // Reset after range/KPI changes so a scrolled 0–90 view starts at day 0 (or
+    // the first day of the selected window) when the chart narrows.
+    plotArea.scrollLeft = 0
+    const frame = requestAnimationFrame(() => {
+      plotArea.scrollLeft = 0
+    })
+    return () => cancelAnimationFrame(frame)
+  }, [isDaily, dayMin, dayMax, activeExpiryTier, bins.length])
 
   return (
     <div className={clsx('ced-o6-chart-wrap', isDaily && 'ced-o6-chart-wrap--daily')}>
@@ -1981,7 +1996,10 @@ function ExpiryBarChart({
         aria-label={`Contracts expiring by ${isDaily ? 'day' : 'work week'}, ${rangeLabel}: ${grouped.map((g) => `${g.bin.label} ${g.count}`).join(', ')}`}
       >
         <div className="ced-o6-chart__body">
-          <div className={clsx('ced-o6-chart__plot-area', isDaily && 'ced-o6-chart__plot-area--scroll')}>
+          <div
+            ref={plotAreaRef}
+            className={clsx('ced-o6-chart__plot-area', isDaily && 'ced-o6-chart__plot-area--scroll')}
+          >
             <div className="ced-o6-chart__y-axis-line" aria-hidden />
             <div
               className={clsx(
