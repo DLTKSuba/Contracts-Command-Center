@@ -666,19 +666,63 @@
   white-space: nowrap;
 }
 
-.ced-o3-bar-tooltip__contract--sep {
-  margin-top: var(--space-1, 0.25rem);
-  padding-top: var(--space-1, 0.25rem);
-  border-top: 1px solid var(--overlay-white-20, rgba(255, 255, 255, 0.25));
+.ced-o3-bar-tooltip__summary {
+  margin: 0;
+  font-weight: var(--font-semibold, 600);
+  line-height: 1.35;
+}
+
+.ced-o3-bar-tooltip__divider {
+  height: 1px;
+  margin: var(--space-1, 0.25rem) 0;
+  background: var(--overlay-white-20, rgba(255, 255, 255, 0.25));
+}
+
+.ced-o3-bar-tooltip__names {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 0.125rem;
+}
+
+.ced-o3-bar-tooltip__name {
+  margin: 0;
+  line-height: 1.35;
+}
+
+.ced-o3-bar-tooltip__dates {
+  display: flex;
+  flex-direction: column;
+  gap: 0.125rem;
 }
 
 .ced-o3-bar-tooltip__row {
+  margin: 0;
   line-height: 1.35;
+}
+
+.ced-o3-bar-tooltip__row--indent {
+  padding-left: var(--space-2, 0.5rem);
 }
 
 .ced-o3-mini-viz__bar {
   width: 100%;
   border-radius: 2px 2px 0 0;
+}
+
+.ced-o3-mini-viz__bar--stack {
+  display: flex;
+  flex-direction: column-reverse;
+  overflow: hidden;
+  background: transparent;
+}
+
+.ced-o3-mini-viz__bar-segment {
+  flex: 1 1 0;
+  width: 100%;
+  min-height: 3px;
 }
 
 .ced-o3-mini-viz__bar-hit--empty {
@@ -713,6 +757,12 @@
   background: var(--ced-o3-upcoming);
 }
 
+/* Daily chart: empty days use light grey instead of tinted tier color */
+.ced-o3-mini-viz__bar--empty-grey,
+.ced-o6-bar-plot--daily .ced-o3-mini-viz__bar--empty {
+  background: #d1d5db !important;
+}
+
 .ced-o3-funding-panel {
   min-width: 0;
 }
@@ -735,7 +785,14 @@
   box-shadow: 0 0 0 1px var(--theme-primary);
 }
 
+.ced-o3-funding-panel--embedded {
+  height: 100%;
+}
+
 .ced-o3-funding-panel--embedded .ced-o3-funding-card {
+  flex: 1 1 auto;
+  display: flex;
+  flex-direction: column;
   min-height: 0;
   border: none;
   border-radius: 0;
@@ -749,12 +806,13 @@
 }
 
 .ced-o3-funding-panel--embedded .ced-o3-funding-card__body {
+  flex: 1 1 auto;
   padding: 0;
   gap: var(--space-2, 0.5rem);
 }
 
 .ced-o3-funding-panel--embedded .ced-o3-funding-card__footer {
-  margin-top: 0;
+  margin-top: 20px;
   padding-top: var(--space-2, 0.5rem);
 }
 
@@ -1229,7 +1287,7 @@
   display: grid;
   grid-template-columns: minmax(0, 1fr) minmax(240px, 320px);
   gap: var(--space-4, 1rem);
-  align-items: start;
+  align-items: stretch;
   width: 100%;
   min-width: 0;
 }
@@ -1240,6 +1298,7 @@
   gap: var(--space-4, 1rem);
   width: 100%;
   min-width: 0;
+  height: 100%;
 }
 
 .ced-o5-timeline-panel__head {
@@ -1368,25 +1427,30 @@
 }
 
 /* ── Option 6 — bar chart with axes + funding risk ── */
-.ced-layout-option6 {
+.ced-layout-option6,
+.ced-layout-option7 {
   width: 100%;
   --ced-o3-critical: #d83148;
   --ced-o3-warning: #e66f51;
   --ced-o3-upcoming: #284555;
   --ced-o3-funding: #e66f51;
+  --ced-o3-critical-empty: rgba(216, 49, 72, 0.14);
+  --ced-o3-warning-empty: rgba(230, 111, 81, 0.14);
+  --ced-o3-upcoming-empty: rgba(40, 69, 85, 0.12);
 }
 
 .ced-o6-row {
   display: grid;
   grid-template-columns: minmax(0, 1fr) minmax(240px, 320px);
   gap: var(--space-4, 1rem);
-  align-items: start;
+  align-items: stretch;
   width: 100%;
   min-width: 0;
 }
 
 .ced-o6-bar-panel {
   gap: var(--space-4, 1rem);
+  height: 100%;
 }
 
 .ced-o6-bar-panel__head {
@@ -1469,6 +1533,7 @@
   min-width: 0;
   overflow-x: auto;
   cursor: default;
+  margin-top: var(--space-3, 0.75rem);
 }
 
 .ced-o6-chart-range {
@@ -1488,49 +1553,27 @@
   gap: var(--space-2, 0.5rem);
   width: 100%;
   min-width: 0;
+  padding-top: var(--space-2, 0.5rem);
 }
 
 .ced-o6-chart__y-axis {
   display: flex;
-  flex-direction: column;
+  align-items: stretch;
+  justify-content: center;
   flex-shrink: 0;
-  width: 2.75rem;
-  min-height: 8.5rem;
-}
-
-.ced-o6-chart__axis-title {
-  font-size: 0.625rem;
-  font-weight: var(--font-medium, 500);
-  color: var(--text-secondary);
-  text-align: center;
-  line-height: 1.2;
+  width: 2.25rem;
+  padding-bottom: 2.25rem;
 }
 
 .ced-o6-chart__axis-title--y {
   writing-mode: vertical-rl;
   transform: rotate(180deg);
-  align-self: center;
-  margin-bottom: var(--space-2, 0.5rem);
-  flex-shrink: 0;
-}
-
-.ced-o6-chart__y-ticks {
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  flex: 1 1 auto;
-  min-height: 5.5rem;
-  padding-bottom: calc(6px + 1.625rem);
-}
-
-.ced-o6-chart__tick-label {
-  display: block;
-  flex-shrink: 0;
-  font-size: 0.6875rem;
+  font-size: 0.625rem;
+  font-weight: var(--font-medium, 500);
   color: var(--text-secondary);
-  font-variant-numeric: tabular-nums;
-  text-align: right;
-  line-height: 1;
+  text-align: center;
+  line-height: 1.25;
+  white-space: normal;
 }
 
 .ced-o6-chart__body {
@@ -1602,6 +1645,45 @@
   font-weight: var(--font-medium, 500);
   color: var(--text-secondary);
   text-align: center;
+}
+
+.ced-o6-chart-wrap--daily {
+  overflow: visible;
+}
+
+.ced-o6-chart__plot-area--scroll {
+  overflow-x: auto;
+  overflow-y: hidden;
+  padding-bottom: var(--space-1, 0.25rem);
+  -webkit-overflow-scrolling: touch;
+}
+
+.ced-o6-bar-plot--daily .ced-o6-bar-plot__plot--daily {
+  display: flex;
+  align-items: stretch;
+  gap: 2px;
+  width: max-content;
+  min-width: 100%;
+}
+
+.ced-o6-bar-plot--daily .ced-o3-mini-viz__bin-column {
+  flex: 0 0 auto;
+  width: 2.75rem;
+  min-width: 2.75rem;
+}
+
+.ced-o6-bar-plot__axis-label--daily {
+  font-size: 0.5625rem;
+  line-height: 1.2;
+  writing-mode: horizontal-tb;
+  transform: none;
+  padding-top: var(--space-1, 0.25rem);
+  padding-bottom: 0;
+  white-space: normal;
+  min-height: 1.75rem;
+  display: block;
+  text-align: center;
+  word-break: break-word;
 }
 
 @media (max-width: 1024px) {
