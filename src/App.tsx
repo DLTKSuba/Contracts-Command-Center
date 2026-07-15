@@ -21,12 +21,14 @@ import { Table } from './components/harmony/Table'
 import {
   ContractsExpirationDashboard,
   VizDesignOptionPicker,
+  DailyChartIterationPicker,
   type ExpirationTierKey,
   type ExpiryTierContract,
   type FundingUtilizationSummary,
   type HighFundingLine,
   type TierExpiryLine,
   type VizDesignOption,
+  type DailyChartIteration,
 } from './components/harmony/ContractsExpirationDashboard'
 import { Link } from './components/harmony/Link'
 import { Icon } from './components/harmony/Icon'
@@ -1497,6 +1499,7 @@ function HomeShell() {
   const [reqPanelSummaryOpen, setReqPanelSummaryOpen] = useState(true)
   const [expirationTierFilter, setExpirationTierFilter] = useState<ExpirationTierKey | null>(null)
   const [vizDesignOption, setVizDesignOption] = useState<VizDesignOption>('option7')
+  const [dailyChartIteration, setDailyChartIteration] = useState<DailyChartIteration>('iteration1')
   const [expandedContractIds, setExpandedContractIds] = useState<string[]>([])
   const [interactionRulesOpen, setInteractionRulesOpen] = useState(false)
   const kpiFilterZoneRef = useRef<HTMLDivElement>(null)
@@ -1657,11 +1660,20 @@ function HomeShell() {
         pageHeaderShowDefaultButtons={false}
         pageHeaderActions={
           activeTabId === 'requisitions' ? (
-            <VizDesignOptionPicker
-              variant="header"
-              value={vizDesignOption}
-              onChange={setVizDesignOption}
-            />
+            <div className="command-center-header-pickers">
+              <VizDesignOptionPicker
+                variant="header"
+                value={vizDesignOption}
+                onChange={setVizDesignOption}
+              />
+              {vizDesignOption === 'option7' ? (
+                <DailyChartIterationPicker
+                  variant="header"
+                  value={dailyChartIteration}
+                  onChange={setDailyChartIteration}
+                />
+              ) : null}
+            </div>
           ) : null
         }
       >
@@ -1702,6 +1714,7 @@ function HomeShell() {
                 <ContractsExpirationDashboard
                   key={refreshTick}
                   designOption={vizDesignOption}
+                  chartIteration={dailyChartIteration}
                   tierCounts={expirationTierCounts}
                   tierContracts={expirationTierContracts}
                   tierExpiryLines={expirationTierExpiryLines}

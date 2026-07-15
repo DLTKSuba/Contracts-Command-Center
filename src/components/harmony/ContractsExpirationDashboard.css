@@ -909,6 +909,29 @@
   background: #d1d5db !important;
 }
 
+.ced-o3-mini-viz__bar-hit--tick {
+  align-items: flex-end;
+  cursor: default;
+}
+
+.ced-o3-mini-viz__empty-tick {
+  display: block;
+  width: 2px;
+  height: 6px;
+  margin-inline: auto;
+  border-radius: 1px;
+  background: #9ca3af;
+}
+
+.ced-o6-chart__plot-area--compressed {
+  overflow-x: visible;
+  width: 100%;
+}
+
+.ced-o6-chart-wrap--compressed .ced-o6-chart__plot.ced-o6-bar-plot {
+  width: 100%;
+}
+
 .ced-o3-funding-panel {
   min-width: 0;
 }
@@ -1769,17 +1792,6 @@
   margin-top: var(--space-3, 0.75rem);
 }
 
-.ced-o6-chart-range {
-  margin: 0 0 var(--space-2, 0.5rem);
-  font-size: var(--text-sm, 0.875rem);
-  color: var(--text-secondary);
-}
-
-.ced-o6-chart-range strong {
-  color: var(--text-primary);
-  font-weight: var(--font-semibold, 600);
-}
-
 .ced-o6-chart-with-axes {
   display: flex;
   align-items: stretch;
@@ -1956,6 +1968,34 @@
 
 .ced-o6-bar-plot--daily .ced-o3-mini-viz__bar,
 .ced-o6-bar-plot--daily .ced-o3-mini-viz__bar--empty {
+  width: 72%;
+  max-width: 18px;
+  margin-inline: auto;
+}
+
+/* Compressed (Iteration 2): stretch day columns across the full plot like weekly. */
+.ced-o6-bar-plot--compressed .ced-o6-bar-plot__plot--compressed {
+  display: flex;
+  align-items: stretch;
+  gap: 0.5rem;
+  width: 100%;
+  min-width: 0;
+}
+
+.ced-o6-bar-plot--compressed .ced-o3-mini-viz__bin-column {
+  flex: 1 1 0;
+  width: auto;
+  min-width: 0;
+  max-width: none;
+}
+
+.ced-o6-bar-plot--compressed .ced-o3-mini-viz__bar-hit {
+  width: 100%;
+  max-width: none;
+  cursor: pointer;
+}
+
+.ced-o6-bar-plot--compressed .ced-o3-mini-viz__bar {
   width: 72%;
   max-width: 18px;
   margin-inline: auto;

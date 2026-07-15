@@ -26,6 +26,9 @@ export type ExpirationTierKey =
 
 export type VizDesignOption = 'option1' | 'option2' | 'option3' | 'option4' | 'option5' | 'option6' | 'option7'
 
+/** Chart modes for Option 1 (daily bar chart). */
+export type DailyChartIteration = 'iteration1' | 'iteration2' | 'iteration3'
+
 type ExpiryTierKey = 'critical' | 'warning' | 'upcoming'
 
 /** Primary options shown at the top of the View menu (display order). */
@@ -45,8 +48,18 @@ const VIZ_OTHER_OPTIONS = [
 
 export const VIZ_DESIGN_OPTIONS = [...VIZ_PRIMARY_OPTIONS, ...VIZ_OTHER_OPTIONS] as const
 
+const DAILY_CHART_ITERATIONS = [
+  { value: 'iteration1' as const, label: 'Iteration 1' },
+  { value: 'iteration2' as const, label: 'Iteration 2' },
+  { value: 'iteration3' as const, label: 'Iteration 3' },
+] as const
+
 function labelForVizOption(value: VizDesignOption): string {
   return VIZ_DESIGN_OPTIONS.find((opt) => opt.value === value)?.label ?? value
+}
+
+function labelForDailyIteration(value: DailyChartIteration): string {
+  return DAILY_CHART_ITERATIONS.find((opt) => opt.value === value)?.label ?? value
 }
 
 export function VizDesignOptionPicker({
@@ -192,6 +205,99 @@ export function VizDesignOptionPicker({
   )
 }
 
+export function DailyChartIterationPicker({
+  value,
+  onChange,
+  variant = 'default',
+}: {
+  value: DailyChartIteration
+  onChange: (value: DailyChartIteration) => void
+  variant?: 'default' | 'header'
+}) {
+  const [menuOpen, setMenuOpen] = useState(false)
+  const rootRef = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    if (!menuOpen) return
+    const onPointerDown = (e: PointerEvent) => {
+      if (rootRef.current != null && !rootRef.current.contains(e.target as Node)) {
+        setMenuOpen(false)
+      }
+    }
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') setMenuOpen(false)
+    }
+    document.addEventListener('pointerdown', onPointerDown)
+    document.addEventListener('keydown', onKeyDown)
+    return () => {
+      document.removeEventListener('pointerdown', onPointerDown)
+      document.removeEventListener('keydown', onKeyDown)
+    }
+  }, [menuOpen])
+
+  return (
+    <div
+      ref={rootRef}
+      className={clsx(
+        'ced-viz-design-picker',
+        variant === 'header' && 'ced-viz-design-picker--header',
+        menuOpen && 'ced-viz-design-picker--open',
+      )}
+    >
+      <span className="ced-viz-design-picker__label" id="ced-daily-iteration-label">
+        Iteration
+      </span>
+      <div className="ced-viz-design-picker__control">
+        <button
+          type="button"
+          className="select ced-viz-design-picker__trigger"
+          aria-labelledby="ced-daily-iteration-label"
+          aria-haspopup="listbox"
+          aria-expanded={menuOpen}
+          aria-controls="ced-daily-iteration-menu"
+          onClick={() => setMenuOpen((open) => !open)}
+        >
+          <span className="ced-viz-design-picker__trigger-text">{labelForDailyIteration(value)}</span>
+          <Icon
+            name={menuOpen ? 'chevron-up' : 'chevron-down'}
+            size="xs"
+            className="ced-viz-design-picker__trigger-icon"
+            aria-hidden
+          />
+        </button>
+
+        {menuOpen ? (
+          <div
+            id="ced-daily-iteration-menu"
+            className="ced-viz-design-picker__menu"
+            role="listbox"
+            aria-label="Daily chart iteration"
+          >
+            {DAILY_CHART_ITERATIONS.map((opt) => (
+              <button
+                key={opt.value}
+                type="button"
+                role="option"
+                aria-selected={value === opt.value}
+                className={clsx(
+                  'ced-viz-design-picker__option',
+                  value === opt.value && 'ced-viz-design-picker__option--selected',
+                )}
+                onClick={() => {
+                  onChange(opt.value)
+                  setMenuOpen(false)
+                }}
+              >
+                {opt.label}
+              </button>
+            ))}
+          </div>
+        ) : null}
+      </div>
+    </div>
+  )
+}
+
 const FUNDING_TIER_META = [
   {
     key: 'critical' as const,
@@ -263,6 +369,8 @@ export type ContractsExpirationDashboardProps = {
   onSelectTier: (tier: ExpirationTierKey) => void
   /** Clears the active expiration-window filter (e.g. click outside toggles). */
   onClearTier?: () => void
+  /** Option 1 chart iteration (weekly / compressed / daily). */
+  chartIteration?: DailyChartIteration
   /** Reference date for work-week histogram bins (defaults to today). */
   asOfDate?: Date
 }
@@ -1023,6 +1131,7 @@ function WorkWeekBarPlot({
   axisMarkers = false,
   axisLabelClassName,
   binLabelKind = 'week',
+  emptyBinMode = 'grey',
 }: {
   grouped: ReturnType<typeof groupContractsByBin>
   fixedTier?: ExpiryTierKey | null
@@ -1031,15 +1140,21 @@ function WorkWeekBarPlot({
   axisMarkers?: boolean
   axisLabelClassName?: string
   binLabelKind?: 'week' | 'day'
+  /** How to render bins with zero contracts. */
+  emptyBinMode?: 'grey' | 'tick' | 'hide'
 }) {
+  const visibleGrouped = useMemo(
+    () => (emptyBinMode === 'hide' ? grouped.filter((group) => group.count > 0) : grouped),
+    [grouped, emptyBinMode],
+  )
   const maxBinCount = useMemo(
-    () => Math.max(1, ...grouped.map((group) => group.count)),
-    [grouped],
+    () => Math.max(1, ...visibleGrouped.map((group) => group.count)),
+    [visibleGrouped],
   )
 
   return (
     <div className={clsx('ced-o3-mini-viz__plot', plotClassName)}>
-      {grouped.map(({ index, bin, contracts: binContracts, count: binCount }) => {
+      {visibleGrouped.map(({ index, bin, contracts: binContracts, count: binCount }) => {
         const tier = fixedTier ?? tierKeyForBin(bin)
         const barHeight = expiryBinBarHeightPercent(binCount, maxBinCount)
         const emptyBarHeight = expiryBinBarHeightPercent(0, maxBinCount)
@@ -1090,6 +1205,17 @@ function WorkWeekBarPlot({
                         aria-hidden
                       />
                     )}
+                  </span>
+                </GraphOverlayTooltip>
+              ) : emptyBinMode === 'tick' ? (
+                <GraphOverlayTooltip text="No contracts expiring">
+                  <span
+                    className="ced-o3-mini-viz__bar-hit ced-o3-mini-viz__bar-hit--empty ced-o3-mini-viz__bar-hit--tick"
+                    role="img"
+                    aria-label={`No contracts expiring, ${binAria}`}
+                    onClick={(e) => e.stopPropagation()}
+                  >
+                    <span className="ced-o3-mini-viz__empty-tick" aria-hidden />
                   </span>
                 </GraphOverlayTooltip>
               ) : (
@@ -1950,6 +2076,7 @@ function ExpiryBarChart({
   rangeLabel,
   activeExpiryTier,
   granularity = 'week',
+  emptyBinMode = 'grey',
 }: {
   contracts: ExpiryTierContract[]
   dayMin: number
@@ -1957,6 +2084,7 @@ function ExpiryBarChart({
   rangeLabel: string
   activeExpiryTier: ExpiryTierKey | null
   granularity?: 'week' | 'day'
+  emptyBinMode?: 'grey' | 'tick' | 'hide'
 }) {
   const asOf = useExpiryVizAsOf()
   const isDaily = granularity === 'day'
@@ -1969,27 +2097,30 @@ function ExpiryBarChart({
     () => (isDaily ? groupContractsByDayBins(contracts, bins) : groupContractsByBin(contracts, bins, asOf)),
     [contracts, bins, asOf, isDaily],
   )
+  const isCompressed = emptyBinMode === 'hide'
+  const isScrollableDaily = isDaily && !isCompressed
 
   useLayoutEffect(() => {
-    if (!isDaily) return
+    if (!isScrollableDaily) return
     const plotArea = plotAreaRef.current
     if (plotArea == null) return
-    // Reset after range/KPI changes so a scrolled 0–90 view starts at day 0 (or
-    // the first day of the selected window) when the chart narrows.
     plotArea.scrollLeft = 0
     const frame = requestAnimationFrame(() => {
       plotArea.scrollLeft = 0
     })
     return () => cancelAnimationFrame(frame)
-  }, [isDaily, dayMin, dayMax, activeExpiryTier, bins.length])
+  }, [isScrollableDaily, dayMin, dayMax, activeExpiryTier, bins.length, emptyBinMode])
+
+  const xAxisTitle = `Expiration date (${rangeLabel})`
 
   return (
-    <div className={clsx('ced-o6-chart-wrap', isDaily && 'ced-o6-chart-wrap--daily')}>
-      {!isDaily ? (
-        <p className="ced-o6-chart-range" aria-live="polite">
-          Showing <strong>{rangeLabel}</strong>
-        </p>
-      ) : null}
+    <div
+      className={clsx(
+        'ced-o6-chart-wrap',
+        isScrollableDaily && 'ced-o6-chart-wrap--daily',
+        isCompressed && 'ced-o6-chart-wrap--compressed',
+      )}
+    >
       <div
         className="ced-o6-chart-with-axes"
         role="img"
@@ -1998,7 +2129,11 @@ function ExpiryBarChart({
         <div className="ced-o6-chart__body">
           <div
             ref={plotAreaRef}
-            className={clsx('ced-o6-chart__plot-area', isDaily && 'ced-o6-chart__plot-area--scroll')}
+            className={clsx(
+              'ced-o6-chart__plot-area',
+              isScrollableDaily && 'ced-o6-chart__plot-area--scroll',
+              isCompressed && 'ced-o6-chart__plot-area--compressed',
+            )}
           >
             <div className="ced-o6-chart__y-axis-line" aria-hidden />
             <div
@@ -2006,13 +2141,18 @@ function ExpiryBarChart({
                 'ced-o6-chart__plot',
                 'ced-o3-mini-viz',
                 'ced-o6-bar-plot',
-                isDaily && 'ced-o6-bar-plot--daily',
+                isScrollableDaily && 'ced-o6-bar-plot--daily',
+                isCompressed && 'ced-o6-bar-plot--compressed',
               )}
             >
               <WorkWeekBarPlot
                 grouped={grouped}
                 fixedTier={activeExpiryTier}
-                plotClassName={clsx('ced-o6-bar-plot__plot', isDaily && 'ced-o6-bar-plot__plot--daily')}
+                plotClassName={clsx(
+                  'ced-o6-bar-plot__plot',
+                  isScrollableDaily && 'ced-o6-bar-plot__plot--daily',
+                  isCompressed && 'ced-o6-bar-plot__plot--compressed',
+                )}
                 slotClassName="ced-o6-bar-plot__slot"
                 axisMarkers
                 axisLabelClassName={clsx(
@@ -2020,15 +2160,12 @@ function ExpiryBarChart({
                   isDaily && 'ced-o6-bar-plot__axis-label--daily',
                 )}
                 binLabelKind={isDaily ? 'day' : 'week'}
+                emptyBinMode={emptyBinMode}
               />
             </div>
           </div>
-          <p className="ced-o6-chart__x-axis-title">
-            {isDaily
-              ? `Expiration date (${rangeLabel === 'Next 90 days' ? '0-90 days' : rangeLabel.replace(/\u2013/g, '-')})`
-              : 'Expiration date (by work week)'}
-          </p>
-          {isDaily ? (
+          <p className="ced-o6-chart__x-axis-title">{xAxisTitle}</p>
+          {emptyBinMode !== 'grey' ? (
             <ul className="ced-o6-chart__legend" aria-label="Expiration window colors">
               {O3_EXPIRY_TIER_META.filter(
                 (meta) => activeExpiryTier == null || activeExpiryTier === meta.tier,
@@ -2059,6 +2196,7 @@ function ExpirationBarChartPanel({
   onSelectTier,
   onClearTier,
   granularity = 'week',
+  emptyBinMode = 'grey',
 }: {
   tierCounts: { critical: number; warning: number; upcoming: number }
   tierContracts: {
@@ -2070,6 +2208,7 @@ function ExpirationBarChartPanel({
   onSelectTier: (tier: ExpiryTierKey) => void
   onClearTier?: () => void
   granularity?: 'week' | 'day'
+  emptyBinMode?: 'grey' | 'tick' | 'hide'
 }) {
   const activeExpiryTier = activeExpiryTierFromSelection(selectedTier)
   const { dayMin, dayMax, rangeLabel } = getExpiryChartRange(activeExpiryTier)
@@ -2090,14 +2229,18 @@ function ExpirationBarChartPanel({
 
   return (
     <section
-      className={clsx('ced-o3-panel', 'ced-o6-bar-panel', isDaily && 'ced-o6-bar-panel--daily')}
+      className={clsx(
+        'ced-o3-panel',
+        'ced-o6-bar-panel',
+        (isDaily || emptyBinMode !== 'grey') && 'ced-o6-bar-panel--daily',
+      )}
       aria-label="Contracts Expiration Window"
       onClick={handlePanelBackdropClick}
     >
       <div className="ced-o6-bar-panel__head">
         <div>
           <h2 className="ced-o3-panel__title">Contracts Expiration Window</h2>
-          {!isDaily ? (
+          {!isDaily && emptyBinMode === 'grey' ? (
             <p className="ced-o6-bar-panel__hint">
               Default shows the next 90 days. Click a window to zoom the chart; click outside to reset.
             </p>
@@ -2145,6 +2288,7 @@ function ExpirationBarChartPanel({
         rangeLabel={rangeLabel}
         activeExpiryTier={activeExpiryTier}
         granularity={granularity}
+        emptyBinMode={emptyBinMode}
       />
     </section>
   )
@@ -2160,6 +2304,7 @@ function Option6Visualization({
   onSelectTier,
   onClearTier,
   granularity = 'week',
+  emptyBinMode = 'grey',
 }: {
   tierCounts: { critical: number; warning: number; upcoming: number }
   tierContracts: {
@@ -2174,6 +2319,7 @@ function Option6Visualization({
   onSelectTier: (tier: ExpirationTierKey) => void
   onClearTier?: () => void
   granularity?: 'week' | 'day'
+  emptyBinMode?: 'grey' | 'tick' | 'hide'
 }) {
   const handleExpirySelect = (tier: ExpiryTierKey) => {
     onSelectTier(tier)
@@ -2188,6 +2334,7 @@ function Option6Visualization({
         onSelectTier={handleExpirySelect}
         onClearTier={onClearTier}
         granularity={granularity}
+        emptyBinMode={emptyBinMode}
       />
       <FundingRiskPanel
         count={highFundingCount}
@@ -2211,6 +2358,7 @@ export function ContractsExpirationDashboard({
   selectedTier,
   onSelectTier,
   onClearTier,
+  chartIteration = 'iteration1',
   asOfDate,
 }: ContractsExpirationDashboardProps) {
   const asOf = useMemo(() => asOfDate ?? new Date(), [asOfDate])
@@ -2228,6 +2376,7 @@ export function ContractsExpirationDashboard({
         selectedTier={selectedTier}
         onSelectTier={onSelectTier}
         onClearTier={onClearTier}
+        chartIteration={chartIteration}
       />
     </ExpiryVizAsOfContext.Provider>
   )
@@ -2244,6 +2393,7 @@ function ContractsExpirationDashboardBody({
   selectedTier,
   onSelectTier,
   onClearTier,
+  chartIteration = 'iteration1',
 }: Omit<ContractsExpirationDashboardProps, 'asOfDate'>) {
   const handleExpirySelect = (tier: ExpiryTierKey) => {
     onSelectTier(tier)
@@ -2329,6 +2479,9 @@ function ContractsExpirationDashboardBody({
   }
 
   if (designOption === 'option7') {
+    // Iteration 1: weekly · Iteration 2: days with contracts · Iteration 3: daily with ticks
+    const granularity = chartIteration === 'iteration1' ? 'week' : 'day'
+    const emptyBinMode = chartIteration === 'iteration2' ? 'hide' : 'tick'
     return (
       <section className="contracts-expiration-dashboard ced-layout-option7" aria-label="Command center daily expiration bar chart and funding risk">
         <Option6Visualization
@@ -2340,7 +2493,8 @@ function ContractsExpirationDashboardBody({
           selectedTier={selectedTier}
           onSelectTier={onSelectTier}
           onClearTier={onClearTier}
-          granularity="day"
+          granularity={granularity}
+          emptyBinMode={emptyBinMode}
         />
       </section>
     )

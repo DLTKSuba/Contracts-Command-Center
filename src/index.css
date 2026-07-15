@@ -12,6 +12,14 @@
   display: block;
 }
 
+.command-center-header-pickers {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-end;
+  gap: var(--space-3);
+}
+
 /* Proof-of-bundle stamp (see vite.config `__APP_BUILD_ID__` + App.tsx `AppBuildStamp`) */
 .app-build-stamp {
   position: fixed;
