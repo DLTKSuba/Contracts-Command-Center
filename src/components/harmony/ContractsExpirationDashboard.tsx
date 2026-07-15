@@ -49,9 +49,9 @@ const VIZ_OTHER_OPTIONS = [
 export const VIZ_DESIGN_OPTIONS = [...VIZ_PRIMARY_OPTIONS, ...VIZ_OTHER_OPTIONS] as const
 
 const DAILY_CHART_ITERATIONS = [
-  { value: 'iteration1' as const, label: 'Iteration 1' },
-  { value: 'iteration2' as const, label: 'Iteration 2' },
-  { value: 'iteration3' as const, label: 'Iteration 3' },
+  { value: 'iteration1' as const, label: 'Iteration 1 (Weekly rollup)' },
+  { value: 'iteration2' as const, label: 'Iteration 2 (Active Expirations)' },
+  { value: 'iteration3' as const, label: 'Iteration 3 (Daily rollup)' },
 ] as const
 
 function labelForVizOption(value: VizDesignOption): string {
