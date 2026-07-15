@@ -1490,7 +1490,6 @@ function FundingRiskCard({
   layout?: 'default' | 'option4' | 'embedded'
 }) {
   const highestPct = fundingLine?.highestPct ?? 0
-  const vendorName = fundingLine?.vendorName ?? '—'
   const isOption4 = layout === 'option4'
   const isEmbedded = layout === 'embedded'
   const ringSize = isOption4 ? 88 : 44
@@ -1540,7 +1539,6 @@ function FundingRiskCard({
     <div className="ced-o3-funding-card__details">
       <p className="ced-o3-funding-card__highest">Highest {highestPct}%</p>
       {legend}
-      <p className="ced-o3-funding-card__vendor">{vendorName}</p>
     </div>
   ) : null
 
@@ -1549,7 +1547,6 @@ function FundingRiskCard({
       {option4Legend}
       <div className="ced-o3-funding-card__details-divider" role="presentation" />
       <p className="ced-o3-funding-card__highest">Highest {highestPct}%</p>
-      <p className="ced-o3-funding-card__vendor">{vendorName}</p>
     </div>
   ) : null
 
