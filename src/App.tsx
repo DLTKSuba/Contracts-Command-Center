@@ -114,6 +114,7 @@ function prIdFromDetailTabId(id: string): string | null {
 /** Per-project line items when a contract row is expanded (grid columns mirror the parent row). */
 type ContractProjectLine = {
   id: string
+  name: string
   nextImportantDate: string
   startDate: string
   endDate: string
@@ -253,6 +254,8 @@ function makeDemoRow(spec: {
     projects: [
       {
         id: `${spec.id}-P1`,
+        name:
+          spec.daysUntil % 2 === 0 ? 'HQ Facilities Refresh' : 'Field Services Expansion',
         nextImportantDate: 'Apr 12, 2025',
         startDate: 'Apr 2, 2025',
         endDate: contractEnd,
@@ -932,17 +935,20 @@ function RequisitionTableBody({
                     id={projIdx === 0 ? `contract-projects-${row.id}` : undefined}
                   >
                     <div className="command-center-contract-project-row__indent">
-                      <button
-                        type="button"
-                        className="command-center-contract-project-row__id"
-                        aria-label={`Open project ${proj.id}`}
-                        onClick={(e) => {
-                          e.stopPropagation()
-                          onSelectRow(row.id)
-                        }}
-                      >
-                        {proj.id}
-                      </button>
+                      <div className="command-center-contract-project-row__stack">
+                        <button
+                          type="button"
+                          className="command-center-contract-project-row__id"
+                          aria-label={`Open project ${proj.id}`}
+                          onClick={(e) => {
+                            e.stopPropagation()
+                            onSelectRow(row.id)
+                          }}
+                        >
+                          {proj.id}
+                        </button>
+                        <span className="command-center-contract-project-row__name">{proj.name}</span>
+                      </div>
                     </div>
                   </td>
                   <td>{proj.nextImportantDate}</td>
