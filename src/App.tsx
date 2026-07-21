@@ -537,6 +537,11 @@ function summarizeFundingUtilization(rows: RequisitionRow[]): FundingUtilization
       normal: above.filter((r) => r.fundingPercent >= 65 && r.fundingPercent < 80).length,
     },
     belowThresholdCount: base.filter((r) => r.fundingPercent < 65).length,
+    buckets: {
+      low: base.filter((r) => r.fundingPercent <= 59).length,
+      mid: base.filter((r) => r.fundingPercent >= 60 && r.fundingPercent <= 75).length,
+      high: base.filter((r) => r.fundingPercent >= 76).length,
+    },
   }
 }
 
