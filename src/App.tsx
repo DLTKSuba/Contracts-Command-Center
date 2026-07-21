@@ -1280,10 +1280,10 @@ function RequisitionDetailSummary({
       </summary>
       <div className="command-center-requisition-accordion__content">
         <div className="command-center-requisition-summary__grid">
-          <ContractSummaryField label="Contract ID" value={row.contractNumber} />
+          <ContractSummaryField label="Contract Name" value="Armstrong Labs" />
           <ContractSummaryField
-            label="Customer"
-            value={row.vendor}
+            label="Customer Contact"
+            value="James Smith"
             onValueClick={onVendorClick}
             emailLink
           />
