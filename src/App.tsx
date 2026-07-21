@@ -676,39 +676,6 @@ function vendorEmailForRow(row: RequisitionRow): string {
   return `contact@${slug || 'vendor'}.com`
 }
 
-/** Parses table overdue cell like `2/5` → late vs total counts. */
-function parseOverdueFraction(overdue: string): { late: number; total: number } | null {
-  const m = /^(\d+)\s*\/\s*(\d+)$/.exec(overdue.trim())
-  if (!m) return null
-  const late = Number(m[1])
-  const total = Number(m[2])
-  if (!Number.isFinite(late) || !Number.isFinite(total) || total <= 0) return null
-  return { late, total }
-}
-
-/** Bar colors aligned with PO Command Center reference; requisitions use the first four tones. */
-const REQ_LIFECYCLE_COLORS = {
-  pendingSubmittal: '#f97316',
-  rejected: '#dc2626',
-  pendingApproval: '#ec4899',
-  pendingPoCreation: '#1d4ed8',
-} as const
-
-/** Stage index order matches status columns left → right (see REQ_STATUS_STAGE_LABELS). */
-const REQ_STATUS_DOT_COLORS = [
-  REQ_LIFECYCLE_COLORS.pendingSubmittal,
-  REQ_LIFECYCLE_COLORS.rejected,
-  REQ_LIFECYCLE_COLORS.pendingApproval,
-  REQ_LIFECYCLE_COLORS.pendingPoCreation,
-] as const
-
-const REQ_STATUS_STAGE_LABELS = [
-  'Pending Submittal',
-  'Rejected',
-  'Pending Approval',
-  'Pending PO Creation',
-] as const
-
 function contractInfoCell(
   row: RequisitionRow,
   opts: {
@@ -1305,20 +1272,12 @@ function RequisitionDetailSummary({
 }
 
 function RequisitionRiskStatusSection({ row }: { row: RequisitionRow }) {
-  const frac = parseOverdueFraction(row.overdue)
-  const lateStatusEntries = row.lateItemsStageCounts
-    .map((count, stageIndex) => ({ count, stageIndex }))
-    .filter(({ count }) => count > 0)
+  const popElapsedPct = 90
+  const fundsUsedPct = 70
 
   return (
-    <section
-      className="command-center-requisition-accordion command-center-requisition-accordion--risk-collapsed"
-      aria-label="Risk Status"
-    >
-      <div
-        className="command-center-requisition-accordion__summary command-center-requisition-accordion__summary--noninteractive"
-        aria-expanded="false"
-      >
+    <details className="command-center-requisition-accordion" open={false}>
+      <summary className="command-center-requisition-accordion__summary">
         <span className="command-center-requisition-accordion__summary-main">
           <Icon
             name="chevron-right"
@@ -1328,78 +1287,52 @@ function RequisitionRiskStatusSection({ row }: { row: RequisitionRow }) {
           />
           <span className="command-center-requisition-accordion__summary-text">Risk Status</span>
         </span>
-      </div>
-      <div className="command-center-requisition-accordion__content" hidden>
-        <div className="command-center-requisition-late-items">
-          <div
-            className="command-center-requisition-late-items__vs-value"
-            aria-label={frac != null ? `Late ${frac.late} of ${frac.total} lines` : `Overdue lines ${row.overdue}`}
-          >
-            {frac != null ? (
-              <>
-                <span className="command-center-requisition-late-items__vs-segment">
-                  <span className="command-center-requisition-late-items__vs-num command-center-requisition-late-items__vs-num--overdue">
-                    {frac.late}
-                  </span>
-                  <sub className="command-center-requisition-late-items__vs-sub">Overdue</sub>
-                </span>
-                <span className="command-center-requisition-late-items__vs-divider" aria-hidden />
-                <span className="command-center-requisition-late-items__vs-segment">
-                  <span className="command-center-requisition-late-items__vs-num command-center-requisition-late-items__vs-num--total">
-                    {frac.total}
-                  </span>
-                  <sub className="command-center-requisition-late-items__vs-sub">Total</sub>
-                </span>
-              </>
-            ) : (
-              row.overdue.trim()
-            )}
-          </div>
-          {lateStatusEntries.length > 0 && (
-            <div className="command-center-requisition-late-items__sections" role="list">
-              {lateStatusEntries.map(({ count, stageIndex }) => {
-                const label = REQ_STATUS_STAGE_LABELS[stageIndex] ?? `Stage ${stageIndex}`
-                const color = REQ_STATUS_DOT_COLORS[stageIndex] ?? '#94a3b8'
-                return (
-                  <section
-                    key={label}
-                    className="command-center-requisition-late-items__status-section"
-                    role="listitem"
-                    aria-label={`${label}, ${count} overdue lines`}
-                  >
-                    <div className="command-center-requisition-late-items__status-section-inner">
-                      <div className="command-center-requisition-late-items__status-top-row">
-                        <div className="command-center-requisition-late-items__status-title-row">
-                          <span
-                            className="command-center-requisition-late-items__swatch"
-                            style={{ backgroundColor: color }}
-                            aria-hidden
-                          />
-                          <span className="command-center-requisition-late-items__status-name">{label}</span>
-                        </div>
-                        <Link
-                          href="#"
-                          size="medium"
-                          className="command-center-requisition-late-items__followup"
-                          title={`Follow up on ${label}`}
-                          aria-label={`Follow up on ${label}`}
-                          onClick={(e: MouseEvent<HTMLAnchorElement>) => {
-                            e.preventDefault()
-                          }}
-                        >
-                          Follow up
-                        </Link>
-                      </div>
-                      <div className="command-center-requisition-late-items__status-count-below">{count}</div>
-                    </div>
-                  </section>
-                )
-              })}
-            </div>
-          )}
+      </summary>
+      <div className="command-center-requisition-accordion__content">
+        <div
+          className="command-center-period-health"
+          aria-label={`Period health for ${row.contractNumber}. PoP elapsed ${popElapsedPct} percent. Funds used ${fundsUsedPct} percent.`}
+        >
+          <ul className="command-center-period-health__metrics">
+            <li className="command-center-period-health__row">
+              <span className="command-center-period-health__metric-label">PoP Elapsed</span>
+              <div
+                className="command-center-period-health__track"
+                role="presentation"
+                aria-hidden
+              >
+                <div
+                  className="command-center-period-health__fill command-center-period-health__fill--pop"
+                  style={{ width: `${popElapsedPct}%` }}
+                />
+              </div>
+              <span
+                className={clsx(
+                  'command-center-period-health__pct',
+                  popElapsedPct >= 85 && 'command-center-period-health__pct--alert',
+                )}
+              >
+                {popElapsedPct}%
+              </span>
+            </li>
+            <li className="command-center-period-health__row">
+              <span className="command-center-period-health__metric-label">Funds Used</span>
+              <div
+                className="command-center-period-health__track"
+                role="presentation"
+                aria-hidden
+              >
+                <div
+                  className="command-center-period-health__fill command-center-period-health__fill--funds"
+                  style={{ width: `${fundsUsedPct}%` }}
+                />
+              </div>
+              <span className="command-center-period-health__pct">{fundsUsedPct}%</span>
+            </li>
+          </ul>
         </div>
       </div>
-    </section>
+    </details>
   )
 }
 

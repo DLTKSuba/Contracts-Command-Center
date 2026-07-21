@@ -1011,6 +1011,70 @@ html.theme-cp:not(.dark) .command-center-pr-summary-panel__value {
   gap: var(--space-1);
 }
 
+.command-center-period-health {
+  padding: var(--space-3) var(--space-4) var(--space-4);
+  box-sizing: border-box;
+}
+
+.command-center-period-health__metrics {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.command-center-period-health__row {
+  display: grid;
+  grid-template-columns: minmax(6.5rem, auto) minmax(0, 1fr) 2.75rem;
+  align-items: center;
+  gap: var(--space-3);
+  min-width: 0;
+}
+
+.command-center-period-health__metric-label {
+  min-width: 0;
+  font-size: var(--text-sm, 0.875rem);
+  font-weight: var(--font-medium, 500);
+  color: var(--text-secondary, #6b7280);
+  white-space: nowrap;
+}
+
+.command-center-period-health__track {
+  height: 0.5rem;
+  min-width: 0;
+  border-radius: 999px;
+  background: #e5e7eb;
+  overflow: hidden;
+}
+
+.command-center-period-health__fill {
+  height: 100%;
+  border-radius: inherit;
+}
+
+.command-center-period-health__fill--pop {
+  background: #3b82f6;
+}
+
+.command-center-period-health__fill--funds {
+  background: #22c55e;
+}
+
+.command-center-period-health__pct {
+  justify-self: end;
+  font-size: var(--text-sm, 0.875rem);
+  font-weight: var(--font-semibold, 600);
+  font-variant-numeric: tabular-nums;
+  color: var(--text-primary, #1f2937);
+  text-align: right;
+}
+
+.command-center-period-health__pct--alert {
+  color: #dc2626;
+}
+
 .command-center-requisition-late-items {
   padding: var(--space-4) var(--space-4) var(--space-4) var(--cc-accordion-content-inset-start);
   box-sizing: border-box;
