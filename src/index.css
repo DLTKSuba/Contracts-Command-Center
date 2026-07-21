@@ -1052,14 +1052,7 @@ html.theme-cp:not(.dark) .command-center-pr-summary-panel__value {
 .command-center-period-health__fill {
   height: 100%;
   border-radius: inherit;
-}
-
-.command-center-period-health__fill--pop {
-  background: #3b82f6;
-}
-
-.command-center-period-health__fill--funds {
-  background: #22c55e;
+  background: #285f8c;
 }
 
 .command-center-period-health__pct {
@@ -1067,12 +1060,8 @@ html.theme-cp:not(.dark) .command-center-pr-summary-panel__value {
   font-size: var(--text-sm, 0.875rem);
   font-weight: var(--font-semibold, 600);
   font-variant-numeric: tabular-nums;
-  color: var(--text-primary, #1f2937);
+  color: #373f4e;
   text-align: right;
-}
-
-.command-center-period-health__pct--alert {
-  color: #dc2626;
 }
 
 .command-center-requisition-late-items {

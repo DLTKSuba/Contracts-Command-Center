@@ -1302,18 +1302,11 @@ function RequisitionRiskStatusSection({ row }: { row: RequisitionRow }) {
                 aria-hidden
               >
                 <div
-                  className="command-center-period-health__fill command-center-period-health__fill--pop"
+                  className="command-center-period-health__fill"
                   style={{ width: `${popElapsedPct}%` }}
                 />
               </div>
-              <span
-                className={clsx(
-                  'command-center-period-health__pct',
-                  popElapsedPct >= 85 && 'command-center-period-health__pct--alert',
-                )}
-              >
-                {popElapsedPct}%
-              </span>
+              <span className="command-center-period-health__pct">{popElapsedPct}%</span>
             </li>
             <li className="command-center-period-health__row">
               <span className="command-center-period-health__metric-label">Funds Used</span>
@@ -1323,7 +1316,7 @@ function RequisitionRiskStatusSection({ row }: { row: RequisitionRow }) {
                 aria-hidden
               >
                 <div
-                  className="command-center-period-health__fill command-center-period-health__fill--funds"
+                  className="command-center-period-health__fill"
                   style={{ width: `${fundsUsedPct}%` }}
                 />
               </div>
