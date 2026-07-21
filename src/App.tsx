@@ -1511,7 +1511,7 @@ function HomeShell() {
   const [selectedRequisitionId, setSelectedRequisitionId] = useState<string | null>(null)
   const [reqPanelSummaryOpen, setReqPanelSummaryOpen] = useState(true)
   const [expirationTierFilter, setExpirationTierFilter] = useState<ExpirationTierKey | null>(null)
-  const [vizDesignOption, setVizDesignOption] = useState<VizDesignOption>('option7')
+  const [vizDesignOption, setVizDesignOption] = useState<VizDesignOption>('option5')
   const [dailyChartIteration, setDailyChartIteration] = useState<DailyChartIteration>('iteration1')
   const [expandedContractIds, setExpandedContractIds] = useState<string[]>([])
   const [interactionRulesOpen, setInteractionRulesOpen] = useState(false)

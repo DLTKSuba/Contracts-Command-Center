@@ -33,12 +33,12 @@ type ExpiryTierKey = 'critical' | 'warning' | 'upcoming'
 
 /** Primary options shown at the top of the View menu (display order). */
 const VIZ_PRIMARY_OPTIONS = [
-  { value: 'option7' as const, label: 'Option 1 - Daily Bar Chart' },
-  { value: 'option5' as const, label: 'Option 2 - Timeline Histogram' },
+  { value: 'option5' as const, label: 'Timeline Bar Chart' },
 ]
 
 /** Secondary options under the collapsed “Other explorations” group. */
 const VIZ_OTHER_OPTIONS = [
+  { value: 'option7' as const, label: 'Option 1 - Daily Bar Chart' },
   { value: 'option6' as const, label: 'Option 6 - Bar Chart' },
   { value: 'option4' as const, label: 'Option 4 - Pie Chart' },
   { value: 'option3' as const, label: 'Option 3 - Timeline & Funding Risk' },
