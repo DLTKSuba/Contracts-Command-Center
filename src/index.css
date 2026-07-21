@@ -909,15 +909,39 @@
 }
 
 /*
- * Summary: two columns; label muted, value emphasized.
+ * Revenue Information: labels share the accordion’s left padding (align with chevron);
+ * value columns pack tightly beside the labels.
  */
-.command-center-revenue-info-table .command-center-stat-table__label {
-  font-weight: var(--font-semibold, 600);
+.command-center-requisition-accordion__content:has(.command-center-revenue-info-table) {
+  padding: var(--space-2) var(--space-4) var(--space-4);
+  box-sizing: border-box;
 }
 
 .command-center-revenue-info-table {
+  width: max-content;
+  max-width: 100%;
   margin: 0;
+  table-layout: auto;
 }
+
+.command-center-revenue-info-table .command-center-stat-table__label {
+  font-weight: var(--font-semibold, 600);
+  width: 1%;
+  white-space: nowrap;
+  padding-right: var(--space-4);
+}
+
+.command-center-revenue-info-table th:not(:first-of-type),
+.command-center-revenue-info-table .command-center-stat-table__num {
+  width: 1%;
+  padding-left: var(--space-3);
+  padding-right: 0;
+}
+
+/*
+ * Summary: two columns; label muted, value emphasized.
+ */
+.command-center-requisition-summary__grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   column-gap: var(--space-4);
