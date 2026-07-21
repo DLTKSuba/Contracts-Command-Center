@@ -1062,6 +1062,7 @@ function RequisitionSidePanel({
         </div>
       </div>
       <div className="command-center-requisition-panel__body">
+        <RequisitionRevenueInformation row={row} />
         <RequisitionDetailSummary
           row={row}
           open={summaryAccordionOpen}
@@ -1171,6 +1172,81 @@ function ContractSummaryField({
         )}
       </div>
     </div>
+  )
+}
+
+function parseMoneyAmount(value: string): number {
+  const n = Number(value.replace(/[^0-9.-]/g, ''))
+  return Number.isFinite(n) ? n : 0
+}
+
+function formatMoneyAmount(value: number): string {
+  return value.toLocaleString('en-US', {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  })
+}
+
+/** Split a total into ITD / Pending using an 90/10 ratio for demo detail rows. */
+function moneySplit(total: number): { itd: number; pending: number; total: number } {
+  const itd = Math.round(total * 0.9 * 100) / 100
+  const pending = Math.round((total - itd) * 100) / 100
+  return { itd, pending, total }
+}
+
+function RequisitionRevenueInformation({ row }: { row: RequisitionRow }) {
+  const contract = moneySplit(parseMoneyAmount(row.amount))
+  const funded = moneySplit(parseMoneyAmount(row.fundedValue))
+  const revenue = moneySplit(parseMoneyAmount(row.itdRevenue))
+
+  return (
+    <details className="command-center-requisition-accordion" open>
+      <summary className="command-center-requisition-accordion__summary">
+        <span className="command-center-requisition-accordion__summary-main">
+          <Icon
+            name="chevron-right"
+            size="sm"
+            className="command-center-requisition-accordion__expand-icon"
+            aria-hidden
+          />
+          <span className="command-center-requisition-accordion__summary-text">
+            Revenue Information
+          </span>
+        </span>
+      </summary>
+      <div className="command-center-requisition-accordion__content">
+        <table className="command-center-stat-table command-center-revenue-info-table">
+          <thead>
+            <tr>
+              <th scope="col" />
+              <th scope="col">ITD</th>
+              <th scope="col">Pending</th>
+              <th scope="col">Total</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td className="command-center-stat-table__label">Contract Value</td>
+              <td className="command-center-stat-table__num">{formatMoneyAmount(contract.itd)}</td>
+              <td className="command-center-stat-table__num">{formatMoneyAmount(contract.pending)}</td>
+              <td className="command-center-stat-table__num">{formatMoneyAmount(contract.total)}</td>
+            </tr>
+            <tr>
+              <td className="command-center-stat-table__label">Funded Value</td>
+              <td className="command-center-stat-table__num">{formatMoneyAmount(funded.itd)}</td>
+              <td className="command-center-stat-table__num">{formatMoneyAmount(funded.pending)}</td>
+              <td className="command-center-stat-table__num">{formatMoneyAmount(funded.total)}</td>
+            </tr>
+            <tr>
+              <td className="command-center-stat-table__label">Revenue</td>
+              <td className="command-center-stat-table__num">{formatMoneyAmount(revenue.itd)}</td>
+              <td className="command-center-stat-table__num">{formatMoneyAmount(revenue.pending)}</td>
+              <td className="command-center-stat-table__num">{formatMoneyAmount(revenue.total)}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </details>
   )
 }
 

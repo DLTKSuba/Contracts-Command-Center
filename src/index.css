@@ -911,7 +911,13 @@
 /*
  * Summary: two columns; label muted, value emphasized.
  */
-.command-center-requisition-summary__grid {
+.command-center-revenue-info-table .command-center-stat-table__label {
+  font-weight: var(--font-semibold, 600);
+}
+
+.command-center-revenue-info-table {
+  margin: 0;
+}
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   column-gap: var(--space-4);
