@@ -827,16 +827,25 @@ function PrLineDetailsTableBody({ rows }: { rows: RequisitionLineRow[] }) {
   )
 }
 
+type SelectedProjectRef = {
+  contractId: string
+  projectId: string
+}
+
 function RequisitionTableBody({
   rows,
   selectedId,
+  selectedProject,
   onSelectRow,
+  onSelectProject,
   expandedContractIds,
   onToggleContractExpanded,
 }: {
   rows: RequisitionRow[]
   selectedId: string | null
+  selectedProject: SelectedProjectRef | null
   onSelectRow: (id: string) => void
+  onSelectProject: (ref: SelectedProjectRef) => void
   expandedContractIds: readonly string[]
   onToggleContractExpanded: (rowId: string) => void
 }) {
@@ -889,16 +898,28 @@ function RequisitionTableBody({
               </td>
             </tr>
             {expanded &&
-              row.projects.map((proj, projIdx) => (
+              row.projects.map((proj, projIdx) => {
+                const projectSelected =
+                  selectedProject?.contractId === row.id &&
+                  selectedProject.projectId === proj.id
+                const selectThisProject = () =>
+                  onSelectProject({ contractId: row.id, projectId: proj.id })
+                return (
                 <tr
                   key={`${row.id}-proj-${proj.id}`}
-                  className="command-center-contract-project-row command-center-table-row--project"
+                  className={clsx(
+                    'command-center-contract-project-row',
+                    'command-center-table-row--project',
+                    'command-center-table-row--selectable',
+                    projectSelected && 'table-row--selected',
+                  )}
                   tabIndex={0}
-                  onClick={() => onSelectRow(row.id)}
+                  aria-selected={projectSelected ? 'true' : 'false'}
+                  onClick={selectThisProject}
                   onKeyDown={(e) => {
                     if (e.key === 'Enter' || e.key === ' ') {
                       e.preventDefault()
-                      onSelectRow(row.id)
+                      selectThisProject()
                     }
                   }}
                 >
@@ -914,7 +935,7 @@ function RequisitionTableBody({
                           aria-label={`Open project ${proj.id}`}
                           onClick={(e) => {
                             e.stopPropagation()
-                            onSelectRow(row.id)
+                            selectThisProject()
                           }}
                         >
                           {proj.id}
@@ -939,7 +960,8 @@ function RequisitionTableBody({
                     {proj.fundingPercent}%
                   </td>
                 </tr>
-              ))}
+                )
+              })}
           </Fragment>
         )
       })}
@@ -1045,6 +1067,237 @@ function RequisitionSidePanel({
       onClose={() => setVendorEmailOpen(false)}
     />
     </>
+  )
+}
+
+function ProjectRevenueInformation({ project }: { project: ContractProjectLine }) {
+  const contract = moneySplit(parseMoneyAmount(project.contractValue))
+  const funded = moneySplit(parseMoneyAmount(project.fundedValue))
+  const revenue = moneySplit(parseMoneyAmount(project.itdRevenue))
+
+  return (
+    <details className="command-center-requisition-accordion" open>
+      <summary className="command-center-requisition-accordion__summary">
+        <span className="command-center-requisition-accordion__summary-main">
+          <Icon
+            name="chevron-right"
+            size="sm"
+            className="command-center-requisition-accordion__expand-icon"
+            aria-hidden
+          />
+          <span className="command-center-requisition-accordion__summary-text">
+            Revenue Information
+          </span>
+        </span>
+      </summary>
+      <div className="command-center-requisition-accordion__content">
+        <table className="command-center-stat-table command-center-revenue-info-table">
+          <thead>
+            <tr>
+              <th scope="col" />
+              <th scope="col">ITD</th>
+              <th scope="col">Pending</th>
+              <th scope="col">Total</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td className="command-center-stat-table__label">Contract Value</td>
+              <td className="command-center-stat-table__num">{formatMoneyAmount(contract.itd)}</td>
+              <td className="command-center-stat-table__num">{formatMoneyAmount(contract.pending)}</td>
+              <td className="command-center-stat-table__num">{formatMoneyAmount(contract.total)}</td>
+            </tr>
+            <tr>
+              <td className="command-center-stat-table__label">Funded Value</td>
+              <td className="command-center-stat-table__num">{formatMoneyAmount(funded.itd)}</td>
+              <td className="command-center-stat-table__num">{formatMoneyAmount(funded.pending)}</td>
+              <td className="command-center-stat-table__num">{formatMoneyAmount(funded.total)}</td>
+            </tr>
+            <tr>
+              <td className="command-center-stat-table__label">Revenue</td>
+              <td className="command-center-stat-table__num">{formatMoneyAmount(revenue.itd)}</td>
+              <td className="command-center-stat-table__num">{formatMoneyAmount(revenue.pending)}</td>
+              <td className="command-center-stat-table__num">{formatMoneyAmount(revenue.total)}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </details>
+  )
+}
+
+function ProjectDetailSummary({
+  project,
+  contract,
+  open,
+  onOpenChange,
+}: {
+  project: ContractProjectLine
+  contract: RequisitionRow
+  open: boolean
+  onOpenChange: (next: boolean) => void
+}) {
+  return (
+    <details
+      className="command-center-requisition-accordion"
+      open={open}
+      onToggle={(event) => onOpenChange(event.currentTarget.open)}
+    >
+      <summary className="command-center-requisition-accordion__summary">
+        <span className="command-center-requisition-accordion__summary-main">
+          <Icon
+            name="chevron-right"
+            size="sm"
+            className="command-center-requisition-accordion__expand-icon"
+            aria-hidden
+          />
+          <span className="command-center-requisition-accordion__summary-text">Summary</span>
+        </span>
+      </summary>
+      <div className="command-center-requisition-accordion__content">
+        <div className="command-center-requisition-summary__grid">
+          <ContractSummaryField label="Project Name" value={project.name} />
+          <ContractSummaryField label="Parent Contract" value={contract.contractNumber} />
+          <ContractSummaryField label="Manager" value={contract.managerName} />
+          <ContractSummaryField label="Project Type" value={contract.projectType} />
+          <ContractSummaryField label="Start Date" value={project.startDate} />
+          <ContractSummaryField label="End Date" value={project.endDate} />
+          <ContractSummaryField label="Next Important Date" value={project.nextImportantDate} />
+          <ContractSummaryField label="Contract Value" value={project.contractValue} />
+          <ContractSummaryField label="Funded Value" value={project.fundedValue} />
+          <ContractSummaryField label="ITD Revenue" value={project.itdRevenue} />
+          <ContractSummaryField label="ITD Cost" value={project.itdCost} />
+        </div>
+      </div>
+    </details>
+  )
+}
+
+function ProjectRiskStatusSection({ project }: { project: ContractProjectLine }) {
+  const popElapsedPct = 90
+  const fundsUsedPct = Math.min(100, Math.max(0, project.fundingPercent))
+
+  return (
+    <details className="command-center-requisition-accordion" open={false}>
+      <summary className="command-center-requisition-accordion__summary">
+        <span className="command-center-requisition-accordion__summary-main">
+          <Icon
+            name="chevron-right"
+            size="sm"
+            className="command-center-requisition-accordion__expand-icon"
+            aria-hidden
+          />
+          <span className="command-center-requisition-accordion__summary-text">Risk Status</span>
+        </span>
+      </summary>
+      <div className="command-center-requisition-accordion__content">
+        <div
+          className="command-center-period-health"
+          aria-label={`Period health for ${project.id}. PoP elapsed ${popElapsedPct} percent. Funds used ${fundsUsedPct} percent.`}
+        >
+          <ul className="command-center-period-health__metrics">
+            <li className="command-center-period-health__row">
+              <span className="command-center-period-health__metric-label">PoP Elapsed</span>
+              <div
+                className="command-center-period-health__track"
+                role="presentation"
+                aria-hidden
+              >
+                <div
+                  className="command-center-period-health__fill"
+                  style={{ width: `${popElapsedPct}%` }}
+                />
+              </div>
+              <span className="command-center-period-health__pct">{popElapsedPct}%</span>
+            </li>
+            <li className="command-center-period-health__row">
+              <span className="command-center-period-health__metric-label">Funds Used</span>
+              <div
+                className="command-center-period-health__track"
+                role="presentation"
+                aria-hidden
+              >
+                <div
+                  className="command-center-period-health__fill"
+                  style={{ width: `${fundsUsedPct}%` }}
+                />
+              </div>
+              <span className="command-center-period-health__pct">{fundsUsedPct}%</span>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </details>
+  )
+}
+
+function ProjectSidePanel({
+  project,
+  contract,
+  onClose,
+  summaryAccordionOpen,
+  onSummaryAccordionOpenChange,
+}: {
+  project: ContractProjectLine
+  contract: RequisitionRow
+  onClose: () => void
+  summaryAccordionOpen: boolean
+  onSummaryAccordionOpenChange: (open: boolean) => void
+}) {
+  const fundingUsedHigh = project.fundingPercent > 65
+
+  return (
+    <aside
+      className="command-center-requisition-panel"
+      aria-label={`Project details for ${project.id}`}
+      aria-labelledby="cc-project-panel-title"
+    >
+      <header className="command-center-requisition-panel__header">
+        <h2 className="command-center-requisition-panel__title" id="cc-project-panel-title">
+          Project Details
+        </h2>
+        <button
+          type="button"
+          className="command-center-requisition-panel__close"
+          aria-label="Close panel"
+          onClick={onClose}
+        >
+          <Icon name="x-mark" size="sm" />
+        </button>
+      </header>
+      <div className="command-center-requisition-panel__intro">
+        <div className="command-center-requisition-panel__pr-row">
+          <span className="command-center-requisition-panel__pr-id">{project.id}</span>
+        </div>
+        <p className="command-center-requisition-panel__project-name">{project.name}</p>
+      </div>
+      <div
+        className={clsx(
+          'command-center-requisition-panel__funding-strip',
+          fundingUsedHigh
+            ? 'command-center-requisition-panel__funding-strip--warn'
+            : 'command-center-requisition-panel__funding-strip--neutral',
+        )}
+      >
+        <div
+          className="command-center-requisition-panel__stat-callout"
+          aria-label={`Funding used ${project.fundingPercent} percent`}
+        >
+          <p className="command-center-requisition-panel__stat-callout-pct">{project.fundingPercent}%</p>
+          <p className="command-center-requisition-panel__stat-callout-label">Funding used</p>
+        </div>
+      </div>
+      <div className="command-center-requisition-panel__body">
+        <ProjectRevenueInformation project={project} />
+        <ProjectDetailSummary
+          project={project}
+          contract={contract}
+          open={summaryAccordionOpen}
+          onOpenChange={onSummaryAccordionOpenChange}
+        />
+        <ProjectRiskStatusSection project={project} />
+      </div>
+    </aside>
   )
 }
 
@@ -1509,7 +1762,9 @@ function HomeShell() {
   const [poDetailOrderIds, setPoDetailOrderIds] = useState<string[]>([])
   const [refreshTick, setRefreshTick] = useState(0)
   const [selectedRequisitionId, setSelectedRequisitionId] = useState<string | null>(null)
+  const [selectedProject, setSelectedProject] = useState<SelectedProjectRef | null>(null)
   const [reqPanelSummaryOpen, setReqPanelSummaryOpen] = useState(true)
+  const [projectPanelSummaryOpen, setProjectPanelSummaryOpen] = useState(true)
   const [expirationTierFilter, setExpirationTierFilter] = useState<ExpirationTierKey | null>(null)
   const [vizDesignOption, setVizDesignOption] = useState<VizDesignOption>('option5')
   const [dailyChartIteration, setDailyChartIteration] = useState<DailyChartIteration>('iteration1')
@@ -1565,9 +1820,38 @@ function HomeShell() {
     [sortedFilteredRequisitionRows, selectedRequisitionId],
   )
 
+  const selectedProjectContext = useMemo(() => {
+    if (selectedProject == null) return null
+    const contract =
+      sortedFilteredRequisitionRows.find((r) => r.id === selectedProject.contractId) ?? null
+    if (contract == null) return null
+    const project = contract.projects.find((p) => p.id === selectedProject.projectId)
+    if (project == null) return null
+    return { contract, project }
+  }, [sortedFilteredRequisitionRows, selectedProject])
+
+  const selectContractRow = useCallback((id: string) => {
+    setSelectedProject(null)
+    setSelectedRequisitionId(id)
+  }, [])
+
+  const selectProjectRow = useCallback((ref: SelectedProjectRef) => {
+    setSelectedRequisitionId(null)
+    setSelectedProject(ref)
+  }, [])
+
+  const closeDetailPanel = useCallback(() => {
+    setSelectedRequisitionId(null)
+    setSelectedProject(null)
+  }, [])
+
   useEffect(() => {
     setReqPanelSummaryOpen(true)
   }, [selectedRequisitionId])
+
+  useEffect(() => {
+    setProjectPanelSummaryOpen(true)
+  }, [selectedProject])
 
   useEffect(() => {
     if (selectedRequisitionId == null) return
@@ -1575,6 +1859,14 @@ function HomeShell() {
       setSelectedRequisitionId(null)
     }
   }, [filteredRequisitionRows, selectedRequisitionId])
+
+  useEffect(() => {
+    if (selectedProject == null) return
+    const contract = filteredRequisitionRows.find((r) => r.id === selectedProject.contractId)
+    if (contract == null || !contract.projects.some((p) => p.id === selectedProject.projectId)) {
+      setSelectedProject(null)
+    }
+  }, [filteredRequisitionRows, selectedProject])
 
   useEffect(() => {
     if (expirationTierFilter === null) return
@@ -1625,17 +1917,18 @@ function HomeShell() {
   useEffect(() => {
     if (activeTabId !== 'requisitions') {
       setSelectedRequisitionId(null)
+      setSelectedProject(null)
     }
   }, [activeTabId])
 
   useEffect(() => {
-    if (selectedRequisitionId == null) return
+    if (selectedRequisitionId == null && selectedProject == null) return
     const onKey = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') setSelectedRequisitionId(null)
+      if (e.key === 'Escape') closeDetailPanel()
     }
     document.addEventListener('keydown', onKey)
     return () => document.removeEventListener('keydown', onKey)
-  }, [selectedRequisitionId])
+  }, [selectedRequisitionId, selectedProject, closeDetailPanel])
 
   const commandCenterTabs = useMemo(() => {
     const base = REQ_MAIN_TAB_IDS.map((id) => ({
@@ -1785,7 +2078,9 @@ function HomeShell() {
                           <RequisitionTableBody
                             rows={sortedFilteredRequisitionRows}
                             selectedId={selectedRequisitionId}
-                            onSelectRow={setSelectedRequisitionId}
+                            selectedProject={selectedProject}
+                            onSelectRow={selectContractRow}
+                            onSelectProject={selectProjectRow}
                             expandedContractIds={expandedContractIds}
                             onToggleContractExpanded={toggleContractExpanded}
                           />
@@ -1796,10 +2091,19 @@ function HomeShell() {
                   {selectedRequisition != null && (
                     <RequisitionSidePanel
                       row={selectedRequisition}
-                      onClose={() => setSelectedRequisitionId(null)}
+                      onClose={closeDetailPanel}
                       onOpenRequisitionReportTab={openPrRequisitionDetailTab}
                       summaryAccordionOpen={reqPanelSummaryOpen}
                       onSummaryAccordionOpenChange={setReqPanelSummaryOpen}
+                    />
+                  )}
+                  {selectedProjectContext != null && (
+                    <ProjectSidePanel
+                      project={selectedProjectContext.project}
+                      contract={selectedProjectContext.contract}
+                      onClose={closeDetailPanel}
+                      summaryAccordionOpen={projectPanelSummaryOpen}
+                      onSummaryAccordionOpenChange={setProjectPanelSummaryOpen}
                     />
                   )}
                 </div>

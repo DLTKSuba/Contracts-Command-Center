@@ -693,6 +693,15 @@
   color: var(--text-primary);
 }
 
+.command-center-requisition-panel__project-name {
+  margin: var(--space-1) 0 0;
+  font-family: var(--font-sans);
+  font-size: var(--text-sm);
+  font-weight: var(--font-normal);
+  color: var(--text-secondary, #6b7280);
+  line-height: var(--leading-snug);
+}
+
 .command-center-contracts-table-toolbar {
   /* Small outline control: --theme-primary (brand main) on both label and stroke by default */
   flex-shrink: 0;

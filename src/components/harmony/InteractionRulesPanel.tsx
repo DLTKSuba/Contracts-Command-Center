@@ -22,7 +22,8 @@ const RULE_SECTIONS = [
   {
     title: 'Table rows',
     items: [
-      'Click a row to open the contract detail panel on the right.',
+      'Click a contract row or contract ID to open the contract detail panel on the right.',
+      'Click a project row or project ID (under an expanded contract) to open the project detail panel on the right.',
       'Use the chevron in Contract Info to expand project lines under a contract.',
       'Press Escape or close the panel to deselect the row.',
     ],
