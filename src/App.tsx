@@ -669,11 +669,15 @@ function requisitionReportHref(prId: string) {
 }
 
 function vendorEmailForRow(row: RequisitionRow): string {
-  const slug = row.vendor
+  return contactEmailFromDisplayName(row.vendor, 'vendor')
+}
+
+function contactEmailFromDisplayName(name: string, fallbackLocal = 'contact'): string {
+  const slug = name
     .toLowerCase()
     .replace(/[^a-z0-9]+/g, '.')
     .replace(/^\.+|\.+$/g, '')
-  return `contact@${slug || 'vendor'}.com`
+  return `${slug || fallbackLocal}@example.com`
 }
 
 function contractInfoCell(
@@ -1126,17 +1130,28 @@ function ProjectRevenueInformation({ project }: { project: ContractProjectLine }
   )
 }
 
+const PROJECT_INFORMATION_DEMO = {
+  projectManager: 'Wilderman, Amber',
+  periodOfPerformance: '09/25/2023 - 09/25/2024',
+  customerName: 'ABC Corp',
+  owningOrganization: 'Manufacturing (1.02.03)',
+  contractorRepresentative: 'Roland Chang',
+  aco: 'Ricky Spanish',
+  projectType: 'Government',
+  revenueFormula: 'Revenue Description (ETBAR)',
+} as const
+
 function ProjectDetailSummary({
-  project,
-  contract,
   open,
   onOpenChange,
+  onEmailContact,
 }: {
-  project: ContractProjectLine
-  contract: RequisitionRow
   open: boolean
   onOpenChange: (next: boolean) => void
+  onEmailContact: (name: string) => void
 }) {
+  const info = PROJECT_INFORMATION_DEMO
+
   return (
     <details
       className="command-center-requisition-accordion"
@@ -1156,75 +1171,29 @@ function ProjectDetailSummary({
       </summary>
       <div className="command-center-requisition-accordion__content">
         <div className="command-center-requisition-summary__grid">
-          <ContractSummaryField label="Project Name" value={project.name} />
-          <ContractSummaryField label="Parent Contract" value={contract.contractNumber} />
-          <ContractSummaryField label="Manager" value={contract.managerName} />
-          <ContractSummaryField label="Project Type" value={contract.projectType} />
-          <ContractSummaryField label="Start Date" value={project.startDate} />
-          <ContractSummaryField label="End Date" value={project.endDate} />
-          <ContractSummaryField label="Next Important Date" value={project.nextImportantDate} />
-          <ContractSummaryField label="Contract Value" value={project.contractValue} />
-          <ContractSummaryField label="Funded Value" value={project.fundedValue} />
-          <ContractSummaryField label="ITD Revenue" value={project.itdRevenue} />
-          <ContractSummaryField label="ITD Cost" value={project.itdCost} />
-        </div>
-      </div>
-    </details>
-  )
-}
-
-function ProjectRiskStatusSection({ project }: { project: ContractProjectLine }) {
-  const popElapsedPct = 90
-  const fundsUsedPct = Math.min(100, Math.max(0, project.fundingPercent))
-
-  return (
-    <details className="command-center-requisition-accordion" open={false}>
-      <summary className="command-center-requisition-accordion__summary">
-        <span className="command-center-requisition-accordion__summary-main">
-          <Icon
-            name="chevron-right"
-            size="sm"
-            className="command-center-requisition-accordion__expand-icon"
-            aria-hidden
+          <ContractSummaryField
+            label="Project Manager"
+            value={info.projectManager}
+            onValueClick={() => onEmailContact(info.projectManager)}
+            emailLink
           />
-          <span className="command-center-requisition-accordion__summary-text">Risk Status</span>
-        </span>
-      </summary>
-      <div className="command-center-requisition-accordion__content">
-        <div
-          className="command-center-period-health"
-          aria-label={`Period health for ${project.id}. PoP elapsed ${popElapsedPct} percent. Funds used ${fundsUsedPct} percent.`}
-        >
-          <ul className="command-center-period-health__metrics">
-            <li className="command-center-period-health__row">
-              <span className="command-center-period-health__metric-label">PoP Elapsed</span>
-              <div
-                className="command-center-period-health__track"
-                role="presentation"
-                aria-hidden
-              >
-                <div
-                  className="command-center-period-health__fill"
-                  style={{ width: `${popElapsedPct}%` }}
-                />
-              </div>
-              <span className="command-center-period-health__pct">{popElapsedPct}%</span>
-            </li>
-            <li className="command-center-period-health__row">
-              <span className="command-center-period-health__metric-label">Funds Used</span>
-              <div
-                className="command-center-period-health__track"
-                role="presentation"
-                aria-hidden
-              >
-                <div
-                  className="command-center-period-health__fill"
-                  style={{ width: `${fundsUsedPct}%` }}
-                />
-              </div>
-              <span className="command-center-period-health__pct">{fundsUsedPct}%</span>
-            </li>
-          </ul>
+          <ContractSummaryField label="Period of Performance" value={info.periodOfPerformance} />
+          <ContractSummaryField label="Customer Name" value={info.customerName} />
+          <ContractSummaryField label="Owning Organization" value={info.owningOrganization} />
+          <ContractSummaryField
+            label="Contractor Representative"
+            value={info.contractorRepresentative}
+            onValueClick={() => onEmailContact(info.contractorRepresentative)}
+            emailLink
+          />
+          <ContractSummaryField
+            label="ACO (Administrative Contracting Officer)"
+            value={info.aco}
+            onValueClick={() => onEmailContact(info.aco)}
+            emailLink
+          />
+          <ContractSummaryField label="Project Type" value={info.projectType} />
+          <ContractSummaryField label="Revenue Formula" value={info.revenueFormula} />
         </div>
       </div>
     </details>
@@ -1245,8 +1214,10 @@ function ProjectSidePanel({
   onSummaryAccordionOpenChange: (open: boolean) => void
 }) {
   const fundingUsedHigh = project.fundingPercent > 65
+  const [emailRecipient, setEmailRecipient] = useState<string | null>(null)
 
   return (
+    <>
     <aside
       className="command-center-requisition-panel"
       aria-label={`Project details for ${project.id}`}
@@ -1290,14 +1261,19 @@ function ProjectSidePanel({
       <div className="command-center-requisition-panel__body">
         <ProjectRevenueInformation project={project} />
         <ProjectDetailSummary
-          project={project}
-          contract={contract}
           open={summaryAccordionOpen}
           onOpenChange={onSummaryAccordionOpenChange}
+          onEmailContact={setEmailRecipient}
         />
-        <ProjectRiskStatusSection project={project} />
       </div>
     </aside>
+    <VendorEmailDialog
+      row={contract}
+      open={emailRecipient != null}
+      onClose={() => setEmailRecipient(null)}
+      recipientName={emailRecipient ?? undefined}
+    />
+    </>
   )
 }
 
@@ -1305,12 +1281,19 @@ function VendorEmailDialog({
   row,
   open,
   onClose,
+  recipientName,
 }: {
   row: RequisitionRow
   open: boolean
   onClose: () => void
+  /** When set, emails this person instead of the contract vendor. */
+  recipientName?: string
 }) {
-  const to = vendorEmailForRow(row)
+  const displayName = recipientName ?? row.vendor
+  const to =
+    recipientName != null
+      ? contactEmailFromDisplayName(recipientName)
+      : vendorEmailForRow(row)
   const [subject, setSubject] = useState('')
   const [body, setBody] = useState('')
 
@@ -1318,12 +1301,12 @@ function VendorEmailDialog({
     if (!open) return
     setSubject('')
     setBody('')
-  }, [open, row.id])
+  }, [open, row.id, displayName])
 
   return (
     <Dialog
-      id={`vendor-email-${row.id}`}
-      title={`Email ${row.vendor}`}
+      id={`vendor-email-${row.id}-${displayName}`}
+      title={`Email ${displayName}`}
       open={open}
       onClose={onClose}
       resizable={false}
