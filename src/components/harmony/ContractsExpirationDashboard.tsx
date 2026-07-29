@@ -903,11 +903,38 @@ function getExpiryDailyBins(dayMin: number, dayMax: number, asOf: Date): ExpiryD
   return bins
 }
 
-/** Work-week bins (Mon–Fri) that overlap each expiration tier window. */
+/** Three decade bins within each expiration tier window. */
 function getExpiryTierBins(tier: ExpiryTierKey, asOf: Date): ExpiryDayBin[] {
-  const tierDayMin = tier === 'critical' ? 0 : tier === 'warning' ? 31 : 61
-  const tierDayMax = tierDayMin + 30
-  return getExpiryRangeBins(tierDayMin, tierDayMax, asOf)
+  const ranges =
+    tier === 'critical'
+      ? [
+          { min: 0, max: 10, label: '0–10' },
+          { min: 11, max: 20, label: '11–20' },
+          { min: 21, max: 30, label: '21–30' },
+        ]
+      : tier === 'warning'
+        ? [
+            { min: 31, max: 40, label: '31–40' },
+            { min: 41, max: 50, label: '41–50' },
+            { min: 51, max: 60, label: '51–60' },
+          ]
+        : [
+            { min: 61, max: 70, label: '61–70' },
+            { min: 71, max: 80, label: '71–80' },
+            { min: 81, max: 90, label: '81–90' },
+          ]
+
+  return ranges.map((range) => {
+    const weekStart = addCalendarDays(asOf, range.min)
+    const weekEnd = addCalendarDays(asOf, range.max)
+    return {
+      min: range.min,
+      max: range.max,
+      weekStart,
+      weekEnd,
+      label: range.label,
+    }
+  })
 }
 
 function getExpiryChartRange(selectedTier: ExpirationTierKey | null): {
@@ -1160,7 +1187,8 @@ function WorkWeekBarPlot({
         const tier = fixedTier ?? tierKeyForBin(bin)
         const barHeight = expiryBinBarHeightPercent(binCount, maxBinCount)
         const emptyBarHeight = expiryBinBarHeightPercent(0, maxBinCount)
-        const binAria = binLabelKind === 'day' ? `expiration date ${bin.label}` : `work week ${bin.label}`
+        const binAria =
+          binLabelKind === 'day' ? `days ${bin.label}` : `work week ${bin.label}`
         const useStackedSegments = binCount > 1
 
         return (
@@ -1273,21 +1301,26 @@ function MiniTierViz({
 }) {
   const asOf = useExpiryVizAsOf()
   const bins = useMemo(() => getExpiryTierBins(tier, asOf), [tier, asOf])
-  const grouped = useMemo(() => groupContractsByBin(contracts, bins, asOf), [contracts, bins, asOf])
+  const grouped = useMemo(() => groupContractsByDayBins(contracts, bins), [contracts, bins])
 
   const rangeLabel =
     bins.length > 0
       ? `${bins[0].label} through ${bins[bins.length - 1].label}`
-      : 'no work weeks in range'
+      : 'no day ranges in window'
 
   return (
     <div
-      className={clsx('ced-o3-mini-viz', `ced-o3-mini-viz--${tier}`, count === 0 && 'ced-o3-mini-viz--empty')}
+      className={clsx(
+        'ced-o3-mini-viz',
+        'ced-o3-mini-viz--decades',
+        `ced-o3-mini-viz--${tier}`,
+        count === 0 && 'ced-o3-mini-viz--empty',
+      )}
       role="group"
       aria-label={
         count === 0
-          ? `No contracts expiring across work weeks ${rangeLabel}`
-          : `${count} contracts, expiring across work weeks ${rangeLabel}`
+          ? `No contracts expiring across day ranges ${rangeLabel}`
+          : `${count} contracts, expiring across day ranges ${rangeLabel}`
       }
     >
       <WorkWeekBarPlot
@@ -1295,6 +1328,7 @@ function MiniTierViz({
         fixedTier={tier}
         axisMarkers={axisMarkers}
         emptyBinMode={emptyBinMode}
+        binLabelKind="day"
       />
     </div>
   )
@@ -1679,9 +1713,9 @@ function FundingRiskPanel({
 
   if (layout === 'option4') {
     return (
-      <section className="ced-o4-panel ced-o4-funding-panel" aria-label="Funding risk by percent used">
+      <section className="ced-o4-panel ced-o4-funding-panel" aria-label="Funding utilization by percent used">
         <div className="ced-o4-panel__head">
-          <h2 className="ced-o3-panel__title">Funding risk by % used</h2>
+          <h2 className="ced-o3-panel__title">Funding utilization by % used</h2>
         </div>
         <div className="ced-o4-panel__viz">
           <FundingRiskCard
@@ -1703,10 +1737,10 @@ function FundingRiskPanel({
         'ced-o3-funding-panel--embedded',
         anyBucketSelected && 'ced-o3-funding-panel--selected',
       )}
-      aria-label="Funding risk by percent used"
+      aria-label="Funding utilization by percent used"
     >
       <div className="ced-o3-funding-panel__head">
-        <h2 className="ced-o3-panel__title">Funding risk by % used</h2>
+        <h2 className="ced-o3-panel__title">Funding utilization by % used</h2>
       </div>
       <FundingRiskCard
         fundingUtilization={fundingUtilization}

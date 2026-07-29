@@ -200,10 +200,24 @@ type RequisitionLineRow = {
 /** Demo “today”: May 6, 2026 — aligns contract ends and expiry KPIs with `daysUntilContractExpiry`. (`Date` month is 0-based; `4` = May.) */
 const COMMAND_CENTER_AS_OF = new Date(2026, 4, 6)
 
+function formatDateMdY(d: Date): string {
+  const mm = String(d.getMonth() + 1).padStart(2, '0')
+  const dd = String(d.getDate()).padStart(2, '0')
+  const yyyy = String(d.getFullYear())
+  return `${mm}/${dd}/${yyyy}`
+}
+
+/** Table display: prefer mm/dd/yyyy for any parseable date string. */
+function formatTableDate(value: string): string {
+  const t = Date.parse(value)
+  if (!Number.isFinite(t)) return value
+  return formatDateMdY(new Date(t))
+}
+
 function formatContractEndFromDays(daysFromAsOf: number): string {
   const d = new Date(COMMAND_CENTER_AS_OF)
   d.setDate(d.getDate() + daysFromAsOf)
-  return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
+  return formatDateMdY(d)
 }
 
 function makeDemoRow(spec: {
@@ -232,8 +246,8 @@ function makeDemoRow(spec: {
     vendorId: spec.vendorId,
     vendor: spec.vendor,
     amount,
-    nextImportantDate: 'Apr 12, 2025',
-    startDate: 'Apr 2, 2025',
+    nextImportantDate: '04/12/2025',
+    startDate: '04/02/2025',
     fundedValue: amount,
     itdRevenue: '$4,800.00',
     itdCost: '$3,900.00',
@@ -244,7 +258,7 @@ function makeDemoRow(spec: {
     overdueUrgent: spec.fundingPercent >= 80,
     requestedBy: spec.managerName,
     organization: 'HQ — Procurement',
-    createdDate: 'Apr 2, 2025',
+    createdDate: '04/02/2025',
     needBy: contractEnd,
     bannerMessage: '',
     buyerAssignedLineCount: 2,
@@ -256,8 +270,8 @@ function makeDemoRow(spec: {
         id: `${spec.id}-P1`,
         name:
           spec.daysUntil % 2 === 0 ? 'HQ Facilities Refresh' : 'Field Services Expansion',
-        nextImportantDate: 'Apr 12, 2025',
-        startDate: 'Apr 2, 2025',
+        nextImportantDate: '04/12/2025',
+        startDate: '04/02/2025',
         endDate: contractEnd,
         contractValue: amount,
         fundedValue: amount,
@@ -724,6 +738,14 @@ function contractInfoCell(
   )
 }
 
+function stripCurrencyDisplay(value: string): string {
+  return value.replace(/\$/g, '')
+}
+
+function formatFundingPercentDisplay(pct: number): string {
+  return `${pct.toFixed(1)}%`
+}
+
 function commandCenterHeaderTh(
   label: string,
   align: 'left' | 'right' = 'left',
@@ -762,7 +784,7 @@ const REQUISITION_TABLE_HEADER = (
       {commandCenterHeaderTh('End Date')}
       {commandCenterHeaderTh('Contract Value', 'right')}
       {commandCenterHeaderTh('Funded Value', 'right')}
-      {commandCenterHeaderTh('ITD Revenue', 'right')}
+      {commandCenterHeaderTh('Total Revenue', 'right')}
       {commandCenterHeaderTh('ITD Cost', 'right')}
       {commandCenterHeaderTh('Funding Used', 'right')}
     </tr>
@@ -885,20 +907,20 @@ function RequisitionTableBody({
                   onSelectRow(row.id)
                 },
               })}
-              <td>{row.nextImportantDate}</td>
-              <td>{row.startDate}</td>
-              <td>{row.needBy}</td>
-              <td className="text-right">{row.amount}</td>
-              <td className="text-right">{row.fundedValue}</td>
-              <td className="text-right">{row.itdRevenue}</td>
-              <td className="text-right">{row.itdCost}</td>
+              <td>{formatTableDate(row.nextImportantDate)}</td>
+              <td>{formatTableDate(row.startDate)}</td>
+              <td>{formatTableDate(row.needBy)}</td>
+              <td className="text-right">{stripCurrencyDisplay(row.amount)}</td>
+              <td className="text-right">{stripCurrencyDisplay(row.fundedValue)}</td>
+              <td className="text-right">{stripCurrencyDisplay(row.itdRevenue)}</td>
+              <td className="text-right">{stripCurrencyDisplay(row.itdCost)}</td>
               <td
                 className={clsx(
                   'text-right',
                   row.fundingPercent >= 65 && 'command-center-funding-used--high',
                 )}
               >
-                {row.fundingPercent}%
+                {formatFundingPercentDisplay(row.fundingPercent)}
               </td>
             </tr>
             {expanded &&
@@ -948,20 +970,20 @@ function RequisitionTableBody({
                       </div>
                     </div>
                   </td>
-                  <td>{proj.nextImportantDate}</td>
-                  <td>{proj.startDate}</td>
-                  <td>{proj.endDate}</td>
-                  <td className="text-right">{proj.contractValue}</td>
-                  <td className="text-right">{proj.fundedValue}</td>
-                  <td className="text-right">{proj.itdRevenue}</td>
-                  <td className="text-right">{proj.itdCost}</td>
+                  <td>{formatTableDate(proj.nextImportantDate)}</td>
+                  <td>{formatTableDate(proj.startDate)}</td>
+                  <td>{formatTableDate(proj.endDate)}</td>
+                  <td className="text-right">{stripCurrencyDisplay(proj.contractValue)}</td>
+                  <td className="text-right">{stripCurrencyDisplay(proj.fundedValue)}</td>
+                  <td className="text-right">{stripCurrencyDisplay(proj.itdRevenue)}</td>
+                  <td className="text-right">{stripCurrencyDisplay(proj.itdCost)}</td>
                   <td
                     className={clsx(
                       'text-right',
                       proj.fundingPercent >= 65 && 'command-center-funding-used--high',
                     )}
                   >
-                    {proj.fundingPercent}%
+                    {formatFundingPercentDisplay(proj.fundingPercent)}
                   </td>
                 </tr>
                 )
@@ -970,6 +992,48 @@ function RequisitionTableBody({
         )
       })}
     </tbody>
+  )
+}
+
+const DEMO_POP_ELAPSED_PCT = 90
+
+function PeriodHealthMetrics({
+  contractNumber,
+  popElapsedPct,
+  fundsUsedPct,
+}: {
+  contractNumber: string
+  popElapsedPct: number
+  fundsUsedPct: number
+}) {
+  return (
+    <div
+      className="command-center-period-health"
+      aria-label={`Period health for ${contractNumber}. PoP elapsed ${popElapsedPct} percent. Funds used ${fundsUsedPct} percent.`}
+    >
+      <ul className="command-center-period-health__metrics">
+        <li className="command-center-period-health__row">
+          <span className="command-center-period-health__metric-label">PoP Elapsed</span>
+          <div className="command-center-period-health__track" role="presentation" aria-hidden>
+            <div
+              className="command-center-period-health__fill"
+              style={{ width: `${popElapsedPct}%` }}
+            />
+          </div>
+          <span className="command-center-period-health__pct">{popElapsedPct}%</span>
+        </li>
+        <li className="command-center-period-health__row">
+          <span className="command-center-period-health__metric-label">Funds Used</span>
+          <div className="command-center-period-health__track" role="presentation" aria-hidden>
+            <div
+              className="command-center-period-health__fill"
+              style={{ width: `${Math.min(100, fundsUsedPct)}%` }}
+            />
+          </div>
+          <span className="command-center-period-health__pct">{fundsUsedPct}%</span>
+        </li>
+      </ul>
+    </div>
   )
 }
 
@@ -1017,13 +1081,13 @@ function RequisitionSidePanel({
             <Link
               href={reportHref}
               size="small"
-              title="Open Contract Details Report in a Command Center tab"
+              title="Open Contract Brief in a Command Center tab"
               onClick={(e) => {
                 e.preventDefault()
                 onOpenRequisitionReportTab(row.id)
               }}
             >
-              Contract Details Report
+              Contract Brief
             </Link>
             <Link
               href="#"
@@ -1062,7 +1126,6 @@ function RequisitionSidePanel({
           onOpenChange={onSummaryAccordionOpenChange}
           onVendorClick={() => setVendorEmailOpen(true)}
         />
-        <RequisitionRiskStatusSection row={row} />
       </div>
     </aside>
     <VendorEmailDialog
@@ -1401,6 +1464,8 @@ function RequisitionRevenueInformation({ row }: { row: RequisitionRow }) {
   const contract = moneySplit(parseMoneyAmount(row.amount))
   const funded = moneySplit(parseMoneyAmount(row.fundedValue))
   const revenue = moneySplit(parseMoneyAmount(row.itdRevenue))
+  const popElapsedPct = DEMO_POP_ELAPSED_PCT
+  const fundsUsedPct = row.fundingPercent
 
   return (
     <details className="command-center-requisition-accordion" open>
@@ -1448,6 +1513,13 @@ function RequisitionRevenueInformation({ row }: { row: RequisitionRow }) {
             </tr>
           </tbody>
         </table>
+        <div className="command-center-revenue-health-card">
+          <PeriodHealthMetrics
+            contractNumber={row.contractNumber}
+            popElapsedPct={popElapsedPct}
+            fundsUsedPct={fundsUsedPct}
+          />
+        </div>
       </div>
     </details>
   )
@@ -1483,7 +1555,7 @@ function RequisitionDetailSummary({
       </summary>
       <div className="command-center-requisition-accordion__content">
         <div className="command-center-requisition-summary__grid">
-          <ContractSummaryField label="Contract Name" value="Armstrong Labs" />
+          <ContractSummaryField label="Customer name" value={row.vendor} />
           <ContractSummaryField
             label="Customer Contact"
             value="James Smith"
@@ -1493,72 +1565,12 @@ function RequisitionDetailSummary({
           <ContractSummaryField label="Manager" value={row.managerName} />
           <ContractSummaryField label="Contract Type" value={row.contractType} />
           <ContractSummaryField label="Project Type" value={row.projectType} />
-          <ContractSummaryField label="Prime Contract No." value={row.primeContractNo} />
-          <ContractSummaryField label="Task Order No." value={row.taskOrderNo} />
+          <ContractSummaryField label="Contract Status" value="Awarded" />
+          <ContractSummaryField label="Prime Contract No" value={row.primeContractNo} />
+          <ContractSummaryField label="Task Order no" value={row.taskOrderNo} />
+          <ContractSummaryField label="Business Unit" value="Consulting" />
+          <ContractSummaryField label="Organization" value="Construction Management" />
           <ContractSummaryField label="Contract Vehicle" value={row.contractVehicle} />
-          <ContractSummaryField label="Contract End" value={row.contractEnd} />
-          <ContractSummaryField label="Contract Value" value={row.amount} />
-          <ContractSummaryField label="Funded Value" value={row.fundedValue} />
-          <ContractSummaryField label="ITD Revenue" value={row.itdRevenue} />
-          <ContractSummaryField label="ITD Cost" value={row.itdCost} />
-        </div>
-      </div>
-    </details>
-  )
-}
-
-function RequisitionRiskStatusSection({ row }: { row: RequisitionRow }) {
-  const popElapsedPct = 90
-  const fundsUsedPct = 70
-
-  return (
-    <details className="command-center-requisition-accordion" open={false}>
-      <summary className="command-center-requisition-accordion__summary">
-        <span className="command-center-requisition-accordion__summary-main">
-          <Icon
-            name="chevron-right"
-            size="sm"
-            className="command-center-requisition-accordion__expand-icon"
-            aria-hidden
-          />
-          <span className="command-center-requisition-accordion__summary-text">Risk Status</span>
-        </span>
-      </summary>
-      <div className="command-center-requisition-accordion__content">
-        <div
-          className="command-center-period-health"
-          aria-label={`Period health for ${row.contractNumber}. PoP elapsed ${popElapsedPct} percent. Funds used ${fundsUsedPct} percent.`}
-        >
-          <ul className="command-center-period-health__metrics">
-            <li className="command-center-period-health__row">
-              <span className="command-center-period-health__metric-label">PoP Elapsed</span>
-              <div
-                className="command-center-period-health__track"
-                role="presentation"
-                aria-hidden
-              >
-                <div
-                  className="command-center-period-health__fill"
-                  style={{ width: `${popElapsedPct}%` }}
-                />
-              </div>
-              <span className="command-center-period-health__pct">{popElapsedPct}%</span>
-            </li>
-            <li className="command-center-period-health__row">
-              <span className="command-center-period-health__metric-label">Funds Used</span>
-              <div
-                className="command-center-period-health__track"
-                role="presentation"
-                aria-hidden
-              >
-                <div
-                  className="command-center-period-health__fill"
-                  style={{ width: `${fundsUsedPct}%` }}
-                />
-              </div>
-              <span className="command-center-period-health__pct">{fundsUsedPct}%</span>
-            </li>
-          </ul>
         </div>
       </div>
     </details>

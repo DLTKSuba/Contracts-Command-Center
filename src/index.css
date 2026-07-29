@@ -927,7 +927,7 @@
 }
 
 .command-center-revenue-info-table {
-  width: max-content;
+  width: 100%;
   max-width: 100%;
   margin: 0;
   table-layout: auto;
@@ -1023,6 +1023,22 @@ html.theme-cp:not(.dark) .command-center-pr-summary-panel__value {
 .command-center-period-health {
   padding: var(--space-3) var(--space-4) var(--space-4);
   box-sizing: border-box;
+}
+
+.command-center-revenue-health-card {
+  margin-top: var(--space-4);
+  margin-left: 0;
+  margin-right: 0;
+  width: 100%;
+  box-sizing: border-box;
+  border: 1px solid var(--border-light, #e5e7eb);
+  border-radius: var(--radius-08, 8px);
+  background: #ffffff;
+  overflow: hidden;
+}
+
+.command-center-revenue-health-card .command-center-period-health {
+  padding: var(--space-3);
 }
 
 .command-center-period-health__metrics {

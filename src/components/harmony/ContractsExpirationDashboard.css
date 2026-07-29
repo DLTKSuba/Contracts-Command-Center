@@ -724,6 +724,15 @@
   overflow: visible;
 }
 
+.ced-o3-mini-viz--decades .ced-o3-mini-viz__plot {
+  gap: var(--space-2, 0.5rem);
+}
+
+.ced-o3-mini-viz--decades .ced-o3-mini-viz__axis-label {
+  font-size: 0.625rem;
+  white-space: nowrap;
+}
+
 .ced-o3-mini-viz__bin-column {
   flex: 1 1 0;
   display: flex;
