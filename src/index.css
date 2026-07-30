@@ -586,11 +586,11 @@
   word-wrap: break-word;
 }
 
-/* Wider first column so contract IDs (e.g. CTR-2025-002) fit on one line */
+/* Wider first column so contract IDs (e.g. 0624SE-CNTR0001) fit on one line */
 .command-center-contracts-table-wrap .command-center-data-table thead th:first-child,
 .command-center-contracts-table-wrap .command-center-data-table tbody td:first-child {
   width: 18%;
-  min-width: 13rem;
+  min-width: 15rem;
 }
 
 /* Requisition detail column (non-modal companion pane) — wider for single-line summary rows */
@@ -1056,6 +1056,24 @@ html.theme-cp:not(.dark) .command-center-pr-summary-panel__value {
   align-items: center;
   gap: var(--space-3);
   min-width: 0;
+}
+
+.command-center-period-health__row--at-risk {
+  grid-template-columns: minmax(6.5rem, auto) minmax(0, 1fr);
+}
+
+.command-center-period-health__at-risk-value {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  font-size: var(--text-sm, 0.875rem);
+  font-weight: var(--font-semibold, 600);
+  color: var(--color-error);
+}
+
+.command-center-period-health__at-risk-icon {
+  color: var(--color-error);
+  flex-shrink: 0;
 }
 
 .command-center-period-health__metric-label {

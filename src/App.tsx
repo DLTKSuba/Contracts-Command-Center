@@ -127,7 +127,7 @@ type ContractProjectLine = {
 
 type RequisitionRow = {
   id: string
-  /** Contract reference in Contract Info column (e.g. CTR-2025-002). */
+  /** Contract reference in Contract Info column (e.g. 0624SE-CNTR0001). */
   contractNumber: string
   /** Contract Details summary — mirrors Command Center contract metadata. */
   contractType: string
@@ -222,7 +222,8 @@ function formatContractEndFromDays(daysFromAsOf: number): string {
 
 function makeDemoRow(spec: {
   id: string
-  contractNumber: string
+  /** 1-based sequence used to build Costpoint-style contract and project IDs. */
+  contractSeq: number
   vendor: string
   vendorId: string
   daysUntil: number
@@ -233,11 +234,13 @@ function makeDemoRow(spec: {
 }): RequisitionRow {
   const contractEnd = formatContractEndFromDays(spec.daysUntil)
   const amount = spec.amount ?? '$12,000.00'
+  const contractNumber = `0624SE-CNTR${String(spec.contractSeq).padStart(4, '0')}`
+  const projectRoot = String(spec.contractSeq).padStart(4, '0')
   return {
     id: spec.id,
-    contractNumber: spec.contractNumber,
+    contractNumber,
     contractType: 'Firm Fixed Price',
-    taskOrderNo: `TO-${spec.id.slice(-3)}`,
+    taskOrderNo: `TO-${String(spec.contractSeq).padStart(3, '0')}`,
     projectType: 'Operations',
     contractVehicle: 'IDIQ',
     primeContractNo: 'PRIME-2024-0112',
@@ -267,7 +270,7 @@ function makeDemoRow(spec: {
     requisitionerEmail: `${spec.managerName.toLowerCase().replace(/\s+/g, '.')}@contoso.com`,
     projects: [
       {
-        id: `${spec.id}-P1`,
+        id: `${projectRoot}.001.01`,
         name:
           spec.daysUntil % 2 === 0 ? 'HQ Facilities Refresh' : 'Field Services Expansion',
         nextImportantDate: '04/12/2025',
@@ -278,6 +281,19 @@ function makeDemoRow(spec: {
         itdRevenue: '$4,800.00',
         itdCost: '$3,900.00',
         fundingPercent: spec.fundingPercent,
+      },
+      {
+        id: `${projectRoot}.001.02`,
+        name:
+          spec.daysUntil % 2 === 0 ? 'Campus Systems Upgrade' : 'Regional Ops Support',
+        nextImportantDate: '04/12/2025',
+        startDate: '04/02/2025',
+        endDate: contractEnd,
+        contractValue: amount,
+        fundedValue: amount,
+        itdRevenue: '$2,400.00',
+        itdCost: '$1,950.00',
+        fundingPercent: Math.max(20, spec.fundingPercent - 8),
       },
     ],
     daysUntilContractExpiry: spec.daysUntil,
@@ -294,7 +310,7 @@ const REQUISITION_ROWS: RequisitionRow[] = [
   // 0–30 days (6): May 9 ×2, May 18 ×3, plus May 14
   makeDemoRow({
     id: 'PR-2101',
-    contractNumber: 'CTR-2026-101',
+    contractSeq: 1,
     vendor: 'Summit Field Services',
     vendorId: 'VND-901101',
     daysUntil: 3,
@@ -305,7 +321,7 @@ const REQUISITION_ROWS: RequisitionRow[] = [
   }),
   makeDemoRow({
     id: 'PR-2102',
-    contractNumber: 'CTR-2026-102',
+    contractSeq: 2,
     vendor: 'Harbor Labs West',
     vendorId: 'VND-901102',
     daysUntil: 3,
@@ -316,7 +332,7 @@ const REQUISITION_ROWS: RequisitionRow[] = [
   }),
   makeDemoRow({
     id: 'PR-2047',
-    contractNumber: 'CTR-2025-009',
+    contractSeq: 3,
     vendor: 'Armstrong Labs',
     vendorId: 'VND-900807',
     daysUntil: 8,
@@ -327,7 +343,7 @@ const REQUISITION_ROWS: RequisitionRow[] = [
   }),
   makeDemoRow({
     id: 'PR-2045',
-    contractNumber: 'CTR-2025-003',
+    contractSeq: 4,
     vendor: 'Litware Medical Devices',
     vendorId: 'VND-900205',
     daysUntil: 12,
@@ -338,7 +354,7 @@ const REQUISITION_ROWS: RequisitionRow[] = [
   }),
   makeDemoRow({
     id: 'PR-2048',
-    contractNumber: 'CTR-2025-005',
+    contractSeq: 5,
     vendor: 'Wide World Importers',
     vendorId: 'VND-900448',
     daysUntil: 12,
@@ -349,7 +365,7 @@ const REQUISITION_ROWS: RequisitionRow[] = [
   }),
   makeDemoRow({
     id: 'PR-2103',
-    contractNumber: 'CTR-2026-103',
+    contractSeq: 6,
     vendor: 'Cascade Components',
     vendorId: 'VND-901103',
     daysUntil: 12,
@@ -362,7 +378,7 @@ const REQUISITION_ROWS: RequisitionRow[] = [
   // 31–60 days (4)
   makeDemoRow({
     id: 'PR-2201',
-    contractNumber: 'CTR-2026-201',
+    contractSeq: 7,
     vendor: 'Beacon Industrial',
     vendorId: 'VND-902201',
     daysUntil: 35,
@@ -373,7 +389,7 @@ const REQUISITION_ROWS: RequisitionRow[] = [
   }),
   makeDemoRow({
     id: 'PR-2202',
-    contractNumber: 'CTR-2026-202',
+    contractSeq: 8,
     vendor: 'Riverbank Supply Co.',
     vendorId: 'VND-902202',
     daysUntil: 42,
@@ -384,7 +400,7 @@ const REQUISITION_ROWS: RequisitionRow[] = [
   }),
   makeDemoRow({
     id: 'PR-2041',
-    contractNumber: 'CTR-2025-002',
+    contractSeq: 9,
     vendor: 'Acme Office Supplies',
     vendorId: 'VND-900101',
     daysUntil: 48,
@@ -395,7 +411,7 @@ const REQUISITION_ROWS: RequisitionRow[] = [
   }),
   makeDemoRow({
     id: 'PR-2203',
-    contractNumber: 'CTR-2026-203',
+    contractSeq: 10,
     vendor: 'Pinecrest Logistics',
     vendorId: 'VND-902203',
     daysUntil: 55,
@@ -408,7 +424,7 @@ const REQUISITION_ROWS: RequisitionRow[] = [
   // 61–90 days (8)
   makeDemoRow({
     id: 'PR-2301',
-    contractNumber: 'CTR-2026-301',
+    contractSeq: 11,
     vendor: 'Northshore MRO',
     vendorId: 'VND-903301',
     daysUntil: 62,
@@ -419,7 +435,7 @@ const REQUISITION_ROWS: RequisitionRow[] = [
   }),
   makeDemoRow({
     id: 'PR-2043',
-    contractNumber: 'CTR-2025-006',
+    contractSeq: 12,
     vendor: 'Contoso Training Group',
     vendorId: 'VND-900503',
     daysUntil: 68,
@@ -430,7 +446,7 @@ const REQUISITION_ROWS: RequisitionRow[] = [
   }),
   makeDemoRow({
     id: 'PR-2042',
-    contractNumber: 'CTR-2025-004',
+    contractSeq: 13,
     vendor: 'Northwind Logistics LLC',
     vendorId: 'VND-900302',
     daysUntil: 72,
@@ -441,7 +457,7 @@ const REQUISITION_ROWS: RequisitionRow[] = [
   }),
   makeDemoRow({
     id: 'PR-2046',
-    contractNumber: 'CTR-2025-007',
+    contractSeq: 14,
     vendor: 'Adventure Works IT',
     vendorId: 'VND-900606',
     daysUntil: 75,
@@ -452,7 +468,7 @@ const REQUISITION_ROWS: RequisitionRow[] = [
   }),
   makeDemoRow({
     id: 'PR-2302',
-    contractNumber: 'CTR-2026-302',
+    contractSeq: 15,
     vendor: 'Blue Ridge Fabrication',
     vendorId: 'VND-903302',
     daysUntil: 78,
@@ -463,7 +479,7 @@ const REQUISITION_ROWS: RequisitionRow[] = [
   }),
   makeDemoRow({
     id: 'PR-2303',
-    contractNumber: 'CTR-2026-303',
+    contractSeq: 16,
     vendor: 'Elm Street Electrical',
     vendorId: 'VND-903303',
     daysUntil: 82,
@@ -474,7 +490,7 @@ const REQUISITION_ROWS: RequisitionRow[] = [
   }),
   makeDemoRow({
     id: 'PR-2044',
-    contractNumber: 'CTR-2025-008',
+    contractSeq: 17,
     vendor: 'Fabrikam Facilities Inc.',
     vendorId: 'VND-900704',
     daysUntil: 85,
@@ -485,7 +501,7 @@ const REQUISITION_ROWS: RequisitionRow[] = [
   }),
   makeDemoRow({
     id: 'PR-2304',
-    contractNumber: 'CTR-2026-304',
+    contractSeq: 18,
     vendor: 'Oakline Security',
     vendorId: 'VND-903304',
     daysUntil: 88,
@@ -785,7 +801,7 @@ const REQUISITION_TABLE_HEADER = (
       {commandCenterHeaderTh('Contract Value', 'right')}
       {commandCenterHeaderTh('Funded Value', 'right')}
       {commandCenterHeaderTh('Total Revenue', 'right')}
-      {commandCenterHeaderTh('ITD Cost', 'right')}
+      {commandCenterHeaderTh('Total Cost', 'right')}
       {commandCenterHeaderTh('Funding Used', 'right')}
     </tr>
   </thead>
@@ -1009,9 +1025,16 @@ function PeriodHealthMetrics({
   return (
     <div
       className="command-center-period-health"
-      aria-label={`Period health for ${contractNumber}. PoP elapsed ${popElapsedPct} percent. Funds used ${fundsUsedPct} percent.`}
+      aria-label={`Period health for ${contractNumber}. Contract at risk: Yes. PoP elapsed ${popElapsedPct} percent. Funds used ${fundsUsedPct} percent.`}
     >
       <ul className="command-center-period-health__metrics">
+        <li className="command-center-period-health__row command-center-period-health__row--at-risk">
+          <span className="command-center-period-health__metric-label">Contract At Risk</span>
+          <span className="command-center-period-health__at-risk-value">
+            <Icon name="check" size="sm" className="command-center-period-health__at-risk-icon" />
+            Yes
+          </span>
+        </li>
         <li className="command-center-period-health__row">
           <span className="command-center-period-health__metric-label">PoP Elapsed</span>
           <div className="command-center-period-health__track" role="presentation" aria-hidden>
