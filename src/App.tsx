@@ -273,7 +273,7 @@ function makeDemoRow(spec: {
         id: `${projectRoot}.001.01`,
         name:
           spec.daysUntil % 2 === 0 ? 'HQ Facilities Refresh' : 'Field Services Expansion',
-        nextImportantDate: '04/12/2025',
+        nextImportantDate: '',
         startDate: '04/02/2025',
         endDate: contractEnd,
         contractValue: amount,
@@ -286,7 +286,7 @@ function makeDemoRow(spec: {
         id: `${projectRoot}.001.02`,
         name:
           spec.daysUntil % 2 === 0 ? 'Campus Systems Upgrade' : 'Regional Ops Support',
-        nextImportantDate: '04/12/2025',
+        nextImportantDate: '',
         startDate: '04/02/2025',
         endDate: contractEnd,
         contractValue: amount,
@@ -986,7 +986,9 @@ function RequisitionTableBody({
                       </div>
                     </div>
                   </td>
-                  <td aria-label="No next important date" />
+                  <td className="command-center-table-cell--no-next-date" aria-label="No next important date">
+                    {'\u00A0'}
+                  </td>
                   <td>{formatTableDate(proj.startDate)}</td>
                   <td>{formatTableDate(proj.endDate)}</td>
                   <td className="text-right">{stripCurrencyDisplay(proj.contractValue)}</td>

@@ -338,6 +338,11 @@
   cursor: pointer;
 }
 
+.command-center-data-table tbody tr.command-center-table-row--project .command-center-table-cell--no-next-date {
+  color: transparent;
+  user-select: none;
+}
+
 .command-center-data-table tbody tr.command-center-table-row--project:focus-visible {
   outline: 2px solid var(--theme-primary);
   outline-offset: -2px;
