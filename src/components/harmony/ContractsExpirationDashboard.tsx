@@ -758,7 +758,7 @@ function FundingUtilizationPanel({
             funded value).
           </p>
         </div>
-        <ul className="ced-funding-viz__legend" aria-label="Funding utilization breakdown">
+        <ul className="ced-funding-viz__legend" aria-label="% Contracts by Funding breakdown">
           <li className="ced-funding-viz__legend-item">
             <span className="ced-funding-viz__legend-swatch ced-funding-viz__legend-swatch--above" aria-hidden />
             <span className="ced-funding-viz__legend-text">
@@ -1713,9 +1713,9 @@ function FundingRiskPanel({
 
   if (layout === 'option4') {
     return (
-      <section className="ced-o4-panel ced-o4-funding-panel" aria-label="Funding utilization by percent used">
+      <section className="ced-o4-panel ced-o4-funding-panel" aria-label="% Contracts by Funding">
         <div className="ced-o4-panel__head">
-          <h2 className="ced-o3-panel__title">Funding utilization by % used</h2>
+          <h2 className="ced-o3-panel__title">% Contracts by Funding</h2>
         </div>
         <div className="ced-o4-panel__viz">
           <FundingRiskCard
@@ -1737,10 +1737,10 @@ function FundingRiskPanel({
         'ced-o3-funding-panel--embedded',
         anyBucketSelected && 'ced-o3-funding-panel--selected',
       )}
-      aria-label="Funding utilization by percent used"
+      aria-label="% Contracts by Funding"
     >
       <div className="ced-o3-funding-panel__head">
-        <h2 className="ced-o3-panel__title">Funding utilization by % used</h2>
+        <h2 className="ced-o3-panel__title">% Contracts by Funding</h2>
       </div>
       <FundingRiskCard
         fundingUtilization={fundingUtilization}
@@ -2554,7 +2554,7 @@ function ContractsExpirationDashboardBody({
         </VizPanelCard>
 
         <VizPanelCard
-          title="Funding Utilization"
+          title="% Contracts by Funding"
           hint="Contracts where ITD cost has reached 65% of funded value. Click to filter the roster."
         >
           <FundingUtilizationPanel

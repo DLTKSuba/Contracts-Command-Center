@@ -1164,6 +1164,11 @@ function ProjectRevenueInformation({ project }: { project: ContractProjectLine }
   const contract = moneySplit(parseMoneyAmount(project.contractValue))
   const funded = moneySplit(parseMoneyAmount(project.fundedValue))
   const revenue = moneySplit(parseMoneyAmount(project.itdRevenue))
+  const total = {
+    itd: Math.round((contract.itd + funded.itd + revenue.itd) * 100) / 100,
+    pending: Math.round((contract.pending + funded.pending + revenue.pending) * 100) / 100,
+    total: Math.round((contract.total + funded.total + revenue.total) * 100) / 100,
+  }
 
   return (
     <details className="command-center-requisition-accordion" open>
@@ -1208,6 +1213,12 @@ function ProjectRevenueInformation({ project }: { project: ContractProjectLine }
               <td className="command-center-stat-table__num">{formatMoneyAmount(revenue.itd)}</td>
               <td className="command-center-stat-table__num">{formatMoneyAmount(revenue.pending)}</td>
               <td className="command-center-stat-table__num">{formatMoneyAmount(revenue.total)}</td>
+            </tr>
+            <tr className="command-center-revenue-info-table__total-row">
+              <td className="command-center-stat-table__label">Total</td>
+              <td className="command-center-stat-table__num">{formatMoneyAmount(total.itd)}</td>
+              <td className="command-center-stat-table__num">{formatMoneyAmount(total.pending)}</td>
+              <td className="command-center-stat-table__num">{formatMoneyAmount(total.total)}</td>
             </tr>
           </tbody>
         </table>
@@ -1487,6 +1498,11 @@ function RequisitionRevenueInformation({ row }: { row: RequisitionRow }) {
   const contract = moneySplit(parseMoneyAmount(row.amount))
   const funded = moneySplit(parseMoneyAmount(row.fundedValue))
   const revenue = moneySplit(parseMoneyAmount(row.itdRevenue))
+  const total = {
+    itd: Math.round((contract.itd + funded.itd + revenue.itd) * 100) / 100,
+    pending: Math.round((contract.pending + funded.pending + revenue.pending) * 100) / 100,
+    total: Math.round((contract.total + funded.total + revenue.total) * 100) / 100,
+  }
   const popElapsedPct = DEMO_POP_ELAPSED_PCT
   const fundsUsedPct = row.fundingPercent
 
@@ -1533,6 +1549,12 @@ function RequisitionRevenueInformation({ row }: { row: RequisitionRow }) {
               <td className="command-center-stat-table__num">{formatMoneyAmount(revenue.itd)}</td>
               <td className="command-center-stat-table__num">{formatMoneyAmount(revenue.pending)}</td>
               <td className="command-center-stat-table__num">{formatMoneyAmount(revenue.total)}</td>
+            </tr>
+            <tr className="command-center-revenue-info-table__total-row">
+              <td className="command-center-stat-table__label">Total</td>
+              <td className="command-center-stat-table__num">{formatMoneyAmount(total.itd)}</td>
+              <td className="command-center-stat-table__num">{formatMoneyAmount(total.pending)}</td>
+              <td className="command-center-stat-table__num">{formatMoneyAmount(total.total)}</td>
             </tr>
           </tbody>
         </table>

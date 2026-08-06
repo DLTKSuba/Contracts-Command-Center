@@ -942,6 +942,13 @@
   padding-right: var(--space-6, 1.5rem);
 }
 
+.command-center-revenue-info-table__total-row .command-center-stat-table__label,
+.command-center-revenue-info-table__total-row .command-center-stat-table__num {
+  font-weight: var(--font-semibold, 600);
+  border-top: 1px solid var(--border-color);
+  padding-top: var(--space-2, 0.5rem);
+}
+
 .command-center-revenue-info-table th:not(:first-of-type),
 .command-center-revenue-info-table .command-center-stat-table__num {
   width: 1%;
