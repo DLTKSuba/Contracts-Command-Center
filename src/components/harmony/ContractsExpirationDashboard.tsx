@@ -2088,10 +2088,6 @@ function ExpirationTimelinePanel({
         <p className="ced-o5-timeline-panel__summary">
           {totalInWindow} contract{totalInWindow === 1 ? '' : 's'} expiring {windowStart} – {windowEnd}
         </p>
-        <p className="ced-o5-timeline-panel__hint">
-          Each bar groups contracts by a 10-day span; bar height is how many expire in it. Hover a bar for
-          contract names and dates.
-        </p>
       </div>
     </section>
   )

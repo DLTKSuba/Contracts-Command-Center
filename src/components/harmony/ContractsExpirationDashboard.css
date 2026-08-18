@@ -1726,7 +1726,6 @@
   gap: var(--space-1, 0.25rem);
   margin-top: auto;
   padding-top: var(--space-3, 0.75rem);
-  border-top: 1px solid var(--border-color);
   text-align: center;
 }
 
@@ -1736,14 +1735,6 @@
   font-weight: var(--font-semibold, 600);
   line-height: 1.3;
   color: var(--text-primary);
-}
-
-.ced-o5-timeline-panel__hint {
-  margin: 0;
-  max-width: 48ch;
-  font-size: var(--text-xs, 0.75rem);
-  line-height: 1.35;
-  color: var(--text-secondary);
 }
 
 .ced-o5-timeline-column .ced-o3-mini-viz {
