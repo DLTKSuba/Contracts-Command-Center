@@ -20,6 +20,10 @@ export default defineConfig({
   },
   server: {
     port: 5175,
+    // The project path ends with a space, which breaks native fsevents watching.
+    watch: {
+      usePolling: true,
+    },
   },
   resolve: {
     alias: {

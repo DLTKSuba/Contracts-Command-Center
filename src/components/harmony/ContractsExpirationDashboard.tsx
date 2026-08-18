@@ -1161,6 +1161,7 @@ function WorkWeekBarPlot({
   axisLabelClassName,
   binLabelKind = 'week',
   emptyBinMode = 'grey',
+  tooltipDateUnderName,
 }: {
   grouped: ReturnType<typeof groupContractsByBin>
   fixedTier?: ExpiryTierKey | null
@@ -1171,7 +1172,11 @@ function WorkWeekBarPlot({
   binLabelKind?: 'week' | 'day'
   /** How to render bins with zero contracts. */
   emptyBinMode?: 'grey' | 'tick' | 'hide'
+  /** Overrides where the tooltip puts each contract's expiration date. */
+  tooltipDateUnderName?: boolean
 }) {
+  const dateUnderName = tooltipDateUnderName ?? binLabelKind === 'week'
+
   const visibleGrouped = useMemo(
     () => (emptyBinMode === 'hide' ? grouped.filter((group) => group.count > 0) : grouped),
     [grouped, emptyBinMode],
@@ -1200,10 +1205,7 @@ function WorkWeekBarPlot({
               {binCount > 0 ? (
                 <GraphOverlayTooltip
                   content={
-                    <ExpiryBarTooltipContent
-                      contracts={binContracts}
-                      dateUnderName={binLabelKind === 'week'}
-                    />
+                    <ExpiryBarTooltipContent contracts={binContracts} dateUnderName={dateUnderName} />
                   }
                 >
                   <span
@@ -1329,6 +1331,7 @@ function MiniTierViz({
         axisMarkers={axisMarkers}
         emptyBinMode={emptyBinMode}
         binLabelKind="day"
+        tooltipDateUnderName
       />
     </div>
   )
@@ -2025,6 +2028,11 @@ function ExpirationTimelinePanel({
   selectedTier: ExpirationTierKey | null
   onSelectTier: (tier: ExpiryTierKey) => void
 }) {
+  const asOf = useExpiryVizAsOf()
+  const totalInWindow = tierCounts.critical + tierCounts.warning + tierCounts.upcoming
+  const windowStart = formatAxisDate(asOf)
+  const windowEnd = formatAxisDate(addCalendarDays(asOf, 90))
+
   return (
     <section className="ced-o3-panel ced-o5-timeline-panel" aria-label="Contracts Expiration Window">
       <div className="ced-o5-timeline-panel__head">
@@ -2070,10 +2078,20 @@ function ExpirationTimelinePanel({
                   axisMarkers
                   emptyBinMode="tick"
                 />
+                <p className="ced-o5-timeline-column__axis-caption">Days until expiration</p>
               </div>
             </button>
           )
         })}
+      </div>
+      <div className="ced-o5-timeline-panel__footer">
+        <p className="ced-o5-timeline-panel__summary">
+          {totalInWindow} contract{totalInWindow === 1 ? '' : 's'} expiring {windowStart} – {windowEnd}
+        </p>
+        <p className="ced-o5-timeline-panel__hint">
+          Each bar groups contracts by a 10-day span; bar height is how many expire in it. Hover a bar for
+          contract names and dates.
+        </p>
       </div>
     </section>
   )
