@@ -24,6 +24,7 @@ const RULE_SECTIONS = [
     items: [
       'Click a contract row or contract ID to open the contract detail panel on the right.',
       'Click a project row or project ID (under an expanded contract) to open the project detail panel on the right.',
+      'In the project panel, click the project report link (for example, Field Services Expansion Report) to open it in a Command Center tab.',
       'Use the chevron in Contract Info to expand project lines under a contract.',
       'Press Escape or close the panel to deselect the row.',
     ],

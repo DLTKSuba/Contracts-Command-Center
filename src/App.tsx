@@ -698,6 +698,36 @@ function requisitionReportHref(prId: string) {
   return `#/report/requisition/${encodeURIComponent(prId)}`
 }
 
+function projectReportHref(projectId: string) {
+  return `#/report/project/${encodeURIComponent(projectId)}`
+}
+
+const PROJECT_DETAIL_TAB_PREFIX = 'project-detail:' as const
+
+function projectDetailTabId(projectId: string) {
+  return `${PROJECT_DETAIL_TAB_PREFIX}${projectId}`
+}
+
+function isProjectDetailTabId(id: string) {
+  return id.startsWith(PROJECT_DETAIL_TAB_PREFIX)
+}
+
+function projectIdFromDetailTabId(id: string): string | null {
+  if (!isProjectDetailTabId(id)) return null
+  return id.slice(PROJECT_DETAIL_TAB_PREFIX.length)
+}
+
+function findProjectAcrossContracts(projectId: string): {
+  project: ContractProjectLine
+  contract: RequisitionRow
+} | null {
+  for (const contract of REQUISITION_ROWS) {
+    const project = contract.projects.find((p) => p.id === projectId)
+    if (project != null) return { project, contract }
+  }
+  return null
+}
+
 function vendorEmailForRow(row: RequisitionRow): string {
   return contactEmailFromDisplayName(row.vendor, 'vendor')
 }
@@ -1299,17 +1329,21 @@ function ProjectSidePanel({
   project,
   contract,
   onClose,
+  onOpenProjectReportTab,
   summaryAccordionOpen,
   onSummaryAccordionOpenChange,
 }: {
   project: ContractProjectLine
   contract: RequisitionRow
   onClose: () => void
+  onOpenProjectReportTab: (projectId: string) => void
   summaryAccordionOpen: boolean
   onSummaryAccordionOpenChange: (open: boolean) => void
 }) {
   const fundingUsedHigh = project.fundingPercent > 65
   const [emailRecipient, setEmailRecipient] = useState<string | null>(null)
+  const reportHref = projectReportHref(project.id)
+  const reportLabel = `${project.name} Report`
 
   return (
     <>
@@ -1334,8 +1368,20 @@ function ProjectSidePanel({
       <div className="command-center-requisition-panel__intro">
         <div className="command-center-requisition-panel__pr-row">
           <span className="command-center-requisition-panel__pr-id">{project.id}</span>
+          <div className="command-center-requisition-panel__report-links">
+            <Link
+              href={reportHref}
+              size="small"
+              title={`Open ${reportLabel} in a Command Center tab`}
+              onClick={(e) => {
+                e.preventDefault()
+                onOpenProjectReportTab(project.id)
+              }}
+            >
+              {reportLabel}
+            </Link>
+          </div>
         </div>
-        <p className="command-center-requisition-panel__project-name">{project.name}</p>
       </div>
       <div
         className={clsx(
@@ -1790,10 +1836,83 @@ function RequisitionDetailsTabView({ prId }: { prId: string }) {
   )
 }
 
+function ProjectReportTabView({ projectId }: { projectId: string }) {
+  const found = findProjectAcrossContracts(projectId)
+  const info = PROJECT_INFORMATION_DEMO
+
+  if (found == null) {
+    return (
+      <div className="command-center-order-detail-wrap">
+        <p className="command-center-order-detail__placeholder">Project {projectId} was not found.</p>
+      </div>
+    )
+  }
+
+  const { project, contract } = found
+  const reportTitle = `${project.name} Report`
+
+  return (
+    <section className="command-center-pr-report-section" aria-label={reportTitle}>
+      <div className="command-center-pr-summary-panel">
+        <h2 id="cc-project-report-heading" className="command-center-pr-summary-panel__heading">
+          {reportTitle}
+        </h2>
+        <div
+          className="command-center-pr-summary-panel__row"
+          role="group"
+          aria-label="Project report summary fields"
+        >
+          <div className="command-center-pr-summary-panel__cell">
+            <div className="command-center-pr-summary-panel__label">Project ID</div>
+            <div className="command-center-pr-summary-panel__value">{project.id}</div>
+          </div>
+          <div className="command-center-pr-summary-panel__cell">
+            <div className="command-center-pr-summary-panel__label">Contract</div>
+            <div className="command-center-pr-summary-panel__value">{contract.contractNumber}</div>
+          </div>
+          <div className="command-center-pr-summary-panel__cell">
+            <div className="command-center-pr-summary-panel__label">Customer</div>
+            <div className="command-center-pr-summary-panel__value">{info.customerName}</div>
+          </div>
+          <div className="command-center-pr-summary-panel__cell">
+            <div className="command-center-pr-summary-panel__label">Project Manager</div>
+            <div className="command-center-pr-summary-panel__value">{info.projectManager}</div>
+          </div>
+          <div className="command-center-pr-summary-panel__cell">
+            <div className="command-center-pr-summary-panel__label">Period of Performance</div>
+            <div className="command-center-pr-summary-panel__value">
+              {project.startDate} – {project.endDate}
+            </div>
+          </div>
+          <div className="command-center-pr-summary-panel__cell">
+            <div className="command-center-pr-summary-panel__label">Funding Used</div>
+            <div className="command-center-pr-summary-panel__value">
+              {formatFundingPercentDisplay(project.fundingPercent)}
+            </div>
+          </div>
+          <div className="command-center-pr-summary-panel__cell">
+            <div className="command-center-pr-summary-panel__label">Contract Value</div>
+            <div className="command-center-pr-summary-panel__value">
+              {stripCurrencyDisplay(project.contractValue)}
+            </div>
+          </div>
+          <div className="command-center-pr-summary-panel__cell">
+            <div className="command-center-pr-summary-panel__label">Funded Value</div>
+            <div className="command-center-pr-summary-panel__value">
+              {stripCurrencyDisplay(project.fundedValue)}
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  )
+}
+
 function HomeShell() {
   const [activeTabId, setActiveTabId] = useState<string>('requisitions')
   const [prDetailRequisitionIds, setPrDetailRequisitionIds] = useState<string[]>([])
   const [poDetailOrderIds, setPoDetailOrderIds] = useState<string[]>([])
+  const [projectDetailIds, setProjectDetailIds] = useState<string[]>([])
   const [refreshTick, setRefreshTick] = useState(0)
   const [selectedRequisitionId, setSelectedRequisitionId] = useState<string | null>(null)
   const [selectedProject, setSelectedProject] = useState<SelectedProjectRef | null>(null)
@@ -1934,6 +2053,11 @@ function HomeShell() {
     setActiveTabId(prDetailTabId(prId))
   }
 
+  const openProjectReportTab = (projectId: string) => {
+    setProjectDetailIds((prev) => (prev.includes(projectId) ? prev : [...prev, projectId]))
+    setActiveTabId(projectDetailTabId(projectId))
+  }
+
   const closeClosableCommandCenterTab = (tabId: string) => {
     const poId = poIdFromDetailTabId(tabId)
     if (poId != null) {
@@ -1944,6 +2068,12 @@ function HomeShell() {
     const prId = prIdFromDetailTabId(tabId)
     if (prId != null) {
       setPrDetailRequisitionIds((prev) => prev.filter((id) => id !== prId))
+      setActiveTabId((current) => (current !== tabId ? current : 'requisitions'))
+      return
+    }
+    const projectId = projectIdFromDetailTabId(tabId)
+    if (projectId != null) {
+      setProjectDetailIds((prev) => prev.filter((id) => id !== projectId))
       setActiveTabId((current) => (current !== tabId ? current : 'requisitions'))
     }
   }
@@ -1989,8 +2119,18 @@ function HomeShell() {
         showClose: true as const,
       }
     })
-    return [...base, ...prDetailTabs, ...poDetailTabs]
-  }, [activeTabId, prDetailRequisitionIds, poDetailOrderIds])
+    const projectDetailTabs = projectDetailIds.map((projectId) => {
+      const id = projectDetailTabId(projectId)
+      const found = findProjectAcrossContracts(projectId)
+      return {
+        id,
+        label: found != null ? `${found.project.name} Report` : `Project Report: ${projectId}`,
+        active: activeTabId === id,
+        showClose: true as const,
+      }
+    })
+    return [...base, ...prDetailTabs, ...poDetailTabs, ...projectDetailTabs]
+  }, [activeTabId, prDetailRequisitionIds, poDetailOrderIds, projectDetailIds])
 
   return (
     <>
@@ -2026,7 +2166,8 @@ function HomeShell() {
                 if (
                   id === 'requisitions' ||
                   isPoDetailTabId(id) ||
-                  isPrDetailTabId(id)
+                  isPrDetailTabId(id) ||
+                  isProjectDetailTabId(id)
                 ) {
                   setActiveTabId(id)
                 }
@@ -2136,6 +2277,7 @@ function HomeShell() {
                       project={selectedProjectContext.project}
                       contract={selectedProjectContext.contract}
                       onClose={closeDetailPanel}
+                      onOpenProjectReportTab={openProjectReportTab}
                       summaryAccordionOpen={projectPanelSummaryOpen}
                       onSummaryAccordionOpenChange={setProjectPanelSummaryOpen}
                     />
@@ -2148,6 +2290,12 @@ function HomeShell() {
           {isPrDetailTabId(activeTabId) && (
             <div className="command-center-order-detail-wrap" key={activeTabId}>
               <RequisitionDetailsTabView prId={prIdFromDetailTabId(activeTabId) ?? ''} />
+            </div>
+          )}
+
+          {isProjectDetailTabId(activeTabId) && (
+            <div className="command-center-order-detail-wrap" key={activeTabId}>
+              <ProjectReportTabView projectId={projectIdFromDetailTabId(activeTabId) ?? ''} />
             </div>
           )}
 
