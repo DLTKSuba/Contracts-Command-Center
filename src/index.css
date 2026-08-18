@@ -981,22 +981,26 @@
 .command-center-requisition-summary__label {
   font-family: var(--font-display);
   font-size: var(--label);
-  font-weight: var(--font-normal);
-  color: var(--text-secondary);
+  font-weight: var(--font-semibold);
+  color: var(--text-primary);
   line-height: var(--leading-normal);
 }
 
 .command-center-requisition-summary__value {
   font-family: var(--font-display);
   font-size: var(--label);
-  font-weight: var(--font-semibold);
-  color: var(--text-primary);
+  font-weight: var(--font-normal);
+  color: var(--text-secondary);
   line-height: var(--leading-normal);
   word-break: break-word;
 }
 
 html.theme-cp:not(.dark) .command-center-requisition-summary__label {
-  color: #6b7280;
+  color: var(--text-primary);
+}
+
+html.theme-cp:not(.dark) .command-center-requisition-summary__value {
+  color: var(--text-secondary, #6b7280);
 }
 
 html.theme-cp:not(.dark) .command-center-pr-summary-panel__value {
@@ -1044,6 +1048,41 @@ html.theme-cp:not(.dark) .command-center-pr-summary-panel__value {
 
 .command-center-revenue-health-card .command-center-period-health {
   padding: var(--space-3);
+}
+
+.command-center-panel-fields {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  column-gap: var(--space-4);
+  row-gap: var(--space-3);
+  margin: 0;
+  padding: var(--space-3);
+  box-sizing: border-box;
+}
+
+.command-center-panel-fields__field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  min-width: 0;
+}
+
+.command-center-panel-fields__label {
+  font-family: var(--font-display);
+  font-size: var(--label);
+  font-weight: var(--font-semibold);
+  color: var(--text-primary);
+  line-height: var(--leading-normal);
+}
+
+.command-center-panel-fields__value {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: var(--label);
+  font-weight: var(--font-normal);
+  color: var(--text-secondary);
+  line-height: var(--leading-normal);
+  word-break: break-word;
 }
 
 .command-center-period-health__metrics {

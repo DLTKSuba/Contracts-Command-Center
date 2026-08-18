@@ -1046,18 +1046,18 @@ function RequisitionTableBody({
 const DEMO_POP_ELAPSED_PCT = 90
 
 function PeriodHealthMetrics({
-  contractNumber,
+  subjectLabel,
   popElapsedPct,
   fundsUsedPct,
 }: {
-  contractNumber: string
+  subjectLabel: string
   popElapsedPct: number
   fundsUsedPct: number
 }) {
   return (
     <div
       className="command-center-period-health"
-      aria-label={`Period health for ${contractNumber}. Contract at risk: Yes. PoP elapsed ${popElapsedPct} percent. Funds used ${fundsUsedPct} percent.`}
+      aria-label={`Period health for ${subjectLabel}. Contract at risk: Yes. PoP elapsed ${popElapsedPct} percent. Funds used ${fundsUsedPct} percent.`}
     >
       <ul className="command-center-period-health__metrics">
         <li className="command-center-period-health__row command-center-period-health__row--at-risk">
@@ -1192,6 +1192,30 @@ function RequisitionSidePanel({
   )
 }
 
+const PROJECT_UPDATE_STATUS_DEMO = {
+  projectStatusUpdate: '12/4/2024, 1:22 PM',
+  pendingReportUpdate: '',
+} as const
+
+function ProjectUpdateStatusPanel() {
+  return (
+    <dl className="command-center-panel-fields">
+      <div className="command-center-panel-fields__field">
+        <dt className="command-center-panel-fields__label">Project Status Update</dt>
+        <dd className="command-center-panel-fields__value">
+          {PROJECT_UPDATE_STATUS_DEMO.projectStatusUpdate}
+        </dd>
+      </div>
+      <div className="command-center-panel-fields__field">
+        <dt className="command-center-panel-fields__label">Pending Report Update</dt>
+        <dd className="command-center-panel-fields__value">
+          {PROJECT_UPDATE_STATUS_DEMO.pendingReportUpdate}
+        </dd>
+      </div>
+    </dl>
+  )
+}
+
 function ProjectRevenueInformation({ project }: { project: ContractProjectLine }) {
   const contract = moneySplit(parseMoneyAmount(project.contractValue))
   const funded = moneySplit(parseMoneyAmount(project.fundedValue))
@@ -1250,6 +1274,9 @@ function ProjectRevenueInformation({ project }: { project: ContractProjectLine }
             </tr>
           </tbody>
         </table>
+        <div className="command-center-revenue-health-card">
+          <ProjectUpdateStatusPanel />
+        </div>
       </div>
     </details>
   )
@@ -1259,7 +1286,7 @@ const PROJECT_INFORMATION_DEMO = {
   projectManager: 'Wilderman, Amber',
   periodOfPerformance: '09/25/2023 - 09/25/2024',
   customerName: 'ABC Corp',
-  owningOrganization: 'Manufacturing (1.02.03)',
+  owningOrganization: 'Manufacturing',
   contractorRepresentative: 'Roland Chang',
   aco: 'Ricky Spanish',
   projectType: 'Government',
@@ -1291,7 +1318,9 @@ function ProjectDetailSummary({
             className="command-center-requisition-accordion__expand-icon"
             aria-hidden
           />
-          <span className="command-center-requisition-accordion__summary-text">Summary</span>
+          <span className="command-center-requisition-accordion__summary-text">
+            Project Information
+          </span>
         </span>
       </summary>
       <div className="command-center-requisition-accordion__content">
@@ -1312,7 +1341,7 @@ function ProjectDetailSummary({
             emailLink
           />
           <ContractSummaryField
-            label="ACO (Administrative Contracting Officer)"
+            label="Administrative Contracting Officer"
             value={info.aco}
             onValueClick={() => onEmailContact(info.aco)}
             emailLink
@@ -1600,7 +1629,7 @@ function RequisitionRevenueInformation({ row }: { row: RequisitionRow }) {
         </table>
         <div className="command-center-revenue-health-card">
           <PeriodHealthMetrics
-            contractNumber={row.contractNumber}
+            subjectLabel={row.contractNumber}
             popElapsedPct={popElapsedPct}
             fundsUsedPct={fundsUsedPct}
           />
@@ -1635,7 +1664,9 @@ function RequisitionDetailSummary({
             className="command-center-requisition-accordion__expand-icon"
             aria-hidden
           />
-          <span className="command-center-requisition-accordion__summary-text">Summary</span>
+          <span className="command-center-requisition-accordion__summary-text">
+            Contract Information
+          </span>
         </span>
       </summary>
       <div className="command-center-requisition-accordion__content">
