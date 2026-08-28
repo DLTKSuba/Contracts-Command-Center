@@ -246,15 +246,38 @@
   background-color: var(--theme-primary);
 }
 
-.command-center-settings-shell .command-center-design-picker .dropdown__trigger {
+/* Design picker sits immediately after the Command Center page title. */
+.command-center-shell .shell-page-header {
+  justify-content: flex-start;
+  overflow: visible;
+}
+
+.command-center-shell .shell-page-header__left {
+  flex: 0 0 auto;
+}
+
+.command-center-shell .command-center-design-picker .dropdown__trigger {
   width: var(--dropdown-min-width);
   min-width: var(--dropdown-min-width);
+}
+
+/* Design 2 drops the inset well: wizard and field sit on the shell itself, so
+ * the card body's own padding supplies the inset instead. */
+.command-center-settings-flat {
+  display: flex;
+  flex-direction: column;
+  flex: 0 0 auto;
+  min-height: 0;
+}
+
+.command-center-settings-flat .command-center-settings-wizard,
+.command-center-settings-flat .command-center-settings-panel {
+  padding-inline: 0;
 }
 
 /* Design 2: icon-led, non-linear role wizard replaces the Design 1 tabs. */
 .command-center-settings-wizard {
   padding: var(--space-4) var(--space-3);
-  border-bottom: 1px solid var(--border-color) !important;
 }
 
 /* Current step: primary fill + halo. Completed steps: success fill + check +

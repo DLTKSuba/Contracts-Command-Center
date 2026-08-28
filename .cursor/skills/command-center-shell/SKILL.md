@@ -24,15 +24,16 @@ Leaving Command Center (click the rail item again) restores the dashboard and cl
 
 ## Chrome (presentation)
 
-- Theme: `theme-cp`. `ShellLayout` class `command-center-shell`. Page title **Command Center**. `pageHeaderShowDefaultButtons={false}`.
+- Theme: `theme-cp`. `ShellLayout` class `command-center-shell`. Page title **Command Center**. `pageHeaderShowDefaultButtons={false}`. Design `Dropdown` is `pageHeaderActions`, immediately to the right of the title (not in the Role Based Settings header): **Design 1** and **Design 2** (**Design 2** default).
 - Primary elevated `Card` class `command-center-home`. White panel headers (`background-color: #ffffff`), not table-header grey. Title left, `PanelWindowControls` right (`minus`, `window-plain`, `x-mark` via `card__icon-btn`). Controls are presentational.
 - Inset well: `.command-center-shell-body` > `.command-center-shell-inner`. **No fixed height** — the well wraps its content, and the shell wraps the well (`flex: 0 0 auto` on body). Never leave empty space below the last field. Border `1px solid var(--border-color)`, `var(--radius-lg)`, white fill.
 - The settings well keeps `overflow: visible` so an open `Dropdown` menu is not clipped.
 - Well sits tight under the title bar: `.command-center-home .card__body:has(> .command-center-shell-body) { padding: var(--space-2); }` — do not use the default `var(--space-4)` top gap on these shells.
 - Top Configure Settings well contains a functional, unchecked-by-default **Enable Dela AI assistance** Harmony `Checkbox`.
-- Settings shell: extra class `command-center-settings-shell`, `margin-top: var(--space-5)`. Header right includes a design `Dropdown` before window controls: **Design 1** (default) and **Design 2**.
+- Settings shell: extra class `command-center-settings-shell`, `margin-top: var(--space-5)`. Header right is window controls only.
 - Design 1 uses tabs inside the well: **Project Analyst**, **Accounting**, **Billing**, **Proposals**. Active tab: Harmony underline, `var(--theme-primary)`.
 - Design 2 replaces the tabs with a horizontal, icon-based, non-linear `Stepper` using the same four roles. Every step is directly clickable; Project Analyst is initially selected.
+- Design 2 has **no inset well**: the wizard and the Organization Level field render directly on the settings shell inside `.command-center-settings-flat`, and the card body's own padding supplies the inset (`padding-inline: 0` on the wizard and field). Only Design 1 keeps `.command-center-shell-inner`. The Organization Level field is shared JSX rendered by whichever design is active.
 - Design 2 chrome (scoped under `.command-center-settings-wizard`; never edit shared `Step`/`Stepper` styles):
   - Current step: primary fill + `0 0 0 var(--space-1-5) var(--theme-primary-border)` halo; role icon stays.
   - Completed steps (any role before the current one): omit the icon so Harmony can render the checkmark; indicator is `var(--color-success)` with a `var(--color-success-border)` halo. Upcoming steps stay grey with their role icon.

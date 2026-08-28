@@ -2049,7 +2049,7 @@ function HomeShell() {
   /** Configure Settings adds a second shell below the empty canvas. */
   const [settingsShellOpen, setSettingsShellOpen] = useState(false)
   const [settingsActiveTabId, setSettingsActiveTabId] = useState(SETTINGS_SHELL_TABS[0].id)
-  const [settingsDesign, setSettingsDesign] = useState('design-1')
+  const [settingsDesign, setSettingsDesign] = useState('design-2')
   const [delaAiEnabled, setDelaAiEnabled] = useState(false)
   /** Org level is scoped per application tab, so each tab keeps its own choice. */
   const [orgLevelByTab, setOrgLevelByTab] = useState<Record<string, string>>({})
@@ -2069,7 +2069,7 @@ function HomeShell() {
       if (!nextBlank) {
         setSettingsShellOpen(false)
         setSettingsActiveTabId(SETTINGS_SHELL_TABS[0].id)
-        setSettingsDesign('design-1')
+        setSettingsDesign('design-2')
       }
     },
     [blankCommandCenter],
@@ -2349,6 +2349,23 @@ function HomeShell() {
     })
   }, [settingsActiveTabId])
 
+  /* Shared by both designs; each renders it in its own container. */
+  const settingsOrgLevelField = (
+    <div className="command-center-settings-panel">
+      <Dropdown
+        key={settingsActiveTabId}
+        label="Organization Level"
+        labelVariant="inline"
+        placeholder="-select-"
+        options={ORG_LEVEL_OPTIONS}
+        value={orgLevelByTab[settingsActiveTabId] ?? ''}
+        onChange={(value) =>
+          setOrgLevelByTab((prev) => ({ ...prev, [settingsActiveTabId]: value }))
+        }
+      />
+    </div>
+  )
+
 
   /* On the Command Center screen the rail highlight moves to its own item. */
   const leftSidebarSections = useMemo(
@@ -2373,6 +2390,15 @@ function HomeShell() {
         onLeftSidebarItemActivate={handleLeftSidebarItemActivate}
         pageHeaderTitle="Command Center"
         pageHeaderShowDefaultButtons={false}
+        pageHeaderActions={
+          <Dropdown
+            id="settings-design-picker"
+            className="command-center-design-picker"
+            options={SETTINGS_DESIGN_OPTIONS}
+            value={settingsDesign}
+            onChange={setSettingsDesign}
+          />
+        }
       >
       <Card
         primary
@@ -2557,61 +2583,47 @@ function HomeShell() {
           className="command-center-home command-center-settings-shell"
           withHeader
           headerTitle="Role Based Settings"
-          headerActions={
-            <>
-              <Dropdown
-                id="settings-design-picker"
-                className="command-center-design-picker"
-                options={SETTINGS_DESIGN_OPTIONS}
-                value={settingsDesign}
-                onChange={setSettingsDesign}
-              />
-              <PanelWindowControls />
-            </>
-          }
+          headerActions={<PanelWindowControls />}
         >
           <div className="card__body">
-            <div className="command-center-shell-body">
-              <div
-                className="command-center-shell-inner"
-                role="region"
-                aria-label="Role Based Settings content"
-              >
-                {settingsDesign === 'design-1' ? (
+            {settingsDesign === 'design-1' ? (
+              <div className="command-center-shell-body">
+                <div
+                  className="command-center-shell-inner"
+                  role="region"
+                  aria-label="Role Based Settings content"
+                >
                   <TabStrip
                     tabs={settingsTabs}
                     onTabSelected={setSettingsActiveTabId}
                     overflowMode="none"
                     className="tabstrip--command-center-tabs command-center-settings-tabs"
                   />
-                ) : (
-                  <Stepper
-                    nonLinear
-                    activeStep={SETTINGS_SHELL_TABS.findIndex(
-                      (tab) => tab.id === settingsActiveTabId,
-                    )}
-                    steps={settingsWizardSteps}
-                    onStepClick={(stepIndex) =>
-                      setSettingsActiveTabId(SETTINGS_SHELL_TABS[stepIndex].id)
-                    }
-                    className="command-center-settings-wizard"
-                  />
-                )}
-                <div className="command-center-settings-panel">
-                  <Dropdown
-                    key={settingsActiveTabId}
-                    label="Organization Level"
-                    labelVariant="inline"
-                    placeholder="-select-"
-                    options={ORG_LEVEL_OPTIONS}
-                    value={orgLevelByTab[settingsActiveTabId] ?? ''}
-                    onChange={(value) =>
-                      setOrgLevelByTab((prev) => ({ ...prev, [settingsActiveTabId]: value }))
-                    }
-                  />
+                  {settingsOrgLevelField}
                 </div>
               </div>
-            </div>
+            ) : (
+              /* Design 2 has no inset well: the wizard and its field sit directly
+               * on the settings shell. */
+              <div
+                className="command-center-settings-flat"
+                role="region"
+                aria-label="Role Based Settings content"
+              >
+                <Stepper
+                  nonLinear
+                  activeStep={SETTINGS_SHELL_TABS.findIndex(
+                    (tab) => tab.id === settingsActiveTabId,
+                  )}
+                  steps={settingsWizardSteps}
+                  onStepClick={(stepIndex) =>
+                    setSettingsActiveTabId(SETTINGS_SHELL_TABS[stepIndex].id)
+                  }
+                  className="command-center-settings-wizard"
+                />
+                {settingsOrgLevelField}
+              </div>
+            )}
           </div>
         </Card>
       )}
@@ -2621,7 +2633,7 @@ function HomeShell() {
           onItemSelect={() => {
             setNavPanelOpen(false)
             setSettingsActiveTabId(SETTINGS_SHELL_TABS[0].id)
-            setSettingsDesign('design-1')
+            setSettingsDesign('design-2')
             setSettingsShellOpen(true)
           }}
         />
