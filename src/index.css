@@ -246,6 +246,44 @@
   background-color: var(--theme-primary);
 }
 
+.command-center-settings-shell .command-center-design-picker .dropdown__trigger {
+  width: var(--dropdown-min-width);
+  min-width: var(--dropdown-min-width);
+}
+
+/* Design 2: icon-led, non-linear role wizard replaces the Design 1 tabs. */
+.command-center-settings-wizard {
+  padding: var(--space-4) var(--space-3);
+  border-bottom: 1px solid var(--border-color) !important;
+}
+
+/* Current step: primary fill + halo. Completed steps: success fill + check +
+ * green halo. Connectors stay grey. Scoped so shared Step styles are unchanged. */
+.command-center-settings-wizard .step.is-active .step__indicator {
+  box-shadow: 0 0 0 var(--space-1-5) var(--theme-primary-border);
+}
+
+.command-center-settings-wizard .step.is-completed .step__indicator {
+  background-color: var(--color-success);
+  border-color: var(--color-success);
+  color: var(--card-bg);
+  box-shadow: 0 0 0 var(--space-1-5) var(--color-success-border);
+}
+
+.command-center-settings-wizard .step.is-active .step__label-text,
+.command-center-settings-wizard .step.is-completed .step__label-text {
+  color: var(--text-primary);
+  font-weight: var(--font-semibold);
+}
+
+.command-center-settings-wizard .step:not(.is-active):not(.is-completed) .step__label-text {
+  color: var(--text-secondary);
+}
+
+.command-center-settings-wizard .step__connector.is-active {
+  background-color: var(--border-color);
+}
+
 /* Body of the selected application tab. Label left, control right. */
 .command-center-settings-panel {
   padding: var(--space-4) var(--space-3);

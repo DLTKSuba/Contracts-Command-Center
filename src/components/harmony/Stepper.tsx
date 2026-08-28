@@ -104,7 +104,11 @@ export function Stepper({
               .join(' ')}
             role={nonLinear && !isDisabled ? 'button' : undefined}
             tabIndex={nonLinear && !isDisabled ? 0 : undefined}
-            aria-label={nonLinear && !isDisabled ? `Go to step ${index + 1}` : undefined}
+            aria-label={
+              nonLinear && !isDisabled
+                ? `Go to ${typeof step.label === 'string' ? step.label : `step ${index + 1}`}`
+                : undefined
+            }
             aria-current={isActive ? 'step' : undefined}
             onClick={nonLinear && !isDisabled ? () => onStepClick?.(index) : undefined}
           />

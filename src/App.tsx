@@ -23,6 +23,7 @@ import { Dialog } from './components/harmony/Dialog'
 import { Dropdown } from './components/harmony/Dropdown'
 import { InteractionRulesPanel } from './components/harmony/InteractionRulesPanel'
 import { LeftNavPanel } from './components/harmony/LeftNavPanel'
+import { Stepper } from './components/harmony/Stepper'
 import { TabStrip, type TabStripTab } from './components/harmony/TabStrip'
 import { Table } from './components/harmony/Table'
 import {
@@ -93,6 +94,22 @@ const SETTINGS_SHELL_TABS: ReadonlyArray<{ id: string; label: string }> = [
   { id: 'accounting', label: 'Accounting' },
   { id: 'billing', label: 'Billing' },
   { id: 'proposals', label: 'Proposals' },
+]
+
+const SETTINGS_DESIGN_OPTIONS = [
+  { value: 'design-1', label: 'Design 1' },
+  { value: 'design-2', label: 'Design 2' },
+]
+
+/**
+ * Design 2 role wizard. Icons stay on the current and upcoming steps. Completed
+ * steps drop the icon so Harmony can render the checkmark.
+ */
+const SETTINGS_WIZARD_STEPS = [
+  { label: 'Project Analyst', icon: 'chart-bar' },
+  { label: 'Accounting', icon: 'calculator' },
+  { label: 'Billing', icon: 'receipt' },
+  { label: 'Proposals', icon: 'clipboard-document-list' },
 ]
 
 /** Organization depth an admin can scope the selected application to. */
@@ -2032,6 +2049,7 @@ function HomeShell() {
   /** Configure Settings adds a second shell below the empty canvas. */
   const [settingsShellOpen, setSettingsShellOpen] = useState(false)
   const [settingsActiveTabId, setSettingsActiveTabId] = useState(SETTINGS_SHELL_TABS[0].id)
+  const [settingsDesign, setSettingsDesign] = useState('design-1')
   const [delaAiEnabled, setDelaAiEnabled] = useState(false)
   /** Org level is scoped per application tab, so each tab keeps its own choice. */
   const [orgLevelByTab, setOrgLevelByTab] = useState<Record<string, string>>({})
@@ -2051,6 +2069,7 @@ function HomeShell() {
       if (!nextBlank) {
         setSettingsShellOpen(false)
         setSettingsActiveTabId(SETTINGS_SHELL_TABS[0].id)
+        setSettingsDesign('design-1')
       }
     },
     [blankCommandCenter],
@@ -2322,6 +2341,14 @@ function HomeShell() {
     [settingsActiveTabId],
   )
 
+  const settingsWizardSteps = useMemo(() => {
+    const activeIndex = SETTINGS_SHELL_TABS.findIndex((tab) => tab.id === settingsActiveTabId)
+    return SETTINGS_WIZARD_STEPS.map((step, index) => {
+      const completed = index < activeIndex
+      return completed ? { label: step.label, completed: true } : step
+    })
+  }, [settingsActiveTabId])
+
 
   /* On the Command Center screen the rail highlight moves to its own item. */
   const leftSidebarSections = useMemo(
@@ -2530,7 +2557,18 @@ function HomeShell() {
           className="command-center-home command-center-settings-shell"
           withHeader
           headerTitle="Role Based Settings"
-          headerActions={<PanelWindowControls />}
+          headerActions={
+            <>
+              <Dropdown
+                id="settings-design-picker"
+                className="command-center-design-picker"
+                options={SETTINGS_DESIGN_OPTIONS}
+                value={settingsDesign}
+                onChange={setSettingsDesign}
+              />
+              <PanelWindowControls />
+            </>
+          }
         >
           <div className="card__body">
             <div className="command-center-shell-body">
@@ -2539,12 +2577,26 @@ function HomeShell() {
                 role="region"
                 aria-label="Role Based Settings content"
               >
-                <TabStrip
-                  tabs={settingsTabs}
-                  onTabSelected={setSettingsActiveTabId}
-                  overflowMode="none"
-                  className="tabstrip--command-center-tabs command-center-settings-tabs"
-                />
+                {settingsDesign === 'design-1' ? (
+                  <TabStrip
+                    tabs={settingsTabs}
+                    onTabSelected={setSettingsActiveTabId}
+                    overflowMode="none"
+                    className="tabstrip--command-center-tabs command-center-settings-tabs"
+                  />
+                ) : (
+                  <Stepper
+                    nonLinear
+                    activeStep={SETTINGS_SHELL_TABS.findIndex(
+                      (tab) => tab.id === settingsActiveTabId,
+                    )}
+                    steps={settingsWizardSteps}
+                    onStepClick={(stepIndex) =>
+                      setSettingsActiveTabId(SETTINGS_SHELL_TABS[stepIndex].id)
+                    }
+                    className="command-center-settings-wizard"
+                  />
+                )}
                 <div className="command-center-settings-panel">
                   <Dropdown
                     key={settingsActiveTabId}
@@ -2569,6 +2621,7 @@ function HomeShell() {
           onItemSelect={() => {
             setNavPanelOpen(false)
             setSettingsActiveTabId(SETTINGS_SHELL_TABS[0].id)
+            setSettingsDesign('design-1')
             setSettingsShellOpen(true)
           }}
         />

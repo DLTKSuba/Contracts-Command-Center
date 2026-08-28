@@ -30,7 +30,14 @@ Leaving Command Center (click the rail item again) restores the dashboard and cl
 - The settings well keeps `overflow: visible` so an open `Dropdown` menu is not clipped.
 - Well sits tight under the title bar: `.command-center-home .card__body:has(> .command-center-shell-body) { padding: var(--space-2); }` — do not use the default `var(--space-4)` top gap on these shells.
 - Top Configure Settings well contains a functional, unchecked-by-default **Enable Dela AI assistance** Harmony `Checkbox`.
-- Settings shell: extra class `command-center-settings-shell`, `margin-top: var(--space-5)`. Same well. Tabs inside the well (not above it): **Project Analyst**, **Accounting**, **Billing**, **Proposals**. Active tab: Harmony underline, `var(--theme-primary)`. Full-width baseline on `.tabstrip__container`. Default tab is Project Analyst when the shell opens.
+- Settings shell: extra class `command-center-settings-shell`, `margin-top: var(--space-5)`. Header right includes a design `Dropdown` before window controls: **Design 1** (default) and **Design 2**.
+- Design 1 uses tabs inside the well: **Project Analyst**, **Accounting**, **Billing**, **Proposals**. Active tab: Harmony underline, `var(--theme-primary)`.
+- Design 2 replaces the tabs with a horizontal, icon-based, non-linear `Stepper` using the same four roles. Every step is directly clickable; Project Analyst is initially selected.
+- Design 2 chrome (scoped under `.command-center-settings-wizard`; never edit shared `Step`/`Stepper` styles):
+  - Current step: primary fill + `0 0 0 var(--space-1-5) var(--theme-primary-border)` halo; role icon stays.
+  - Completed steps (any role before the current one): omit the icon so Harmony can render the checkmark; indicator is `var(--color-success)` with a `var(--color-success-border)` halo. Upcoming steps stay grey with their role icon.
+  - Current and completed labels are `var(--text-primary)` semibold; upcoming labels are `var(--text-secondary)`.
+  - Connectors always stay `var(--border-color)` (never painted as travelled).
 - Selected tab body (`.command-center-settings-panel`): **Organization Level** `Dropdown` with `labelVariant="inline"` (label left, control right). Gap between label and value is `var(--space-5)` (20px). Placeholder `-select-`, options Level 1–4. Trigger width is `var(--dropdown-min-width)` (do not stretch full-well). Value is kept per tab.
 - Left rail: two floating section cards (workspace 4 icons, modules including Command Center). Keep cards; never flatten them for this flyout.
 - Right rail: top-aligned to the refresh button (dashboard) or header actions (Command Center). `--cc-right-rail-top` measured in `HomeShell`. Hover: `--cc-nav-hover-bg: #A6C9EC` on inactive rail and flyout items. Active item keeps solid `--theme-primary`.
