@@ -25,7 +25,34 @@ html.theme-maconomy .left-sidebar__variant--maconomy {
   display: contents;
 }
 
+/* Blue tint on hover instead of the neutral grey default; the active item keeps
+   its solid --theme-primary fill. */
+.left-sidebar__item:not(.left-sidebar__item--active):hover,
+html.dark .left-sidebar__item:not(.left-sidebar__item--active):hover {
+  background-color: var(--cc-nav-hover-bg);
+}
+
 /* Dark mode: img-based custom icons (e.g. Report, Resource) appear white */
 html.dark .left-sidebar__icon .left-sidebar__custom-icon {
   filter: brightness(0) invert(1);
+}
+
+/* Rail locked by an adjacent flyout (LeftNavPanel): stay collapsed so it cannot
+   expand underneath the panel. 52px is the rail's base width in components.css.
+   Unlike data-panel-open this keeps the section cards. */
+.left-sidebar[data-rail-locked='true']:hover {
+  width: 52px;
+}
+
+/* Labels would overflow the collapsed rail while it is locked. */
+.left-sidebar[data-rail-locked='true'] .left-sidebar__label {
+  opacity: 0;
+  visibility: hidden;
+}
+
+/* 1024px = --breakpoint-lg; the rail narrows to its compact width here. */
+@media (max-width: 1024px) {
+  .shell-layout .shell-layout__left-sidebar[data-rail-locked='true']:hover {
+    width: var(--left-sidebar-width-compact);
+  }
 }

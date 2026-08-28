@@ -15,6 +15,7 @@ These skills ship with the designer starter kit. **All skills live under `.curso
 | `search-patterns/` | Playbook: **`/search-patterns`**. |
 | `harmony-critique/` | Playbook: **`/harmony-critique`**. |
 | `ux-review/` | Playbook: **`/ux-review`**. |
+| `command-center-shell/` | Canonical Command Center layout, chrome, and left-rail / flyout interactivity. |
 
 **Not included:** `harmony-converter` (this kit is React-only).
 

@@ -12,16 +12,21 @@ import clsx from 'clsx'
 import { Routes, Route } from 'react-router-dom'
 import { ShellLayout } from './components/harmony/ShellLayout'
 import type { ShellLayoutProps } from './components/harmony/ShellLayout'
+import type {
+  LeftSidebarItemActivateDetail,
+  LeftSidebarSection,
+} from './components/harmony/LeftSidebar'
 import { Card } from './components/harmony/Card'
 import { Button } from './components/harmony/Button'
+import { Checkbox } from './components/harmony/Checkbox'
 import { Dialog } from './components/harmony/Dialog'
+import { Dropdown } from './components/harmony/Dropdown'
 import { InteractionRulesPanel } from './components/harmony/InteractionRulesPanel'
-import { TabStrip } from './components/harmony/TabStrip'
+import { LeftNavPanel } from './components/harmony/LeftNavPanel'
+import { TabStrip, type TabStripTab } from './components/harmony/TabStrip'
 import { Table } from './components/harmony/Table'
 import {
   ContractsExpirationDashboard,
-  VizDesignOptionPicker,
-  DailyChartIterationPicker,
   type ExpirationTierKey,
   type ExpiryTierContract,
   type FundingUtilizationSummary,
@@ -78,6 +83,72 @@ const THEME_SHELL_PROPS: Record<string, Partial<ShellLayoutProps>> = {
     rightSidebarVariant: 'maconomy',
   },
 }
+
+/** Rail item whose label opens the Command Center flyout. */
+const COMMAND_CENTER_NAV_LABEL = 'Command Center'
+
+/** Costpoint application tabs inside the Configure Settings well. */
+const SETTINGS_SHELL_TABS: ReadonlyArray<{ id: string; label: string }> = [
+  { id: 'project-analyst', label: 'Project Analyst' },
+  { id: 'accounting', label: 'Accounting' },
+  { id: 'billing', label: 'Billing' },
+  { id: 'proposals', label: 'Proposals' },
+]
+
+/** Organization depth an admin can scope the selected application to. */
+const ORG_LEVEL_OPTIONS = [
+  { value: 'level-1', label: 'Level 1' },
+  { value: 'level-2', label: 'Level 2' },
+  { value: 'level-3', label: 'Level 3' },
+  { value: 'level-4', label: 'Level 4' },
+]
+
+/**
+ * Minimize / maximize / close trio that Costpoint panel headers carry on the
+ * right. Presentational for now — the shells are not yet resizable.
+ */
+function PanelWindowControls() {
+  return (
+    <>
+      <button className="card__icon-btn" type="button" aria-label="Minimize">
+        <Icon name="minus" size="sm" />
+      </button>
+      <button className="card__icon-btn" type="button" aria-label="Maximize">
+        <Icon name="window-plain" size="sm" />
+      </button>
+      <button className="card__icon-btn" type="button" aria-label="Close">
+        <Icon name="x-mark" size="sm" />
+      </button>
+    </>
+  )
+}
+
+/**
+ * Left rail grouped into two floating cards: a workspace group (home, apps,
+ * favourites, recent) above the module group, matching the Costpoint nav.
+ */
+const COMMAND_CENTER_SIDEBAR_SECTIONS: LeftSidebarSection[] = [
+  {
+    items: [
+      { icon: 'home', label: 'Home' },
+      { icon: 'squares-plus', label: 'Applications' },
+      { icon: 'star', label: 'Favorites' },
+      { icon: 'queue-list', label: 'Recently Viewed' },
+    ],
+  },
+  {
+    items: [
+      { icon: 'magnifying-glass', label: 'Search' },
+      { icon: 'squares-2x2', label: COMMAND_CENTER_NAV_LABEL },
+      { icon: 'clipboard-document-list', label: 'Accounting', active: true },
+      { icon: 'cube', label: 'Materials' },
+      { icon: 'users', label: 'People' },
+      { icon: 'clock', label: 'Time' },
+      { icon: 'document-chart-bar', label: 'Reports' },
+      { icon: 'cog-6-tooth', label: 'Settings' },
+    ],
+  },
+]
 
 const REQ_MAIN_TAB_IDS = ['requisitions'] as const
 
@@ -1950,16 +2021,62 @@ function HomeShell() {
   const [reqPanelSummaryOpen, setReqPanelSummaryOpen] = useState(true)
   const [projectPanelSummaryOpen, setProjectPanelSummaryOpen] = useState(true)
   const [expirationTierFilter, setExpirationTierFilter] = useState<ExpirationTierKey | null>(null)
-  const [vizDesignOption, setVizDesignOption] = useState<VizDesignOption>('option5')
-  const [dailyChartIteration, setDailyChartIteration] = useState<DailyChartIteration>('iteration1')
+  /* Fixed since the header's View picker was removed. */
+  const vizDesignOption: VizDesignOption = 'option5'
+  const dailyChartIteration: DailyChartIteration = 'iteration1'
   const [expandedContractIds, setExpandedContractIds] = useState<string[]>([])
   const [interactionRulesOpen, setInteractionRulesOpen] = useState(false)
+  const [navPanelOpen, setNavPanelOpen] = useState(false)
+  /** Command Center rail item swaps the workspace for an empty canvas. */
+  const [blankCommandCenter, setBlankCommandCenter] = useState(false)
+  /** Configure Settings adds a second shell below the empty canvas. */
+  const [settingsShellOpen, setSettingsShellOpen] = useState(false)
+  const [settingsActiveTabId, setSettingsActiveTabId] = useState(SETTINGS_SHELL_TABS[0].id)
+  const [delaAiEnabled, setDelaAiEnabled] = useState(false)
+  /** Org level is scoped per application tab, so each tab keeps its own choice. */
+  const [orgLevelByTab, setOrgLevelByTab] = useState<Record<string, string>>({})
   const kpiFilterZoneRef = useRef<HTMLDivElement>(null)
   const themeProps = THEME_SHELL_PROPS[DEFAULT_THEME] ?? THEME_SHELL_PROPS['theme-cp']
 
   const handleSelectKpiTier = useCallback((tier: ExpirationTierKey) => {
     setExpirationTierFilter((prev) => (prev === tier ? null : tier))
   }, [])
+
+  const handleLeftSidebarItemActivate = useCallback(
+    ({ item }: LeftSidebarItemActivateDetail) => {
+      if (item.label !== COMMAND_CENTER_NAV_LABEL) return
+      const nextBlank = !blankCommandCenter
+      setBlankCommandCenter(nextBlank)
+      setNavPanelOpen(nextBlank)
+      if (!nextBlank) {
+        setSettingsShellOpen(false)
+        setSettingsActiveTabId(SETTINGS_SHELL_TABS[0].id)
+      }
+    },
+    [blankCommandCenter],
+  )
+
+  useEffect(() => {
+    if (!navPanelOpen) return
+
+    const onPointerDown = (e: PointerEvent) => {
+      const target = e.target as Node
+      const insidePanel = document.querySelector('.left-nav-panel')?.contains(target) ?? false
+      const insideRail =
+        document.querySelector('.shell-layout__left-sidebar')?.contains(target) ?? false
+      if (!insidePanel && !insideRail) setNavPanelOpen(false)
+    }
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') setNavPanelOpen(false)
+    }
+
+    document.addEventListener('pointerdown', onPointerDown)
+    document.addEventListener('keydown', onKeyDown)
+    return () => {
+      document.removeEventListener('pointerdown', onPointerDown)
+      document.removeEventListener('keydown', onKeyDown)
+    }
+  }, [navPanelOpen])
 
   const toggleContractExpanded = useCallback((rowId: string) => {
     setExpandedContractIds((prev) =>
@@ -2064,6 +2181,37 @@ function HomeShell() {
     return () => document.removeEventListener('pointerdown', onDocPointerDown)
   }, [expirationTierFilter])
 
+  /*
+   * Right rail lines up with the home shell's top-right control — the tab row's
+   * refresh button, or the panel header's window controls once the tab row is
+   * swapped out. Its offset is set by the page header and card chrome above it
+   * rather than by a fixed token sum. Measured at the unscrolled position so the
+   * fixed rail keeps its anchor once the content scrolls away.
+   */
+  useEffect(() => {
+    const syncRightRailTop = () => {
+      const anchor =
+        document.querySelector<HTMLElement>('.command-center-tab-row__refresh') ??
+        document.querySelector<HTMLElement>('.command-center-home .card__header-actions')
+      const main = document.querySelector<HTMLElement>('.shell-layout__main')
+      if (anchor == null || main == null) return
+      const top = anchor.getBoundingClientRect().top + main.scrollTop
+      document.documentElement.style.setProperty('--cc-right-rail-top', `${top}px`)
+    }
+
+    syncRightRailTop()
+    const observer = new ResizeObserver(syncRightRailTop)
+    const main = document.querySelector<HTMLElement>('.shell-layout__main')
+    if (main != null) observer.observe(main)
+    window.addEventListener('resize', syncRightRailTop)
+
+    return () => {
+      observer.disconnect()
+      window.removeEventListener('resize', syncRightRailTop)
+      document.documentElement.style.removeProperty('--cc-right-rail-top')
+    }
+  }, [activeTabId, blankCommandCenter])
+
   useEffect(() => {
     const logoLink = document.querySelector<HTMLAnchorElement>(
       '.shell-layout__header .header__brand-link',
@@ -2163,33 +2311,52 @@ function HomeShell() {
     return [...base, ...prDetailTabs, ...poDetailTabs, ...projectDetailTabs]
   }, [activeTabId, prDetailRequisitionIds, poDetailOrderIds, projectDetailIds])
 
+  const showTabContent = !blankCommandCenter
+
+  const settingsTabs = useMemo<TabStripTab[]>(
+    () =>
+      SETTINGS_SHELL_TABS.map((tab) => ({
+        ...tab,
+        active: tab.id === settingsActiveTabId,
+      })),
+    [settingsActiveTabId],
+  )
+
+
+  /* On the Command Center screen the rail highlight moves to its own item. */
+  const leftSidebarSections = useMemo(
+    () =>
+      blankCommandCenter
+        ? COMMAND_CENTER_SIDEBAR_SECTIONS.map((section) => ({
+            items: section.items.map((item) => ({
+              ...item,
+              active: item.label === COMMAND_CENTER_NAV_LABEL,
+            })),
+          }))
+        : COMMAND_CENTER_SIDEBAR_SECTIONS,
+    [blankCommandCenter],
+  )
+
   return (
     <>
       <ShellLayout
         {...themeProps}
+        className="command-center-shell"
+        leftSidebarSections={leftSidebarSections}
+        onLeftSidebarItemActivate={handleLeftSidebarItemActivate}
         pageHeaderTitle="Command Center"
         pageHeaderShowDefaultButtons={false}
-        pageHeaderActions={
-          activeTabId === 'requisitions' ? (
-            <div className="command-center-header-pickers">
-              <VizDesignOptionPicker
-                variant="header"
-                value={vizDesignOption}
-                onChange={setVizDesignOption}
-              />
-              {vizDesignOption === 'option7' ? (
-                <DailyChartIterationPicker
-                  variant="header"
-                  value={dailyChartIteration}
-                  onChange={setDailyChartIteration}
-                />
-              ) : null}
-            </div>
-          ) : null
-        }
       >
-      <Card primary elevated className="command-center-home">
+      <Card
+        primary
+        elevated
+        className="command-center-home"
+        withHeader={blankCommandCenter}
+        headerTitle={blankCommandCenter ? 'Configure Settings' : undefined}
+        headerActions={blankCommandCenter ? <PanelWindowControls /> : undefined}
+      >
         <div className="card__body">
+          {!blankCommandCenter && (
           <div className="command-center-tab-row">
             <TabStrip
               tabs={commandCenterTabs}
@@ -2219,8 +2386,26 @@ function HomeShell() {
               }}
             />
           </div>
+          )}
 
-          {activeTabId === 'requisitions' && (
+          {blankCommandCenter && (
+            <div className="command-center-shell-body">
+              <div
+                className="command-center-shell-inner command-center-ai-settings"
+                role="region"
+                aria-label="Configure Settings content"
+              >
+                <Checkbox
+                  id="enable-dela-ai"
+                  label="Enable Dela AI assistance"
+                  checked={delaAiEnabled}
+                  onChange={(event) => setDelaAiEnabled(event.target.checked)}
+                />
+              </div>
+            </div>
+          )}
+
+          {showTabContent && activeTabId === 'requisitions' && (
             <div className="command-center-requisitions-workspace">
               <div ref={kpiFilterZoneRef} className="command-center-kpi-filter-zone">
                 <ContractsExpirationDashboard
@@ -2318,26 +2503,76 @@ function HomeShell() {
             </div>
           )}
 
-          {isPrDetailTabId(activeTabId) && (
+          {showTabContent && isPrDetailTabId(activeTabId) && (
             <div className="command-center-order-detail-wrap" key={activeTabId}>
               <RequisitionDetailsTabView prId={prIdFromDetailTabId(activeTabId) ?? ''} />
             </div>
           )}
 
-          {isProjectDetailTabId(activeTabId) && (
+          {showTabContent && isProjectDetailTabId(activeTabId) && (
             <div className="command-center-order-detail-wrap" key={activeTabId}>
               <ProjectReportTabView projectId={projectIdFromDetailTabId(activeTabId) ?? ''} />
             </div>
           )}
 
-          {isPoDetailTabId(activeTabId) && (
+          {showTabContent && isPoDetailTabId(activeTabId) && (
             <div className="command-center-order-detail-wrap" key={activeTabId}>
               <PoOrderDetailView poId={poIdFromDetailTabId(activeTabId) ?? 'PO-1039'} />
             </div>
           )}
         </div>
       </Card>
+
+      {settingsShellOpen && (
+        <Card
+          primary
+          elevated
+          className="command-center-home command-center-settings-shell"
+          withHeader
+          headerTitle="Role Based Settings"
+          headerActions={<PanelWindowControls />}
+        >
+          <div className="card__body">
+            <div className="command-center-shell-body">
+              <div
+                className="command-center-shell-inner"
+                role="region"
+                aria-label="Role Based Settings content"
+              >
+                <TabStrip
+                  tabs={settingsTabs}
+                  onTabSelected={setSettingsActiveTabId}
+                  overflowMode="none"
+                  className="tabstrip--command-center-tabs command-center-settings-tabs"
+                />
+                <div className="command-center-settings-panel">
+                  <Dropdown
+                    key={settingsActiveTabId}
+                    label="Organization Level"
+                    labelVariant="inline"
+                    placeholder="-select-"
+                    options={ORG_LEVEL_OPTIONS}
+                    value={orgLevelByTab[settingsActiveTabId] ?? ''}
+                    onChange={(value) =>
+                      setOrgLevelByTab((prev) => ({ ...prev, [settingsActiveTabId]: value }))
+                    }
+                  />
+                </div>
+              </div>
+            </div>
+          </div>
+        </Card>
+      )}
       </ShellLayout>
+      {navPanelOpen && (
+        <LeftNavPanel
+          onItemSelect={() => {
+            setNavPanelOpen(false)
+            setSettingsActiveTabId(SETTINGS_SHELL_TABS[0].id)
+            setSettingsShellOpen(true)
+          }}
+        />
+      )}
       <Dialog
         id="command-center-interaction-rules"
         title="Interaction rules"

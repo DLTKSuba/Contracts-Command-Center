@@ -1,4 +1,5 @@
 import clsx from 'clsx'
+import type { KeyboardEvent, MouseEvent } from 'react'
 import { Icon } from './Icon'
 import './LeftSidebar.css'
 
@@ -21,6 +22,13 @@ export interface LeftSidebarNavItem {
 
 export interface LeftSidebarSection {
   items: LeftSidebarNavItem[]
+}
+
+export interface LeftSidebarItemActivateDetail {
+  item: LeftSidebarNavItem
+  sectionIndex: number
+  itemIndex: number
+  itemKey: string
 }
 
 const PPM_SECTIONS: LeftSidebarSection[] = [
@@ -46,14 +54,28 @@ export interface LeftSidebarProps {
   variant?: LeftSidebarVariant
   sections?: LeftSidebarSection[]
   className?: string
+  onItemActivate?: (detail: LeftSidebarItemActivateDetail) => void
 }
 
 export function LeftSidebar({
   variant = 'ppm',
   sections,
   className = '',
+  onItemActivate,
 }: LeftSidebarProps) {
   const sidebarSections = sections ?? PPM_SECTIONS
+
+  const activate = (
+    item: LeftSidebarNavItem,
+    sectionIndex: number,
+    itemIndex: number,
+    itemKey: string,
+    e: MouseEvent<HTMLAnchorElement> | KeyboardEvent<HTMLAnchorElement>
+  ) => {
+    if (!onItemActivate) return
+    e.preventDefault()
+    onItemActivate({ item, sectionIndex, itemIndex, itemKey })
+  }
 
   return (
     <nav
@@ -79,9 +101,22 @@ export function LeftSidebar({
                 data-panel-icon={panelIcon ?? ''}
                 data-panel-content-id={item.panelContentId}
                 data-item-id={itemId}
+                data-active={String(item.active ?? false)}
                 data-use-gradient-header={String(item.useGradientHeader ?? false)}
                 data-left-sidebar-item
                 title={item.label}
+                onClick={
+                  onItemActivate ? (e) => activate(item, sectionIndex, itemIndex, itemId, e) : undefined
+                }
+                onKeyDown={
+                  onItemActivate
+                    ? (e) => {
+                        if (e.key === 'Enter' || e.key === ' ') {
+                          activate(item, sectionIndex, itemIndex, itemId, e)
+                        }
+                      }
+                    : undefined
+                }
               >
                 <span className="left-sidebar__icon">
                   {item.isCustom && item.customSrc ? (

@@ -12,6 +12,12 @@
   display: block;
 }
 
+/* Shared hover highlight for the icon rails and the Command Center flyout.
+ * Fixed blue rather than a theme token so both rails match exactly. */
+:root {
+  --cc-nav-hover-bg: #A6C9EC;
+}
+
 .command-center-header-pickers {
   display: flex;
   flex-wrap: wrap;
@@ -121,6 +127,10 @@
   padding-inline-end: calc(var(--space-4) + 2px);
   box-sizing: border-box;
   overflow: visible;
+  /* The card sets overflow: visible for nested shadows, so the body's white fill
+   * would otherwise square off the shell's bottom corners. */
+  border-end-start-radius: inherit;
+  border-end-end-radius: inherit;
 }
 
 /* Nested viz cards: avoid clipping elevated corners/shadows from the home shell */
@@ -175,6 +185,141 @@
 
 .command-center-tab-row__refresh {
   flex-shrink: 0;
+}
+
+/*
+ * Both Command Center shells wrap their inset well (Costpoint criteria panel)
+ * rather than holding a fixed canvas, so each shell grows and shrinks with its
+ * container's height.
+ */
+.command-center-shell-body {
+  flex: 0 0 auto;
+  min-height: 0;
+}
+
+/* The well sits tight under the title bar (Costpoint Timesheet pattern), so the
+ * body's default var(--space-4) top padding is trimmed on shells holding one. */
+.command-center-home .card__body:has(> .command-center-shell-body) {
+  padding: var(--space-2);
+}
+
+/* Height follows the well's content — no reserved empty space below the last field. */
+.command-center-shell-inner {
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-lg);
+  background-color: #ffffff;
+  box-sizing: border-box;
+}
+
+.command-center-ai-settings {
+  display: flex;
+  align-items: flex-start;
+  padding: var(--space-3);
+}
+
+/* Second shell opened from Configure Settings: same chrome as the home shell,
+ * sitting below it. */
+.command-center-settings-shell {
+  margin-top: var(--space-5);
+}
+
+/* Costpoint application tabs sit inside the well: full-width baseline, blue
+ * underline on the active label (Timesheet / Basic Information pattern). */
+/* Visible overflow so an open Dropdown menu inside a tab panel is not clipped
+ * by the well. */
+.command-center-settings-shell .command-center-shell-inner {
+  display: flex;
+  flex-direction: column;
+  overflow: visible;
+}
+
+.command-center-settings-shell .command-center-settings-tabs {
+  flex: 0 0 auto;
+  padding-inline: var(--space-3);
+}
+
+.command-center-settings-shell .command-center-settings-tabs .tabstrip__container {
+  width: 100%;
+}
+
+.command-center-settings-shell .command-center-settings-tabs .tab.is-active .tab__label::after {
+  background-color: var(--theme-primary);
+}
+
+/* Body of the selected application tab. Label left, control right. */
+.command-center-settings-panel {
+  padding: var(--space-4) var(--space-3);
+}
+
+/* Harmony Dropdown trigger is width: 100% by default; keep this field at the
+ * token min-width instead of stretching across the well. */
+.command-center-settings-shell .command-center-settings-panel .dropdown-wrapper--inline {
+  width: auto;
+  /* 20px = --space-5 between the Organization Level label and the value.
+   * Extra class in the chain so this wins Harmony .dropdown-wrapper--inline. */
+  gap: var(--space-5);
+}
+
+.command-center-settings-panel .dropdown {
+  width: auto;
+}
+
+.command-center-settings-panel .dropdown__trigger {
+  width: var(--dropdown-min-width);
+  min-width: var(--dropdown-min-width);
+}
+
+/*
+ * Panel title bar: title left, window controls right. Sits above .card__body,
+ * so it carries the shell's top corners while the body keeps the bottom ones.
+ */
+.command-center-home .card__header {
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-3) var(--space-4);
+  background-color: #ffffff;
+  border-bottom: 1px solid var(--border-color);
+  border-start-start-radius: inherit;
+  border-start-end-radius: inherit;
+}
+
+.command-center-home .card__header-title {
+  font-size: var(--text-base);
+  font-weight: var(--font-semibold);
+  color: var(--text-primary);
+}
+
+.command-center-home .card__header-actions {
+  gap: var(--space-1);
+}
+
+
+/*
+ * Right rail is top-anchored to the tab row's refresh button instead of being
+ * vertically centred. The refresh button's offset depends on the page header and
+ * card chrome above it, so HomeShell measures it into --cc-right-rail-top; the
+ * section's own top padding is backed out so the first icon, not the card edge,
+ * is what lines up.
+ */
+.shell-layout.command-center-shell .shell-layout__right-sidebar {
+  top: calc(
+    var(--cc-right-rail-top, calc(var(--shell-header-height) + var(--space-5))) - var(--space-3)
+  );
+  bottom: auto;
+  transform: none;
+  max-height: calc(
+    100vh - var(--cc-right-rail-top, calc(var(--shell-header-height) + var(--space-5))) -
+      var(--space-5)
+  );
+}
+
+/* 1024px = --breakpoint-lg; the rail's section padding drops to --space-2 here. */
+@media (max-width: 1024px) {
+  .shell-layout.command-center-shell .shell-layout__right-sidebar {
+    top: calc(
+      var(--cc-right-rail-top, calc(var(--shell-header-height) + var(--space-5))) - var(--space-2)
+    );
+  }
 }
 
 /* Command Center data tables: white header row + sort / filter chrome (reference UI). */

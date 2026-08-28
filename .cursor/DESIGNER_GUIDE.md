@@ -53,6 +53,7 @@ Skills are packaged instructions the agent can use. Some are **reference** (how 
 | **search-patterns** | Search or list entries in the pattern registry. | **`/search-patterns`** |
 | **harmony-critique** | Review a design or implementation against Harmony. | **`/harmony-critique`** |
 | **ux-review** | UX-focused review (not limited to Harmony-only framing). | **`/ux-review`** |
+| **command-center-shell** | Canonical Command Center layout, chrome, and menu interactivity (rail hover, flyout, Configure Settings shells). | — |
 
 **Not included:** harmony-converter (multi-framework conversion)—this kit is React-only.
 
@@ -75,6 +76,7 @@ Concrete prompts for each skill in this kit (natural language unless a slash com
 | **search-patterns** | **`/search-patterns`** — or `python3 .cursor/skills/design-patterns/scripts/search_patterns.py --product PPM`. |
 | **harmony-critique** | **`/harmony-critique`** — “Review `src/components/harmony/Card.tsx` (or the current file) against Harmony patterns.” |
 | **ux-review** | **`/ux-review`** — “UX-only review of this flow; Harmony optional.” |
+| **command-center-shell** | “Keep the Command Center flyout and Configure Settings shells matching the saved layout.” |
 
 ---
 

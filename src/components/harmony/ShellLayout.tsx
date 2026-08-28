@@ -12,7 +12,11 @@ import { ShellPanel } from './ShellPanel'
 import { Card } from './Card'
 import type { ShellFooterTab } from './ShellFooter'
 import type { ShellPageHeaderButtonConfig } from './ShellPageHeader'
-import type { LeftSidebarSection, LeftSidebarVariant } from './LeftSidebar'
+import type {
+  LeftSidebarItemActivateDetail,
+  LeftSidebarSection,
+  LeftSidebarVariant,
+} from './LeftSidebar'
 import type { RightSidebarSection, RightSidebarVariant } from './RightSidebar'
 import { useRightSidebarPanel } from './useRightSidebarPanel'
 import './ShellLayout.css'
@@ -60,6 +64,7 @@ export interface ShellLayoutProps {
   pageHeaderOutlineButton3?: ShellPageHeaderButtonConfig
   pageHeaderActions?: ReactNode
   leftSidebarSections?: LeftSidebarSection[]
+  onLeftSidebarItemActivate?: (detail: LeftSidebarItemActivateDetail) => void
   rightSidebarSections?: RightSidebarSection[]
   rightSidebarVariant?: RightSidebarVariant
   className?: string
@@ -110,6 +115,7 @@ export function ShellLayout({
   pageHeaderOutlineButton3,
   pageHeaderActions,
   leftSidebarSections,
+  onLeftSidebarItemActivate,
   rightSidebarSections,
   rightSidebarVariant,
   className = '',
@@ -167,6 +173,7 @@ export function ShellLayout({
           variant={leftSidebarVariant ?? 'ppm'}
           sections={leftSidebarSections}
           className="shell-layout__left-sidebar"
+          onItemActivate={onLeftSidebarItemActivate}
         />
 
         {showRightSidebar && showRightShellPanel && (

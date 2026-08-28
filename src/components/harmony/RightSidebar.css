@@ -25,6 +25,13 @@ html.theme-maconomy .right-sidebar__variant--maconomy {
   display: contents;
 }
 
+/* Blue tint on hover instead of the neutral grey default; the active item keeps
+   its solid --theme-primary fill. */
+.right-sidebar__item:not([data-active='true']):hover,
+html.dark .right-sidebar__item:not([data-active='true']):hover {
+  background-color: var(--cc-nav-hover-bg);
+}
+
 /* Dela logo: size and default/active visibility */
 .right-sidebar__dela-logo {
   width: 36px;

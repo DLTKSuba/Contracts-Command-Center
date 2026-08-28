@@ -125,6 +125,7 @@ Skills are folders under [`.cursor/skills/`](.cursor/skills/); each has a `SKILL
 | **search-patterns** | Search or list entries in the pattern registry. | **`/search-patterns`** |
 | **harmony-critique** | Review a design or implementation against Harmony. | **`/harmony-critique`** |
 | **ux-review** | UX-focused review (not limited to Harmony-only framing). | **`/ux-review`** |
+| **command-center-shell** | Canonical Command Center layout, chrome, and menu interactivity (rail hover, flyout, Configure Settings shells). | — |
 
 For a short standalone copy of this table, see **[.cursor/DESIGNER_GUIDE.md](.cursor/DESIGNER_GUIDE.md)**. **Typical workflows** in that guide lists **one example prompt per skill**: **[.cursor/DESIGNER_GUIDE.md#typical-workflows](.cursor/DESIGNER_GUIDE.md#typical-workflows)**.
 
